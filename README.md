@@ -322,10 +322,6 @@ tried to compile them in wrong order you would run:
 ## Usage with Docker
 <a name="#usage-with-docker"></a>
 
-You can compile the docker images with:
-
-    make build-docker-images
-
 Here is a sample Dockerfile to get you started.
 
     ARG COMPILE_R7RS=chibi

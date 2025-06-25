@@ -173,11 +173,12 @@ as compiler.
 ### Linux
 <a name="#dependencies-linux"></a>
 
-#### Chicken Scheme
+#### Chicken Scheme and R7RS library
 
 On Debian/Ubuntu/Mint:
 
     apt-get install -y chicken-bin
+    chicken-install r7rs
 
 ### Windows
 <a name="#dependencies-windows"></a>

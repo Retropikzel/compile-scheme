@@ -10,7 +10,7 @@
               (chibi ast)
               (scheme inexact)
               (chibi))
-      (include-shared "c/lib/chibi"))
+      (include-shared "c/primitives/chibi/foreign-c"))
     (chicken
       (import (scheme base)
               (scheme write)
@@ -193,6 +193,9 @@
           bytevector->c-bytevector
           c-bytevector->bytevector
 
+          ;;;; Utilities
+          libc
+
           ;; TODO endianness
           native-endianness
           make-c-bytevector
@@ -317,12 +320,14 @@
              (include "c/primitives/ypsilon.scm")))
   (cond-expand
     (chicken-6 (include-relative "c/main.scm")
+               (include-relative "c/libc.scm")
                (include-relative "c/c-bytevectors.scm")
                (include-relative "c/pointer.scm")
                ;(include-relative "c/array.scm")
                ;(include-relative "c/struct.scm")
                )
     (else (include "c/main.scm")
+          (include "c/libc.scm")
           ;(include "c/struct.scm")
           (include "c/c-bytevectors.scm")
           (include "c/pointer.scm")

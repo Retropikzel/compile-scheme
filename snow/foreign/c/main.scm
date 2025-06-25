@@ -103,7 +103,9 @@
                               "/usr/lib"
                               "/usr/lib64"
                               ; NetBSD
-                              "/usr/pkg/lib")))))
+                              "/usr/pkg/lib"
+                              ; Haiku
+                              "/boot/system/lib")))))
                   (auto-load-versions (list ""))
                   (paths (append auto-load-paths additional-paths))
                   (versions (append additional-versions auto-load-versions))

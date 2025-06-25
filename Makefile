@@ -1,28 +1,24 @@
 PREFIX=/usr/local
 
 build:
-	printf "#!/bin/sh\nsash --disable-cache -r7 -L ${PREFIX}/lib/compile-r7rs/snow ${PREFIX}/lib/compile-r7rs/main.scm \"\$$@\"\n" > compile-r7rs
-
-build-docker-images:
-	for implementation in $(shell sash -L ./snow -L . compile-r7rs.scm --list-schemes); \
-		do \
-		echo "Building $${implementation}"; \
-		docker build . --build-arg COMPILE_R7RS=$${implementation} --tag=retropikzel1/compile-r7rs:$${implementation}; \
-		done
-
-#for implementation in $(shell sash -L ./snow -L . compile-r7rs.scm --list-schemes);
-
-push-docker-images:
-	for implementation in $(shell sash -L ./snow -L . compile-r7rs.scm --list-schemes); \
-		do \
-		echo "Pushing $${implementation}"; \
-		docker push retropikzel1/compile-r7rs:$${implementation}; \
-		done
-
-snow:
-	mkdir -p snow
-	cp -r ../foreign-c/foreign snow/
-	cp -r ../foreign-c-srfi-170/srfi snow/
+	csc -R r7rs -X r7rs -static -c -J -unit foreign.c -o foreign.c.o snow/foreign/c.sld
+	ar rcs foreign.c.a foreign.c.o
+	csc -R r7rs -X r7rs -static -c -J -unit srfi-170 -o srfi-170.o snow/srfi/170.sld
+	ar rcs srfi-170.a srfi-170.o
+	csc -R r7rs -X r7rs -static -c -J -unit libs.util -o libs.util.o libs/util.sld
+	ar rcs libs.util.a libs.util.o
+	csc -R r7rs -X r7rs -static -c -J -unit libs.library-util -o libs.library-util.o libs/library-util.sld
+	ar rcs libs.library-util.a libs.library-util.o
+	csc -R r7rs -X r7rs -static -c -J -unit libs.data -o libs.data.o libs/data.sld
+	ar rcs libs.data.a libs.data.o
+	csc -R r7rs -X r7rs -static \
+		-o compile-r7rs \
+		-uses libs.util \
+		-uses libs.library-util \
+		-uses libs.data \
+		-uses foreign.c \
+		-uses srfi-170 \
+		compile-r7rs.scm
 
 # Does uninstall because without that the changes do not seem to update
 install: uninstall
@@ -31,6 +27,14 @@ install: uninstall
 	cp -r libs ${PREFIX}/lib/compile-r7rs/snow/libs
 	cp compile-r7rs.scm ${PREFIX}/lib/compile-r7rs/main.scm
 	install compile-r7rs ${PREFIX}/bin/compile-r7rs
+
+snow:
+	mkdir -p snow
+	cp -r ../foreign-c/foreign snow/
+	cp -r ../foreign-c-srfi-170/srfi snow/
+
+clean-snow:
+	rm -rf snow
 
 install-compile-r7rs-docker:
 	install compile-r7rs-docker.sh ${PREFIX}/bin/compile-r7rs-docker
@@ -87,6 +91,7 @@ clean-test:
 clean:
 	find . -name "*.so" -delete
 	find . -name "*.o*" -delete
+	find . -name "*.a*" -delete
 	find . -name "*.rkt" -delete
 	find . -name "*.link" -delete
 	find . -name "*.meta" -delete

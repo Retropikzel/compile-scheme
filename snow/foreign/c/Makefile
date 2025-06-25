@@ -1,9 +1,14 @@
 CC=gcc
 
-chibi: primitives/chibi/foreign-c.stub
-	chibi-ffi primitives/chibi/foreign-c.stub
-	mkdir -p lib
-	${CC} -g3 -o lib/chibi.so primitives/chibi/foreign-c.c -fPIC -lffi -shared
+chibi: foreign/c/primitives/chibi/foreign-c.stub
+	chibi-ffi foreign/c/primitives/chibi/foreign-c.stub
+	${CC} \
+		-g3 \
+		-o foreign/c/primitives/chibi/foreign-c.so \
+		foreign/c/primitives/chibi/foreign-c.c \
+		-fPIC \
+		-lffi \
+		-shared
 
 chicken:
 	@echo "Nothing to build for Chicken"

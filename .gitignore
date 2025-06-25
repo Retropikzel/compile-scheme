@@ -6,7 +6,9 @@ test
 *.c
 *.o
 *.o*
+*.a
 *.so
 !src
 *.rkt
 README.txt
+*.import.*

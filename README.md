@@ -173,25 +173,11 @@ as compiler.
 ### Linux
 <a name="#dependencies-linux"></a>
 
-#### Sagittarius Scheme
+#### Chicken Scheme
 
 On Debian/Ubuntu/Mint:
 
-    apt-get install -y build-essential cmake libgc-dev zlib1g-dev libffi-dev libssl-dev
-    wget https://bitbucket.org/ktakashi/sagittarius-scheme/downloads/sagittarius-0.9.12.tar.gz
-    tar -xf sagittarius-0.9.12.tar.gz
-    cd sagittarius-0.9.12.tar.gz
-    mkdir build
-    cd build
-    cmake ..
-    make
-    make install
-
-#### libuv
-
-On Debian/Ubuntu/Mint run:
-
-    apt install libuv1
+    apt-get install -y chicken-bin
 
 ### Windows
 <a name="#dependencies-windows"></a>
@@ -325,15 +311,9 @@ tried to compile them in wrong order you would run:
 Here is a sample Dockerfile to get you started.
 
     ARG COMPILE_R7RS=chibi
-    FROM debian:bookworm AS build
-    RUN apt-get update && apt-get install -y build-essential wget make cmake libgc-dev zlib1g-dev libffi-dev libssl-dev
-    RUN wget https://bitbucket.org/ktakashi/sagittarius-scheme/downloads/sagittarius-0.9.12.tar.gz && tar -xf sagittarius-0.9.12.tar.gz
-    RUN cd sagittarius-0.9.12 && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=/usr/local-other .. && make && make install
-
     FROM schemers/${COMPILE_R7RS}
-    RUN apt-get update && apt-get install -y make libffi8 libgc1 libssl3 libuv1 git
-    COPY --from=build /usr/local-other/ /usr/local-other/
-    ENV PATH=${PATH}:/usr/local-other/bin
+    RUN apt-get update && apt-get install -y make git chicken-bin
+    RUN chicken-install r7rs
     ARG COMPILE_R7RS=chibi
     ENV COMPILE_R7RS=${COMPILE_R7RS}
     RUN git clone https://git.sr.ht/~retropikzel/compile-r7rs && cd compile-r7rs && make && make install

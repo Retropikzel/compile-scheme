@@ -302,7 +302,7 @@
                              " "
                              "-Dkawa.import.path=\""
                              ,@(map (lambda (item)
-                                      (string-append item "/*.sld:" item ":"))
+                                      (string-append item "/*.sld:"))
                                     (append prepend-directories append-directories))
                              "\" "
                              "--r7rs"

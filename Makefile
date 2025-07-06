@@ -82,9 +82,6 @@ test-r7rs-docker:
 	docker build --build-arg COMPILE_R7RS=${COMPILE_R7RS} --tag=compile-r7rs-test-${COMPILE_R7RS} .
 	docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${COMPILE_R7RS} sh -c "make && make install && make clean-test COMPILE_R7RS=${COMPILE_R7RS} test-r7rs"
 
-clean-snow:
-	rm -rf snow
-
 clean-test:
 	rm -rf test
 

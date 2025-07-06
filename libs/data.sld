@@ -51,16 +51,8 @@
                                       (out (string-append (if (string-starts-with? library-file "srfi")
                                                             (string-replace (string-cut-from-end library-file 4) #\/ #\-)
                                                             (string-replace (string-cut-from-end library-file 4) #\/ #\.))
-                                                          ".o"))
-                                      (static-out (string-append (if (string-starts-with? library-file "srfi")
-                                                                   (string-replace (string-cut-from-end library-file 4) #\/ #\-)
-                                                                   (string-replace (string-cut-from-end library-file 4) #\/ #\.))
-                                                                 ".a")))
-                                  (apply string-append `("csc -R r7rs -X r7rs -static -c -J"
-                                                         " "
-                                                         "-unit"
-                                                         " "
-                                                         ,unit
+                                                          ".so")))
+                                  (apply string-append `("csc -R r7rs -X r7rs -s -J"
                                                          " "
                                                          "-o"
                                                          " "
@@ -68,32 +60,15 @@
                                                          " "
                                                          ,(util-getenv "COMPILE_R7RS_CHICKEN")
                                                          " "
-                                                         ,(search-library-file (append prepend-directories append-directories) library-file)
-                                                         " "
-                                                         "&&"
-                                                         " "
-                                                         "ar rcs"
-                                                         " "
-                                                         ,static-out
-                                                         " "
-                                                         ,out
-                                                         " ")))))
+                                                         ,(search-library-file (append prepend-directories append-directories) library-file))))))
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
-                        (apply string-append `("csc -R r7rs -X r7rs -static"
+                        (apply string-append `("csc -R r7rs -X r7rs"
                                                " "
                                                ,(util-getenv "COMPILE_R7RS_CHICKEN")
                                                " "
                                                ,@(map (lambda (item)
                                                         (string-append "-I " item " "))
                                                       (append append-directories prepend-directories))
-                                               " "
-                                               ,@(map (lambda (library-file)
-                                                        (string-append "-uses "
-                                                                       (if (string-starts-with? library-file "srfi")
-                                                                         (string-replace (string-cut-from-end library-file 4) #\/ #\-)
-                                                                         (string-replace (string-cut-from-end library-file 4) #\/ #\.))
-                                                                       " "))
-                                                      library-files)
                                                " "
                                                "-output-file"
                                                " "
@@ -422,17 +397,17 @@
       (type . interpreter)
       (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
                     (apply string-append
-                           `(;"MOSH_LOAD_PATH="
-                             ;,@(map (lambda (item) (string-append item ":")) prepend-directories)
-                             ;,@(map (lambda (item) (string-append item ":")) append-directories)
+                           `("MOSH_LOAD_PATH="
+                             ,@(map (lambda (item) (string-append item ":")) prepend-directories)
+                             ,@(map (lambda (item) (string-append item ":")) append-directories)
                              " "
                              "mosh"
                              " "
                              ,(util-getenv "COMPILE_R7RS_MOSH")
                              " "
-                             ,@(map (lambda (item) (string-append "--loadpath=" item " "))
-                                    (append append-directories prepend-directories))
-                             " "
+                             ;,@(map (lambda (item) (string-append "--loadpath=" item " "))
+                                    ;(append append-directories prepend-directories))
+                             ;" "
                              ,input-file)))))
     (picrin
       (type . interpreter)

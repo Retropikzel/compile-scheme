@@ -22,10 +22,10 @@ build:
 
 # Does uninstall because without that the changes do not seem to update
 install: uninstall
-	mkdir -p ${PREFIX}/lib/compile-r7rs/snow
-	cp -r snow/* ${PREFIX}/lib/compile-r7rs/snow
-	cp -r libs ${PREFIX}/lib/compile-r7rs/snow/libs
-	cp compile-r7rs.scm ${PREFIX}/lib/compile-r7rs/main.scm
+	#mkdir -p ${PREFIX}/lib/compile-r7rs/snow
+	#cp -r snow/* ${PREFIX}/lib/compile-r7rs/snow
+	#cp -r libs ${PREFIX}/lib/compile-r7rs/snow/libs
+	#cp compile-r7rs.scm ${PREFIX}/lib/compile-r7rs/main.scm
 	install compile-r7rs ${PREFIX}/bin/compile-r7rs
 
 snow:

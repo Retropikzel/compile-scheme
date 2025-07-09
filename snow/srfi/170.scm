@@ -1,19 +1,5 @@
 (define slash (cond-expand (windows "\\") (else "/")))
 
-(cond-expand
-  (windows (define-c-library srfi-170-libc
-                             '("dirent.h" "stdlib.h" "stdio.h" "string.h")
-                             "ucrtbase"
-                             '()))
-  (else
-    (define c-library "c")
-    (when (get-environment-variable "BE_HOST_CPU")
-      (set! c-library "root"))
-    (define-c-library srfi-170-libc
-                      '("dirent.h" "stdlib.h" "stdio.h" "string.h")
-                      "c"
-                      '((additional-versions ("0" "6"))))))
-
 (define-c-procedure c-perror libc 'perror 'void '(pointer))
 (define-c-procedure c-mkdir libc 'mkdir 'int '(pointer int))
 (define-c-procedure c-rmdir libc 'rmdir 'int '(pointer))

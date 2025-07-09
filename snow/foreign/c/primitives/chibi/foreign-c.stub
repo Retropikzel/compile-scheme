@@ -4,6 +4,11 @@
 (c-system-include "dlfcn.h")
 (c-system-include "stdio.h")
 (c-system-include "ffi.h")
+(c-link "ffi")
+
+;; make-c-null
+(c-declare "void* make_c_null() { return NULL; }")
+(define-c (maybe-null pointer void*) make-c-null ())
 
 ;; c-type-size
 (c-declare "
@@ -53,203 +58,25 @@
 (define-c (maybe-null pointer void*) dlopen (string int))
 (define-c (maybe-null pointer void*) dlerror ())
 
-;(c-declare "void* pointer_null() { return NULL; }")
-;(define-c (pointer void*) (pointer-null pointer_null) ())
-
-;(c-declare "int is_pointer_null(void* pointer) { if(pointer == NULL) { return 1; } else { return 0; }; }")
-;(define-c bool (is-pointer-null is_pointer_null) ((maybe-null pointer void*)))
-
-;(c-declare "void* pointer_allocate(int size) { return malloc(size); }")
-;(define-c (maybe-null pointer void*) (pointer-allocate pointer_allocate) (int))
-
 (c-declare "sexp is_pointer(struct sexp_struct* object) { if(sexp_cpointerp(object)) { return SEXP_TRUE; } else { return SEXP_FALSE; } }")
 (define-c sexp (pointer? is_pointer) (sexp))
 
 (c-declare "void c_bytevector_u8_set(void* pointer, int offset, uint8_t value) { *(uint8_t*)((char*)pointer + offset) = value; }")
-(define-c void (c-bytevector-u8-set! c_bytevector_u8_set) ((pointer void*) int uint8_t))
+(define-c void (c-bytevector-u8-set! c_bytevector_u8_set) ((maybe-null pointer void*) int uint8_t))
 
 (c-declare "int8_t c_bytevector_u8_ref (void* pointer, int offset) { return *(int8_t*)((char*)pointer + offset); }")
-(define-c int8_t (c-bytevector-u8-ref c_bytevector_u8_ref) ((pointer void*) int))
+(define-c int8_t (c-bytevector-u8-ref c_bytevector_u8_ref) ((maybe-null pointer void*) int))
 
 (c-declare "void c_bytevector_pointer_set (void* pointer, int offset, void* value) { char* p = (char*)pointer + offset; *(char**)p = value; }")
 (define-c void (c-bytevector-pointer-set! c_bytevector_pointer_set) ((pointer void*) int (maybe-null pointer void*)))
 
 (c-declare "void* c_bytevector_pointer_ref (void* pointer, int offset) { char* p = (char*)pointer + offset; return *(char**)p; }")
-(define-c (maybe-null pointer void*) (c-bytevector-pointer-ref c_bytevector_pointer_ref) ((pointer void*) int))
-
-#;(c-declare "void* pointer_address(struct sexp_struct* pointer) {
-            return &sexp_cpointer_value(pointer);
-           }")
-;(define-c (maybe-null pointer void*) (pointer-address pointer_address) (sexp))
-
-;(c-declare "void pointer_free(void* pointer) { free(pointer); }")
-;(define-c void (pointer-free pointer_free) ((maybe-null pointer void*)))
-
-;; pointer-set!
-;(c-declare "void pointer_set_c_int8_t(void* pointer, int offset, int8_t value) { *(int8_t*)((char*)pointer + offset) = value; }")
-;(define-c void (pointer-set-c-int8_t! pointer_set_c_int8_t) ((pointer void*) int int8_t))
-;(c-declare "void pointer_set_c_uint8_t(void* pointer, int offset, uint8_t value) { *(uint8_t*)((char*)pointer + offset) = value; }")
-;(define-c void (pointer-set-c-uint8_t! pointer_set_c_uint8_t) ((pointer void*) int uint8_t))
-;
-;(c-declare "void pointer_set_c_int16_t(void* pointer, int offset, int16_t value) { *(int16_t*)((char*)pointer + offset) = value; }")
-;(define-c void (pointer-set-c-int16_t! pointer_set_c_int16_t) ((pointer void*) int int16_t))
-;(c-declare "void pointer_set_c_uint16_t(void* pointer, int offset, uint16_t value) { *(uint16_t*)((char*)pointer + offset) = value; }")
-;(define-c void (pointer-set-c-uint16_t! pointer_set_c_uint16_t) ((pointer void*) int uint16_t))
-;
-;(c-declare "void pointer_set_c_int32_t(void* pointer, int offset, int32_t value) { *(int32_t*)((char*)pointer + offset) = value; }")
-;(define-c void (pointer-set-c-int32_t! pointer_set_c_int32_t) ((pointer void*) int int32_t))
-;(c-declare "void pointer_set_c_uint32_t(void* pointer, int offset, uint32_t value) { *(uint32_t*)((char*)pointer + offset) = value; }")
-;(define-c void (pointer-set-c-uint32_t! pointer_set_c_uint32_t) ((pointer void*) int uint32_t))
-;
-;(c-declare "void pointer_set_c_int64_t(void* pointer, int offset, int64_t value) { *(int64_t*)((char*)pointer + offset) = value; }")
-;(define-c void (pointer-set-c-int64_t! pointer_set_c_int64_t) ((pointer void*) int int64_t))
-;(c-declare "void pointer_set_c_uint64_t(void* pointer, int offset, uint64_t value) { *(uint64_t*)((char*)pointer + offset) = value; }")
-;(define-c void (pointer-set-c-uint64_t! pointer_set_c_uint64_t) ((pointer void*) int uint64_t))
-;
-;(c-declare "void pointer_set_c_char(void* pointer, int offset, int8_t value) { *((char*)pointer + offset) = value; }")
-;(define-c void (pointer-set-c-char! pointer_set_c_char) ((pointer void*) int int8_t))
-;(c-declare "void pointer_set_c_unsigned_char(void* pointer, int offset, unsigned char value) { *(unsigned char*)((char*)pointer + offset) = value; }")
-;(define-c void (pointer-set-c-unsigned-char! pointer_set_c_unsigned_char) ((pointer void*) int unsigned-char))
-;
-;(c-declare "void pointer_set_c_short(void* pointer, int offset, short value) { *(short*)((char*)pointer + offset) = value; }")
-;(define-c void (pointer-set-c-short! pointer_set_c_short) ((pointer void*) int short))
-;(c-declare "void pointer_set_c_unsigned_short(void* pointer, int offset, unsigned short value) { *(unsigned short*)((char*)pointer + offset) = value; }")
-;(define-c void (pointer-set-c-unsigned-short! pointer_set_c_unsigned_short) ((pointer void*) int unsigned-short))
-;
-;(c-declare "void pointer_set_c_int(void* pointer, int offset, int value) { *(int*)((char*)pointer + offset) = value; }")
-;(define-c void (pointer-set-c-int! pointer_set_c_int) ((pointer void*) int int))
-;(c-declare "void pointer_set_c_unsigned_int(void* pointer, int offset, unsigned int value) { *(unsigned int*)((char*)pointer + offset) = value; }")
-;(define-c void (pointer-set-c-unsigned-int! pointer_set_c_unsigned_int) ((pointer void*) int unsigned-int))
-;
-;(c-declare "void pointer_set_c_long(void* pointer, int offset, long value) { *(long*)((char*)pointer + offset) = value; }")
-;(define-c void (pointer-set-c-long! pointer_set_c_long) ((pointer void*) int long))
-;(c-declare "void pointer_set_c_unsigned_long(void* pointer, int offset, unsigned long value) { *(unsigned long*)((char*)pointer + offset) = value; }")
-;(define-c void (pointer-set-c-unsigned-long! pointer_set_c_unsigned_long) ((pointer void*) int unsigned-long))
-;
-;(c-declare "void pointer_set_c_float(void* pointer, int offset, float value) { *(float*)((char*)pointer + offset) = value; }")
-;(define-c void (pointer-set-c-float! pointer_set_c_float) ((pointer void*) int float))
-;
-;(c-declare "void pointer_set_c_double(void* pointer, int offset, double value) { *(double*)((char*)pointer + offset) = value; }")
-;(define-c void (pointer-set-c-double! pointer_set_c_double) ((pointer void*) int double))
-;
-;(c-declare "void pointer_set_c_pointer(void* pointer, int offset, void* value) { char* p = (char*)pointer + offset; *(char**)p = value; }")
-;(define-c void (pointer-set-c-pointer! pointer_set_c_pointer) ((pointer void*) int (maybe-null pointer void*)))
-;
-;;; pointer-get
-;(c-declare "int8_t pointer_ref_c_int8_t(void* pointer, int offset) { return *(int8_t*)((char*)pointer + offset); }")
-;(define-c int8_t (pointer-ref-c-int8_t pointer_ref_c_int8_t) ((pointer void*) int))
-;(c-declare "uint8_t pointer_ref_c_uint8_t(void* pointer, int offset) { return *(uint8_t*)((char*)pointer + offset); }")
-;(define-c uint8_t (pointer-ref-c-uint8_t pointer_ref_c_uint8_t) ((pointer void*) int))
-;
-;(c-declare "int16_t pointer_ref_c_int16_t(void* pointer, int offset) { return *(int16_t*)((char*)pointer + offset); }")
-;(define-c int16_t (pointer-ref-c-int16_t pointer_ref_c_int16_t) ((pointer void*) int))
-;(c-declare "uint16_t pointer_ref_c_uint16_t(void* pointer, int offset) { return *(uint16_t*)((char*)pointer + offset); }")
-;(define-c uint16_t (pointer-ref-c-uint16_t pointer_ref_c_uint16_t) ((pointer void*) int))
-;
-;(c-declare "int32_t pointer_ref_c_int32_t(void* pointer, int offset) { return *(int32_t*)((char*)pointer + offset); }")
-;(define-c int32_t (pointer-ref-c-int32_t pointer_ref_c_int32_t) ((pointer void*) int))
-;(c-declare "uint32_t pointer_ref_c_uint32_t(void* pointer, int offset) { return *(uint32_t*)((char*)pointer + offset); }")
-;(define-c uint32_t (pointer-ref-c-uint32_t pointer_ref_c_uint32_t) ((pointer void*) int))
-;
-;(c-declare "int64_t pointer_ref_c_int64_t(void* pointer, int offset) { return *(int64_t*)((char*)pointer + offset); }")
-;(define-c int64_t (pointer-ref-c-int64_t pointer_ref_c_int64_t) ((pointer void*) int))
-;(c-declare "uint64_t pointer_ref_c_uint64_t(void* pointer, int offset) { return *(uint64_t*)((char*)pointer + offset); }")
-;(define-c uint64_t (pointer-ref-c-uint64_t pointer_ref_c_uint64_t) ((pointer void*) int))
-;
-;(c-declare "int8_t pointer_ref_c_char(void* pointer, int offset) { return *(char*)((char*)pointer + offset); }")
-;(define-c int8_t (pointer-ref-c-char pointer_ref_c_char) ((pointer void*) int))
-;(c-declare "unsigned char pointer_ref_c_unsigned_char(void* pointer, int offset) { return *(unsigned char*)((char*)pointer + offset); }")
-;(define-c unsigned-char (pointer-ref-c-unsigned-char pointer_ref_c_unsigned_char) ((pointer void*) int))
-;
-;(c-declare "short pointer_ref_c_short(void* pointer, int offset) { return *(short*)((char*)pointer + offset); }")
-;(define-c short (pointer-ref-c-short pointer_ref_c_short) ((pointer void*) int))
-;(c-declare "unsigned short pointer_ref_c_unsigned_short(void* pointer, int offset) { return *(unsigned short*)((char*)pointer + offset); }")
-;(define-c unsigned-short (pointer-ref-c-unsigned-short pointer_ref_c_unsigned_short) ((pointer void*) int))
-;
-;(c-declare "int pointer_ref_c_int(void* pointer, int offset) { return *(int*)((char*)pointer + offset); }")
-;(define-c int (pointer-ref-c-int pointer_ref_c_int) ((pointer void*) int))
-;(c-declare "unsigned int pointer_ref_c_unsigned_int(void* pointer, int offset) { return *(unsigned int*)((char*)pointer + offset); }")
-;(define-c unsigned-int (pointer-ref-c-unsigned-int pointer_ref_c_unsigned_int) ((pointer void*) int))
-;
-;(c-declare "long pointer_ref_c_long(void* pointer, int offset) { return *(long*)((char*)pointer + offset); }")
-;(define-c long (pointer-ref-c-long pointer_ref_c_long) ((pointer void*) long))
-;(c-declare "unsigned long pointer_ref_c_unsigned_long(void* pointer, int offset) { return *(unsigned long*)((char*)pointer + offset); }")
-;(define-c unsigned-long (pointer-ref-c-unsigned-long pointer_ref_c_unsigned_long) ((pointer void*) int))
-;
-;(c-declare "float pointer_ref_c_float(void* pointer, int offset) { return *(float*)((char*)pointer + offset); }")
-;(define-c float (pointer-ref-c-float pointer_ref_c_float) ((pointer void*) int))
-;
-;(c-declare "double pointer_ref_c_double(void* pointer, int offset) { return *(double*)((char*)pointer + offset); }")
-;(define-c double (pointer-ref-c-double pointer_ref_c_double) ((pointer void*) int))
-;
-;(c-declare "void* pointer_ref_c_pointer(void* pointer, int offset) { char* p = (char*)pointer + offset; return *(char**)p; }")
-;(define-c (maybe-null pointer void*) (pointer-ref-c-pointer pointer_ref_c_pointer) ((pointer void*) int))
-
-;; define-c-procedure
+(define-c (maybe-null pointer void*) (c-bytevector-pointer-ref c_bytevector_pointer_ref) ((maybe-null pointer void*) int))
 
 (c-declare "ffi_cif cif;")
-(define-c (pointer void*) dlsym ((maybe-null pointer void*) string))
-
-;(c-declare "void* get_ffi_type_int8() { return &ffi_type_sint8; }")
-;(define-c (pointer void*) (get-ffi-type-int8 get_ffi_type_int8) ())
-;(c-declare "void* get_ffi_type_uint8() { return &ffi_type_uint8; }")
-;(define-c (pointer void*) (get-ffi-type-uint8 get_ffi_type_uint8) ())
-;
-;(c-declare "void* get_ffi_type_int16() { return &ffi_type_sint16; }")
-;(define-c (pointer void*) (get-ffi-type-int16 get_ffi_type_int16) ())
-;(c-declare "void* get_ffi_type_uint16() { return &ffi_type_uint16; }")
-;(define-c (pointer void*) (get-ffi-type-uint16 get_ffi_type_uint16) ())
-;
-;(c-declare "void* get_ffi_type_int32() { return &ffi_type_sint32; }")
-;(define-c (pointer void*) (get-ffi-type-int32 get_ffi_type_int32) ())
-;(c-declare "void* get_ffi_type_uint32() { return &ffi_type_uint32; }")
-;(define-c (pointer void*) (get-ffi-type-uint32 get_ffi_type_uint32) ())
-;
-;(c-declare "void* get_ffi_type_int64() { return &ffi_type_sint64; }")
-;(define-c (pointer void*) (get-ffi-type-int64 get_ffi_type_int64) ())
-;(c-declare "void* get_ffi_type_uint64() { return &ffi_type_uint64; }")
-;(define-c (pointer void*) (get-ffi-type-uint64 get_ffi_type_uint64) ())
-;
-;(c-declare "void* get_ffi_type_char() { return &ffi_type_schar; }")
-;(define-c (pointer void*) (get-ffi-type-char get_ffi_type_char) ())
-;(c-declare "void* get_ffi_type_uchar() { return &ffi_type_uchar; }")
-;(define-c (pointer void*) (get-ffi-type-uchar get_ffi_type_uchar) ())
-;
-;(c-declare "void* get_ffi_type_short() { return &ffi_type_sshort; }")
-;(define-c (pointer void*) (get-ffi-type-short get_ffi_type_short) ())
-;(c-declare "void* get_ffi_type_ushort() { return &ffi_type_ushort; }")
-;(define-c (pointer void*) (get-ffi-type-ushort get_ffi_type_ushort) ())
-;
-;(c-declare "void* get_ffi_type_int() { return &ffi_type_sint; }")
-;(define-c (pointer void*) (get-ffi-type-int get_ffi_type_int) ())
-;(c-declare "void* get_ffi_type_uint() { return &ffi_type_uint; }")
-;(define-c (pointer void*) (get-ffi-type-uint get_ffi_type_uint) ())
-;
-;(c-declare "void* get_ffi_type_long() { return &ffi_type_slong; }")
-;(define-c (pointer void*) (get-ffi-type-long get_ffi_type_long) ())
-;
-;(c-declare "void* get_ffi_type_ulong() { return &ffi_type_ulong; }")
-;(define-c (pointer void*) (get-ffi-type-ulong get_ffi_type_ulong) ())
-;
-;(c-declare "void* get_ffi_type_float() { return &ffi_type_float; }")
-;(define-c (pointer void*) (get-ffi-type-float get_ffi_type_float) ())
-;
-;(c-declare "void* get_ffi_type_double() { return &ffi_type_double; }")
-;(define-c (pointer void*) (get-ffi-type-double get_ffi_type_double) ())
-;
-;(c-declare "void* get_ffi_type_void() { return &ffi_type_void; }")
-;(define-c (pointer void*) (get-ffi-type-void get_ffi_type_void) ())
-;
-;(c-declare "void* get_ffi_type_pointer() { return &ffi_type_pointer; }")
-;(define-c (pointer void*) (get-ffi-type-pointer get_ffi_type_pointer) ())
+(define-c (maybe-null pointer void*) dlsym ((maybe-null pointer void*) string))
 
 (define-c-const int (FFI-OK "FFI_OK"))
-#;(c-declare
-  "int internal_ffi_prep_cif(unsigned int nargs, void* rtype, void* atypes[]) {
-    printf(\"A1: %u, A2: %u, nargs: %u\\n\", &ffi_type_pointer, atypes[0], nargs);
-    return ffi_prep_cif(&cif, FFI_DEFAULT_ABI, nargs, (ffi_type*)rtype, (ffi_type**)atypes);
-  }")
-;(define-c int (internal-ffi-prep-cif internal_ffi_prep_cif) (unsigned-int (pointer void*) (array void*)))
 (c-declare
   "void* internal_ffi_call(
       unsigned int nargs,
@@ -282,7 +109,9 @@
     double vals18[nargs];
     void* vals20[nargs];
 
+    printf(\"nargs: %i\\n\", nargs);
     for(int i = 0; i < nargs; i++) {
+      printf(\"i: %i\\n\", i);
       void* arg = NULL;
       switch(atypes[i]) {
         case 1:
@@ -365,18 +194,25 @@
         case 17:
           c_atypes[i] = &ffi_type_float;
           vals17[i] = (float)sexp_flonum_value(avalues[i]);
+          c_avalues[i] = &vals17[i];
         break;
         case 18:
           c_atypes[i] = &ffi_type_double;
           vals18[i] = (double)sexp_flonum_value(avalues[i]);
+          c_avalues[i] = &vals18[i];
         break;
         case 19:
           c_atypes[i] = &ffi_type_void;
           arg = NULL;
+          c_avalues[i] = NULL;
         break;
         case 20:
           c_atypes[i] = &ffi_type_pointer;
-          vals20[i] = sexp_cpointer_value(avalues[i]);
+          if(sexp_cpointerp(avalues[i])) {
+            vals20[i] = sexp_cpointer_value(avalues[i]);
+          } else {
+            vals20[i] = NULL;
+          }
           c_avalues[i] = &vals20[i];
         break;
         default:
@@ -425,7 +261,7 @@
           (unsigned-int
             unsigned-int
             (array unsigned-int)
-            (pointer void*)
+            (maybe-null pointer void*)
             unsigned-int
             (array sexp)))
 

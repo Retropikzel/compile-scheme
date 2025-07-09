@@ -33,7 +33,7 @@
               (scheme process-context)
               (cyclone foreign)
               (scheme cyclone primitives)))
-    #;(gambit
+    (gambit
       (import (scheme base)
               (scheme write)
               (scheme char)
@@ -71,6 +71,13 @@
                     bytevector-uint-set!
                     bytevector-uint-ref)))
     (kawa
+      (import (scheme base)
+              (scheme write)
+              (scheme char)
+              (scheme file)
+              (scheme inexact)
+              (scheme process-context)))
+    (mit-scheme
       (import (scheme base)
               (scheme write)
               (scheme char)
@@ -194,7 +201,7 @@
           c-bytevector->bytevector
 
           ;;;; Utilities
-          libc
+          libc-name
 
           ;; TODO endianness
           native-endianness
@@ -304,11 +311,12 @@
                (include "c/primitives/chicken.scm"))
     (chicken-6 (include-relative "c/primitives/chicken.scm"))
     ;(cyclone (include "c/primitives/cyclone.scm"))
-    ;(gambit (include "c/primitives/gambit.scm"))
+    (gambit (include "c/primitives/gambit.scm"))
     (gauche (include "c/primitives/gauche/define-c-procedure.scm"))
     ;(gerbil (include "c/primitives/gerbil.scm"))
     (guile (include "./c/primitives/guile.scm"))
     (kawa (include "c/primitives/kawa.scm"))
+    (mit-scheme (include "c/primitives/mit-scheme.scm"))
     ;(larceny (include "c/primitives/larceny.scm"))
     (mosh (include "c/primitives/mosh.scm"))
     (racket (include "c/primitives/racket.scm"))

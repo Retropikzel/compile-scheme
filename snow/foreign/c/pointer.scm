@@ -1,11 +1,28 @@
+(define-c-library libc
+                  '("stdlib.h" "stdio.h" "string.h")
+                  libc-name
+                  '((additional-versions ("0" "6"))))
+
 (define-c-procedure c-calloc libc 'calloc 'pointer '(int int))
 (cond-expand
-  (chicken (define c-memset-address->pointer
+  (gambit
+    (define c-memset-address->pointer
+     (c-lambda (unsigned-int64 unsigned-int8 int)
+               (pointer void)
+     "___return(memset((void*)___arg1, ___arg2, ___arg3));")))
+  (chicken
+    (define c-memset-address->pointer
              (lambda (address value offset)
                (address->pointer address))))
-  (else (define-c-procedure c-memset-address->pointer libc 'memset 'pointer '(uint64 uint8 int))))
+  (else
+    (define-c-procedure c-memset-address->pointer libc 'memset 'pointer '(uint64 uint8 int))))
 
 (cond-expand
+  (gambit
+    (define c-memset-pointer->address
+     (c-lambda ((pointer void) unsigned-int8 int)
+               unsigned-int64
+     "___return((uint64_t)memset(___arg1, ___arg2, ___arg3));")))
   (chicken (define c-memset-pointer->address
              (lambda (pointer value offset)
                (pointer->address pointer))))
@@ -67,8 +84,8 @@
     (bytevector->c-bytevector (string->utf8 (string-append string-var (string #\null))))))
 
 (cond-expand
-  (kawa #t) ; FIXME
   (chicken #t) ; FIXME
+  (kawa #t) ; FIXME
   (else (define make-c-null
           (lambda ()
             (cond-expand (stklos (let ((pointer (make-c-bytevector 1)))
@@ -77,8 +94,8 @@
                          (else (c-memset-address->pointer 0 0 0)))))))
 
 (cond-expand
-  (kawa #t) ; FIXME
   (chicken #t) ; FIXME
+  (kawa #t) ; FIXME
   (else (define c-null?
           (lambda (pointer)
             (if (c-bytevector? pointer)

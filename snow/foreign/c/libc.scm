@@ -1,13 +1,7 @@
 (cond-expand
-  (windows (define-c-library libc
-                             '("stdlib.h" "stdio.h" "string.h")
-                             "ucrtbase"
-                             '()))
+  (windows
+    (define libc-name "ucrtbase"))
   (else
-    (define c-library "c")
-    (when (get-environment-variable "BE_HOST_CPU")
-      (set! c-library "root"))
-    (define-c-library libc
-                      '("stdlib.h" "stdio.h" "string.h")
-                      "c"
-                      '((additional-versions ("0" "6"))))))
+    (define libc-name
+      (cond ((get-environment-variable "BE_HOST_CPU") "root") ; Haiku
+            (else "c")))))

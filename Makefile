@@ -1,7 +1,7 @@
 PREFIX=/usr/local
 
 build:
-	csc -R r7rs -X r7rs -static -c -J -unit foreign.c -o foreign.c.o snow/foreign/c.sld
+	csc -R r7rs -X r7rs -I snow/foreign/c -static -c -J -unit foreign.c -o foreign.c.o snow/foreign/c.sld
 	ar rcs foreign.c.a foreign.c.o
 	csc -R r7rs -X r7rs -static -c -J -unit srfi-170 -o srfi-170.o snow/srfi/170.sld
 	ar rcs srfi-170.a srfi-170.o

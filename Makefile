@@ -11,7 +11,7 @@ build:
 	ar rcs libs.library-util.a libs.library-util.o
 	csc -R r7rs -X r7rs -static -c -J -unit libs.data -o libs.data.o libs/data.sld
 	ar rcs libs.data.a libs.data.o
-	csc -R r7rs -X r7rs -static \
+	csc -R r7rs -X r7rs -I snow/foreign/c -static \
 		-o compile-r7rs \
 		-uses libs.util \
 		-uses libs.library-util \

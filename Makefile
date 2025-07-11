@@ -1,55 +1,21 @@
 PREFIX=/usr/local
 
-build:
-	csc -R r7rs -X r7rs -I snow/foreign/c -I snow/foreign/c/primitives -static -c -J -unit foreign.c -o foreign.c.o snow/foreign/c.sld
-	ar rcs foreign.c.a foreign.c.o
-	csc -R r7rs -X r7rs -static -c -J -unit srfi-170 -o srfi-170.o snow/srfi/170.sld
-	ar rcs srfi-170.a srfi-170.o
-	csc -R r7rs -X r7rs -static -c -J -unit libs.util -o libs.util.o libs/util.sld
-	ar rcs libs.util.a libs.util.o
-	csc -R r7rs -X r7rs -static -c -J -unit libs.library-util -o libs.library-util.o libs/library-util.sld
-	ar rcs libs.library-util.a libs.library-util.o
-	csc -R r7rs -X r7rs -static -c -J -unit libs.data -o libs.data.o libs/data.sld
-	ar rcs libs.data.a libs.data.o
-	csc -R r7rs -X r7rs -I snow/foreign/c -static \
-		-o compile-r7rs \
-		-uses libs.util \
-		-uses libs.library-util \
-		-uses libs.data \
-		-uses foreign.c \
-		-uses srfi-170 \
-		compile-r7rs.scm
+all: build
 
-# Does uninstall because without that the changes do not seem to update
-install: uninstall
-	#mkdir -p ${PREFIX}/lib/compile-r7rs/snow
-	#cp -r snow/* ${PREFIX}/lib/compile-r7rs/snow
-	#cp -r libs ${PREFIX}/lib/compile-r7rs/snow/libs
-	#cp compile-r7rs.scm ${PREFIX}/lib/compile-r7rs/main.scm
+build:
+	markdown README.md > README.html
+	echo "#!/bin/sh" > compile-r7rs
+	echo "chibi-scheme -A ${PREFIX}/lib/compile-r7rs ${PREFIX}/lib/compile-r7rs/main.scm" >> compile-r7rs
+
+install:
+	mkdir -p ${PREFIX}/lib/compile-r7rs
+	cp -r libs ${PREFIX}/lib/compile-r7rs/libs
+	cp compile-r7rs.scm ${PREFIX}/lib/compile-r7rs/main.scm
 	install compile-r7rs ${PREFIX}/bin/compile-r7rs
 
-snow:
-	mkdir -p snow
-	cp -r ../foreign-c/foreign snow/
-	cp -r ../foreign-c-srfi-170/srfi snow/
-
-clean-snow:
-	rm -rf snow
-
-install-compile-r7rs-docker:
-	install compile-r7rs-docker.sh ${PREFIX}/bin/compile-r7rs-docker
-
 uninstall:
-	rm -rf ${PREFIX}/lib/compile-r7rs/snow
+	rm -rf ${PREFIX}/lib/compile-r7rs
 	rm -rf ${PREFIX}/bin/compile-r7rs
-
-dist:
-	mkdir -p dist
-
-# Uses wine and innosetup
-installer-exe: dist
-	cp README.md README.txt
-	wine "${HOME}/.wine/drive_c/Program Files (x86)/Inno Setup 6./Compil32.exe" /cc installer.iss
 
 test-r6rs:
 	rm -rf /tmp/compile-r7rs-test-result.txt

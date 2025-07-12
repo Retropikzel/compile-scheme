@@ -195,20 +195,25 @@ Libuv is distributed with compile-r7rs on Windows.
 ## Installation
 <a name="#Installation"></a>
 
-### Linux
-<a name="#Installation-linux"></a>
+You will need Chibi scheme and snow-chibi installed.
 
-    ./configure
-    make
-    make install
+First install linux dependencies:
 
-### Windows
-<a name="#Installation-windows"></a>
+    apt-get install build-essential make libffi-dev
 
-Donwload the setup-compile-r7rs.exe from dist directory from this repository.
+Then install Scheme library dependencies:
 
-If you want to compile the installer yourself look into the makefile and
-installer.iss, it is made with innosetup.
+    git clone https://git.sr.ht/~retropikzel/foreign-c --depth=1
+    cd foreign-c
+    make all install
+
+    git clone https://git.sr.ht/~retropikzel/foreign-c-srfi-170 --depth=1
+    cd foreign-c-srfi-170
+    make all install
+
+And then run:
+
+    make all install
 
 ## Usage
 <a name="#usage"></a>

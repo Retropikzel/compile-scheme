@@ -12,3 +12,4 @@ test
 *.rkt
 README.html
 *.import.*
+deps

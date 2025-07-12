@@ -3,14 +3,20 @@ SCHEME=chibi
 
 all: build
 
-build:
-	markdown README.md > README.html
+build: deps
 	echo "#!/bin/sh" > compile-r7rs
 	echo "chibi-scheme -A ${PREFIX}/lib/compile-r7rs ${PREFIX}/lib/compile-r7rs/main.scm \$$@" >> compile-r7rs
 
+deps:
+	mkdir -p deps
+	git clone https://git.sr.ht/~retropikzel/foreign-c deps/foreign-c --depth=1
+	git clone https://git.sr.ht/~retropikzel/foreign-c-srfi-170 deps/foreign-c-srfi-170 --depth=1
+
 install:
+	cd deps/foreign-c && make all install
+	cd deps/foreign-c-srfi-170 && make all install
 	mkdir -p ${PREFIX}/lib/compile-r7rs
-	cp -r libs ${PREFIX}/lib/compile-r7rs/libs
+	cp -r libs ${PREFIX}/lib/compile-r7rs/
 	cp compile-r7rs.scm ${PREFIX}/lib/compile-r7rs/main.scm
 	install compile-r7rs ${PREFIX}/bin/compile-r7rs
 
@@ -63,5 +69,6 @@ clean:
 	rm -rf README.txt
 	rm -rf dist
 	rm -rf test
+	rm -rf deps
 
 

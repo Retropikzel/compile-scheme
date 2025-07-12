@@ -201,19 +201,10 @@ First install linux dependencies:
 
     apt-get install build-essential make libffi-dev
 
-Then install Scheme library dependencies:
-
-    git clone https://git.sr.ht/~retropikzel/foreign-c --depth=1
-    cd foreign-c
-    make all install
-
-    git clone https://git.sr.ht/~retropikzel/foreign-c-srfi-170 --depth=1
-    cd foreign-c-srfi-170
-    make all install
-
 And then run:
 
-    make all install
+    make
+    make install
 
 ## Usage
 <a name="#usage"></a>

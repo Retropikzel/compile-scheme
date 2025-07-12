@@ -3,6 +3,9 @@ SCHEME=chibi
 
 all: build
 
+container:
+	docker build -f Dockerfile --tag=compile-r7rs
+
 build: deps
 	echo "#!/bin/sh" > compile-r7rs
 	echo "chibi-scheme -A ${PREFIX}/lib/compile-r7rs ${PREFIX}/lib/compile-r7rs/main.scm \$$@" >> compile-r7rs
@@ -36,7 +39,7 @@ test-r6rs:
 	@grep "Test successfull" /tmp/compile-r7rs-test-result.txt || (echo "Test failed, output: " && cat /tmp/compile-r7rs-test-result.txt && exit 1)
 
 test-r6rs-docker:
-	docker build --build-arg COMPILE_R7RS=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .
+	docker build -f Dockerfile.test --build-arg COMPILE_R7RS=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .
 	docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c "make && make install && make clean-test COMPILE_R7RS=${SCHEME} test-r6rs"
 
 test-r7rs:

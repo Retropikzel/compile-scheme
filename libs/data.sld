@@ -116,6 +116,10 @@
                                            " "
                                            ,(util-getenv "COMPILE_R7RS_GAMBIT")
                                            " "
+                                           ,@(map (lambda (item)
+                                                    (string-append item ""))
+                                                  (append prepend-directories append-directories))
+                                           " "
                                            ,(string-cut-from-end library-file 4))))))
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
                         (apply string-append `("gsc"

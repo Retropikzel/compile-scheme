@@ -1,7 +1,6 @@
 (import (scheme base)
         (scheme file)
         (scheme read)
-        (scheme write)
         (scheme process-context)
         (foreign c)
         (libs util)
@@ -142,12 +141,10 @@
   (newline)
   (exit 0))
 
-(cond-expand
-  (windows (define-c-library c-stdlib '("stdlib.h") "ucrtbase"))
-  (else (define-c-library c-stdlib
-                             '("stdlib.h")
-                             "c"
-                             '((additional-versions ("6"))))))
+(define-c-library c-stdlib
+                  '("stdlib.h")
+                  libc-name
+                  '((additional-versions ("6"))))
 
 (define-c-procedure c-system c-stdlib 'system 'int '(pointer))
 

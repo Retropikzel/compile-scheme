@@ -1,11 +1,12 @@
 PREFIX=/usr/local
+SCHEME=chibi
 
 all: build
 
 build:
 	markdown README.md > README.html
 	echo "#!/bin/sh" > compile-r7rs
-	echo "chibi-scheme -A ${PREFIX}/lib/compile-r7rs ${PREFIX}/lib/compile-r7rs/main.scm" >> compile-r7rs
+	echo "chibi-scheme -A ${PREFIX}/lib/compile-r7rs ${PREFIX}/lib/compile-r7rs/main.scm \$$@" >> compile-r7rs
 
 install:
 	mkdir -p ${PREFIX}/lib/compile-r7rs
@@ -24,13 +25,13 @@ test-r6rs:
 	mkdir -p test/snow/foo
 	printf "#!r6rs\n(library (foo bar) (export baz) (import (rnrs)) (define baz (lambda () (display \"Test successfull\") (newline))))" > test/snow/foo/bar.sls
 	printf "#!r6rs\n(import (rnrs) (foo bar)) (baz)" > test/main.sps
-	cd test && COMPILE_R7RS=${COMPILE_R7RS} compile-r7rs -I ./snow -o main main.sps
+	cd test && COMPILE_R7RS=${SCHEME} compile-r7rs -I ./snow -o main main.sps
 	-cd test && ./main > /tmp/compile-r7rs-test-result.txt 2>&1
 	@grep "Test successfull" /tmp/compile-r7rs-test-result.txt || (echo "Test failed, output: " && cat /tmp/compile-r7rs-test-result.txt && exit 1)
 
 test-r6rs-docker:
-	docker build --build-arg COMPILE_R7RS=${COMPILE_R7RS} --tag=compile-r7rs-test-${COMPILE_R7RS} .
-	docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${COMPILE_R7RS} sh -c "make && make install && make clean-test COMPILE_R7RS=${COMPILE_R7RS} test-r6rs"
+	docker build --build-arg COMPILE_R7RS=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .
+	docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c "make && make install && make clean-test COMPILE_R7RS=${SCHEME} test-r6rs"
 
 test-r7rs:
 	rm -rf /tmp/compile-r7rs-test-result.txt
@@ -40,13 +41,13 @@ test-r7rs:
 	echo "(import (scheme base) (foo bar)) (baz)" > test/main.scm
 	echo "(define baz (lambda () (display \"Test successfull\") (newline)))" > test/snow/foo/bar.scm
 	echo "(define-library (foo bar) (import (scheme base) (scheme write)) (export baz) (include \"bar.scm\"))" > test/snow/foo/bar.sld
-	cd test && COMPILE_R7RS=${COMPILE_R7RS} compile-r7rs -I ./snow -o main main.scm
+	cd test && COMPILE_R7RS=${SCHEME} compile-r7rs -I ./snow -o main main.scm
 	-cd test && ./main > /tmp/compile-r7rs-test-result.txt 2>&1
 	@grep "Test successfull" /tmp/compile-r7rs-test-result.txt || (echo "Test failed, output: " && cat /tmp/compile-r7rs-test-result.txt && exit 1)
 
 test-r7rs-docker:
-	docker build --build-arg COMPILE_R7RS=${COMPILE_R7RS} --tag=compile-r7rs-test-${COMPILE_R7RS} .
-	docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${COMPILE_R7RS} sh -c "make && make install && make clean-test COMPILE_R7RS=${COMPILE_R7RS} test-r7rs"
+	docker build --build-arg COMPILE_R7RS=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .
+	docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c "make && make install && make clean-test COMPILE_R7RS=${SCHEME} test-r7rs"
 
 clean-test:
 	rm -rf test

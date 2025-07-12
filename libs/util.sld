@@ -1,6 +1,7 @@
 (define-library
   (libs util)
   (import (scheme base)
+          (scheme write)
           (scheme file)
           (scheme process-context)
           (foreign c))

@@ -124,9 +124,6 @@ as compiler.
 <a name="#roadmap"></a>
 
 - Support for more implementations
-    - gerbil
-        - Dont know how to run this thing yet :D
-        - r7rs
     - husk
         - Dont know how to add directories to load path yet, might not be
         implemented
@@ -250,11 +247,6 @@ before running it. For example:
 
 If you are using Chicken you should propably read the next section too, you
 will most propably run into it soon.
-
-### Mosh
-<a name="#usage-mosh"></a>
-
-Only allows one loadpath. No workarounds exist currently in compile-r7rs.
 
 ### mit-scheme
 <a name="#usage-mit-scheme"></a>

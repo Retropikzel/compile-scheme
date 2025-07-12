@@ -69,7 +69,6 @@ clean:
 	find . -name "*.link" -delete
 	find . -name "*.meta" -delete
 	find . -name "*.import.*" -delete
-	rm -rf README.txt
 	rm -rf dist
 	rm -rf test
 	rm -rf deps

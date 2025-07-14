@@ -1,12 +1,9 @@
-FROM schemers/chibi
+FROM schemers/chibi:head
 RUN apt-get update && apt-get install -y \
-    build-essential wget make cmake libgc-dev zlib1g-dev libffi-dev \
-    libssl-dev docker.io
+    build-essential ca-certifictaes git make docker.io
 WORKDIR /builddir
 COPY Makefile .
 COPY compile-r7rs.scm .
-COPY snow/ snow/
 COPY libs/ libs/
-RUN ls -1
 RUN make && make install
 WORKDIR /workdir

@@ -1,5 +1,5 @@
 ARG SCHEME=chibi
-FROM schemers/${SCHEME}
+FROM schemers/${SCHEME}:head
 RUN apt-get update && apt-get install -y \
     build-essential \
     make \

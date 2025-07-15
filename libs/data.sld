@@ -51,25 +51,53 @@
                                       (out (string-append (if (string-starts-with? library-file "srfi")
                                                             (string-replace (string-cut-from-end library-file 4) #\/ #\-)
                                                             (string-replace (string-cut-from-end library-file 4) #\/ #\.))
-                                                          ".so")))
-                                  (apply string-append `("csc -R r7rs -X r7rs -s -J"
+                                                          ".o"))
+                                      (static-out (string-append (if (string-starts-with? library-file "srfi")
+                                                            (string-replace (string-cut-from-end library-file 4) #\/ #\-)
+                                                            (string-replace (string-cut-from-end library-file 4) #\/ #\.))
+                                                          ".a")))
+                                  (apply string-append `("csc -static -c -J"
+                                                         " "
+                                                         ,(util-getenv "COMPILE_R7RS_CHICKEN")
                                                          " "
                                                          "-o"
                                                          " "
                                                          ,out
                                                          " "
-                                                         ,(util-getenv "COMPILE_R7RS_CHICKEN")
+                                                         ,(search-library-file (append prepend-directories append-directories) library-file)
                                                          " "
-                                                         ,(search-library-file (append prepend-directories append-directories) library-file))))))
+                                                         "-unit"
+                                                         " "
+                                                         ,unit
+                                                         " "
+                                                         "&&"
+                                                         " "
+                                                         "ar"
+                                                         " "
+                                                         "rcs"
+                                                         " "
+                                                         ,static-out
+                                                         " "
+                                                         ,out)))))
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
-                        (apply string-append `("csc -R r7rs -X r7rs"
+                        (apply string-append `("csc"
                                                " "
                                                ,(util-getenv "COMPILE_R7RS_CHICKEN")
+                                               " "
+                                               "-static"
                                                " "
                                                ,@(map (lambda (item)
                                                         (string-append "-I " item " "))
                                                       (append append-directories prepend-directories))
                                                " "
+                                               ,@(map (lambda (library-file)
+                                                        (string-append "-uses "
+                                                                       (if (string-starts-with? library-file "srfi")
+                                                                         (string-replace (string-cut-from-end library-file 4) #\/ #\-)
+                                                                         (string-replace (string-cut-from-end library-file 4) #\/ #\.))
+                                                                       " "))
+                                                      library-files)
+
                                                "-output-file"
                                                " "
                                                ,output-file

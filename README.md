@@ -240,13 +240,10 @@ and input file to .sps file and other way around is undefined behaviour.
 ### Chicken
 <a name="#usage-chicken"></a>
 
-To run executable at place set LD\_LIBRARY\_PATH=. (executable directory)
-before running it. For example:
+By default Chicken 6 is assumed, for Chicken 5 use environment variable to
+add R7RS libraries:
 
-    LD\_LIBRARY\_PATH=. ./test
-
-If you are using Chicken you should propably read the next section too, you
-will most propably run into it soon.
+    COMPILE_R7RS_CHIKEN="-X r7r -R r7rs"
 
 ### mit-scheme
 <a name="#usage-mit-scheme"></a>

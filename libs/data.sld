@@ -239,14 +239,14 @@
         (type . interpreter)
         (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
                       (apply string-append
-                             `("IKARUS_LIBRARY_PATH="
+                             `("export IKARUS_LIBRARY_PATH="
                                ,@(map (lambda (item)
                                         (string-append item ":"))
                                       prepend-directories)
                                ,@(map (lambda (item)
                                         (string-append item ":"))
                                       append-directories)
-                               " "
+                               "\n"
                                "ikarus"
                                " "
                                ,(util-getenv "COMPILE_R7RS_IKARUS")

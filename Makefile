@@ -53,7 +53,7 @@ test-r7rs:
 	echo "(define baz (lambda () (display \"Test successfull\") (newline)))" > ${R7RSTMP}/libs/foo/bar.scm
 	echo "(define-library (foo bar) (import (scheme base) (scheme write)) (export baz) (include \"bar.scm\"))" > ${R7RSTMP}/libs/foo/bar.sld
 	cd ${R7RSTMP} && COMPILE_R7RS=${SCHEME} compile-r7rs -I ./libs -o main main.scm
-	-cd ${R7RSTMP} && ./main > compile-r7rs-test-result.txt 2>&1
+	-cd ${R7RSTMP} && timeout 60 ./main > compile-r7rs-test-result.txt 2>&1
 	@grep "Test successfull" ${R7RSTMP}/compile-r7rs-test-result.txt || (echo "Test failed, output: " && cat ${R7RSTMP}/compile-r7rs-test-result.txt && exit 1)
 
 test-r7rs-docker:

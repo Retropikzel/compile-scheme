@@ -32,8 +32,8 @@ test-r6rs:
 	mkdir -p test
 	mkdir -p test/snow
 	mkdir -p test/snow/foo
-	printf "#!r6rs\n(library (foo bar) (export baz) (import (rnrs)) (define baz (lambda () (display \"Test successfull\") (newline))))" > test/snow/foo/bar.sls
-	printf "#!r6rs\n(import (rnrs) (foo bar)) (baz)" > test/main.sps
+	printf "(library (foo bar) (export baz) (import (rnrs)) (define baz (lambda () (display \"Test successfull\") (newline))))" > test/snow/foo/bar.sls
+	printf "(import (rnrs) (foo bar)) (baz)" > test/main.sps
 	cd test && COMPILE_R7RS=${SCHEME} compile-r7rs -I ./snow -o main main.sps
 	-cd test && ./main > /tmp/compile-r7rs-test-result.txt 2>&1
 	@grep "Test successfull" /tmp/compile-r7rs-test-result.txt || (echo "Test failed, output: " && cat /tmp/compile-r7rs-test-result.txt && exit 1)

@@ -10,7 +10,7 @@ container:
 
 build: deps
 	echo "#!/bin/sh" > compile-r7rs
-	echo "chibi-scheme -A ${PREFIX}/lib/compile-r7rs ${PREFIX}/lib/compile-r7rs/main.scm \$$@" >> compile-r7rs
+	echo "chibi-scheme -A ${PREFIX}/lib/compile-r7rs ${PREFIX}/lib/compile-r7rs/main.scm \"\$$@\"" >> compile-r7rs
 
 deps:
 	mkdir -p deps
@@ -34,8 +34,8 @@ test-r6rs:
 	mkdir -p ${R6RSTMP}
 	mkdir -p ${R6RSTMP}/libs
 	mkdir -p ${R6RSTMP}/libs/foo
-	printf "(library (foo bar) (export baz) (import (rnrs)) (define baz (lambda () (display \"Test successfull\") (newline))))" > ${R6RSTMP}/libs/foo/bar.sls
-	printf "(import (rnrs) (foo bar)) (baz)" > ${R6RSTMP}/main.sps
+	printf "#!r6rs\n(library (foo bar) (export baz) (import (rnrs)) (define baz (lambda () (display \"Test successfull\") (newline))))" > ${R6RSTMP}/libs/foo/bar.sls
+	printf "#!r6rs\n(import (rnrs) (foo bar)) (baz)" > ${R6RSTMP}/main.sps
 	cd ${R6RSTMP} && COMPILE_R7RS=${SCHEME} compile-r7rs -I ./libs -o main main.sps
 	-cd ${R6RSTMP} && timeout 60 ./main > compile-r7rs-test-result.txt 2>&1
 	@grep "Test successfull" ${R6RSTMP}/compile-r7rs-test-result.txt || (echo "Test failed, output: " && cat ${R6RSTMP}/compile-r7rs-test-result.txt && exit 1)

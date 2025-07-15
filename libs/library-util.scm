@@ -67,6 +67,26 @@
                  (list)))
              paths))))
 
+;; To get dependencies from R7RS and R6RS libraries we need to read trough all
+;; the nonportable stuff first and then when encountering first ( not in
+;; comments, read from that
+(define read-until-library
+  (lambda (path)
+    (letrec
+      ((looper (lambda (c)
+                 (cond ((char=? c #\()
+                        (read))
+                       ((char=? c #\;)
+                        (read-line)
+                        (looper (peek-char)))
+                       (else
+                         (read-char)
+                         (looper (peek-char)))))))
+      (with-input-from-file
+        path
+        (lambda ()
+          (looper (peek-char)))))))
+
 (define library-dependencies
   (lambda (implementation directories path previous-indent indent)
     (for-each (lambda (item) (display " ")) indent)
@@ -80,7 +100,7 @@
           (list))
         (begin
           (newline)
-          (letrec* ((raw-data (with-input-from-file full-path (lambda () (read))))
+          (letrec* ((raw-data (read-until-library full-path))
                     (data (if (equal? (car raw-data) 'define-library)
                             (cdr raw-data)
                             raw-data))

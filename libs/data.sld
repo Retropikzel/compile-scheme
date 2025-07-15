@@ -432,25 +432,30 @@
                               (let* ((full-path (search-library-file (append append-directories
                                                                              prepend-directories)
                                                                      library-file))
-                                     (library-rkt-file (change-file-suffix full-path ".rkt"))
-                                     )
-                                (apply string-append
-                                       `("printf"
-                                         " "
-                                         "'#lang r7rs\\n(import (scheme base))\\n(include \""
-                                         ,(path->filename library-file)
-                                         "\")\\n"
-                                         "'"
-                                         " "
-                                         ">"
-                                         " "
-                                         ,library-rkt-file)))))
+                                     (library-rkt-file (change-file-suffix full-path ".rkt")))
+                                (if r6rs?
+                                  (apply string-append
+                                         `("plt-r6rs"
+                                           " "
+                                           "--compile"
+                                           " "
+                                           ,library-file))
+                                  (apply string-append
+                                         `("printf"
+                                           " "
+                                           "'#lang r7rs\\n(import (scheme base))\\n(include \""
+                                           ,(path->filename library-file)
+                                           "\")\\n"
+                                           "'"
+                                           " "
+                                           ">"
+                                           " "
+                                           ,library-rkt-file))))))
         (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
                       (let ((rkt-input-file (if (string=? input-file "")
                                               ""
                                               (change-file-suffix input-file ".rkt"))))
-                        (if r6rs?
-                          #t
+                        (when (not r6rs?)
                           (when (not (string=? rkt-input-file ""))
                             (when (file-exists? rkt-input-file)
                               (delete-file rkt-input-file))
@@ -476,13 +481,10 @@
                                  " "
                                  ,@(map (lambda (item)
                                           (string-append "-S " item " "))
-                                        prepend-directories)
-                                 ,@(map (lambda (item)
-                                          (string-append "-S " item " "))
-                                        append-directories)
+                                        (append prepend-directories
+                                                append-directories))
                                  " "
-                                 ,(if r6rs? input-file rkt-input-file)
-                                 ))))))
+                                 ,(if r6rs? input-file rkt-input-file)))))))
       (sagittarius
         (type . interpreter)
         (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)

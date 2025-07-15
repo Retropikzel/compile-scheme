@@ -9,3 +9,4 @@ COPY compile-r7rs.scm .
 COPY libs/ libs/
 RUN make && make install
 WORKDIR /workdir
+RUN mkdir -p ${HOME}/.snow && echo "()" > ${HOME}/.snow/config.scm

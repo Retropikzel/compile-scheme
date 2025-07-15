@@ -13,3 +13,4 @@ test
 README.html
 *.import.*
 deps
+tmp

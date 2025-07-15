@@ -11,3 +11,4 @@ ARG SCHEME=chibi
 ENV COMPILE_R7RS=${SCHEME}
 RUN git clone https://github.com/ashinn/chibi-scheme.git --depth=1 \
     && cd chibi-scheme && make -j 16 && make -j 16 install
+RUN mkdir -p ${HOME}/.snow && echo "()" > ${HOME}/.snow/config.scm

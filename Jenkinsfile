@@ -14,13 +14,15 @@ pipeline {
             steps {
                 script {
                     def r6rs_implementations = sh(script: 'chibi-scheme -I ./snow -I . compile-r7rs.scm --list-r6rs-schemes', returnStdout: true).split()
-
-                    r6rs_implementations.each { implementation->
-                        stage("${implementation} R6RS") {
-                            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                                sh "make test-r6rs-docker SCHEME=${implementation}"
+                    parallel r6rs_implementations.collectEntries { implementation->
+                        [(implementation): {
+                                stage("${implementation} R6RS") {
+                                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                                        sh "make test-r6rs-docker SCHEME=${implementation}"
+                                    }
+                                }
                             }
-                        }
+                        ]
                     }
                 }
             }
@@ -30,13 +32,15 @@ pipeline {
             steps {
                 script {
                     def r7rs_implementations = sh(script: 'chibi-scheme -I ./snow -I . compile-r7rs.scm --list-r7rs-schemes', returnStdout: true).split()
-
-                    r7rs_implementations.each { implementation->
-                        stage("${implementation} R7RS") {
-                            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                                sh "make test-r7rs-docker SCHEME=${implementation}"
+                    parallel r7rs_implementations.collectEntries { implementation->
+                        [(implementation): {
+                                stage("${implementation} R7RS") {
+                                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                                        sh "make test-r7rs-docker SCHEME=${implementation}"
+                                    }
+                                }
                             }
-                        }
+                        ]
                     }
                 }
             }

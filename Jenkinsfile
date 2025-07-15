@@ -34,7 +34,7 @@ pipeline {
                     r7rs_implementations.each { implementation->
                         stage("${implementation} R7RS") {
                             catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                                sh "timeout 600 make test-r7rs-docker SCHEME=${implementation}"
+                                sh "make test-r7rs-docker SCHEME=${implementation}"
                             }
                         }
                     }

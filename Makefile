@@ -39,8 +39,8 @@ test-r6rs:
 	@grep "Test successfull" /tmp/compile-r7rs-test-result.txt || (echo "Test failed, output: " && cat /tmp/compile-r7rs-test-result.txt && exit 1)
 
 test-r6rs-docker:
-	docker build -f Dockerfile.test --build-arg COMPILE_R7RS=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .
-	docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c "make && make install && make clean-test COMPILE_R7RS=${SCHEME} test-r6rs"
+	docker build -f Dockerfile.test --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .
+	docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c "make && make install && make clean-test SCHEME=${SCHEME} test-r6rs"
 
 test-r7rs:
 	rm -rf /tmp/compile-r7rs-test-result.txt
@@ -55,8 +55,8 @@ test-r7rs:
 	@grep "Test successfull" /tmp/compile-r7rs-test-result.txt || (echo "Test failed, output: " && cat /tmp/compile-r7rs-test-result.txt && exit 1)
 
 test-r7rs-docker:
-	docker build -f Dockerfile.test --build-arg COMPILE_R7RS=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .
-	docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c "make && make install && make clean-test COMPILE_R7RS=${SCHEME} test-r7rs"
+	docker build -f Dockerfile.test --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .
+	docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c "make && make install && make clean-test SCHEME=${SCHEME} test-r7rs"
 
 clean-test:
 	rm -rf test

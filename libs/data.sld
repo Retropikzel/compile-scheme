@@ -375,16 +375,12 @@
         (type . interpreter)
         (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
                       (apply string-append
-                             `("MOSH_LOAD_PATH="
-                               ,@(map (lambda (item) (string-append item ":")) prepend-directories)
-                               ,@(map (lambda (item) (string-append item ":")) append-directories)
-                               " "
-                               "mosh"
+                             `("mosh"
                                " "
                                ,(util-getenv "COMPILE_R7RS_MOSH")
                                " "
-                               ;,@(map (lambda (item) (string-append "--loadpath=" item " "))
-                               ;(append append-directories prepend-directories))
+                               ,@(map (lambda (item) (string-append "--loadpath=" item " "))
+                                (append append-directories prepend-directories))
                                ;" "
                                ,input-file)))))
       (picrin

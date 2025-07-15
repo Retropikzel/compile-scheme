@@ -241,10 +241,8 @@
                                " "
                                ,@(map (lambda (item)
                                         (string-append "-L" " " item " "))
-                                      prepend-directories)
-                               ,@(map (lambda (item)
-                                        (string-append "-L" " " item " "))
-                                      append-directories)
+                                      (append prepend-directories
+                                              append-directories))
                                " "
                                ,input-file)))))
       (husk
@@ -390,9 +388,14 @@
                                " "
                                ,(util-getenv "COMPILE_R7RS_MIT_SCHEME")
                                " "
-                               ,@(map (lambda (item)
-                                        (string-append "--load " item " "))
-                                      library-files)
+                               ,@(map
+                                   (lambda (item)
+                                     (string-append "--load "
+                                                    (search-library-file (append append-directories
+                                                                                 prepend-directories)
+                                                                         item)
+                                                    " "))
+                                   library-files)
                                " "
                                "--load"
                                " "

@@ -105,6 +105,15 @@
                                                ,input-file)))))
         (cyclone
           (type . compiler)
+          #;(library-command . ,(lambda (library-file prepend-directories append-directories r6rs?)
+                                (apply string-append
+                                       `("cyclone"
+                                         " "
+                                         ,(util-getenv "COMPILE_R7RS_CYCLONE")
+                                         " "
+                                         ,@(map (lambda (item) (string-append "-I " item " ")) prepend-directories)
+                                         ,@(map (lambda (item) (string-append "-A " item " ")) append-directories)
+                                         ,library-file))))
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
                         (apply string-append
                                `("cyclone"
@@ -138,6 +147,10 @@
           (type . compiler)
           (library-command . ,(lambda (library-file prepend-directories append-directories r6rs?)
                                 (apply string-append `("gsc -obj "
+                                                       ,@(map (lambda (item)
+                                                                (string-append item "/ "))
+                                                              (append prepend-directories
+                                                                      append-directories))
                                                        ,(search-library-file (append append-directories
                                                                                      prepend-directories)
                                                                              library-file)))))

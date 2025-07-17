@@ -153,10 +153,6 @@
                                                                 (string-append item "/ "))
                                                               (append prepend-directories
                                                                       append-directories))
-                                                       ,@(map (lambda (item)
-                                                                (string-append item "/ "))
-                                                              (append prepend-directories
-                                                                      append-directories))
                                                        ,(search-library-file (append append-directories
                                                                                      prepend-directories)
                                                                              library-file)))))

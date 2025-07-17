@@ -50,7 +50,7 @@ test-r7rs:
 	mkdir -p ${R7RSTMP}/libs
 	mkdir -p ${R7RSTMP}/libs/foo
 	mkdir -p ${R7RSTMP}/libs/hello
-	echo "(import (scheme base) (foo bar)) (baz) (hello-word) (over-9000)" > ${R7RSTMP}/main.scm
+	echo "(import (scheme base) (foo bar) (hello world) (srfi 9001)) (baz) (hello-word) (over-9000)" > ${R7RSTMP}/main.scm
 	echo "(define baz (lambda () (display \"Test successfull\") (newline)))" > ${R7RSTMP}/libs/foo/bar.scm
 	echo "(define-library (foo bar) (import (scheme base) (scheme write) (hello world)) (export baz) (include \"bar.scm\"))" > ${R7RSTMP}/libs/foo/bar.sld
 	echo "(define hello-world (lambda ()  (+ 1 1)))" > ${R7RSTMP}/libs/hello/world.scm

@@ -66,7 +66,8 @@
                                                          " "
                                                          ,@(map (lambda (item)
                                                                   (string-append "-I " item " "))
-                                                                (append append-directories prepend-directories))
+                                                                (append append-directories
+                                                                        prepend-directories))
                                                          " "
                                                          "-unit"
                                                          " "

@@ -56,12 +56,10 @@
                                                             (string-replace (string-cut-from-end library-file 4) #\/ #\-)
                                                             (string-replace (string-cut-from-end library-file 4) #\/ #\.))
                                                           ".a")))
-                                  (apply string-append `("csc -static -c -J"
+                                  (apply string-append `("csc"
                                                          " "
                                                          ,(util-getenv "COMPILE_R7RS_CHICKEN")
-                                                         " "
-                                                         "-o"
-                                                         " "
+                                                         " -static -c -J -o "
                                                          ,out
                                                          " "
                                                          ,(search-library-file (append prepend-directories append-directories) library-file)

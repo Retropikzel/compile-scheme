@@ -64,6 +64,10 @@
                                                          " "
                                                          ,(search-library-file (append prepend-directories append-directories) library-file)
                                                          " "
+                                                         ,@(map (lambda (item)
+                                                                  (string-append "-I " item " "))
+                                                                (append append-directories prepend-directories))
+                                                         " "
                                                          "-unit"
                                                          " "
                                                          ,unit

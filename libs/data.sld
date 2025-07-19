@@ -56,7 +56,7 @@
                                                             (string-replace (string-cut-from-end library-file 4) #\/ #\-)
                                                             (string-replace (string-cut-from-end library-file 4) #\/ #\.))
                                                           ".a")))
-                                  (apply string-append `("csc"
+                                  (apply string-append `("csc -R r7rs -X r7rs"
                                                          " "
                                                          ,(util-getenv "COMPILE_R7RS_CHICKEN")
                                                          " -static -c -J -o "
@@ -83,7 +83,7 @@
                                                          " "
                                                          ,out)))))
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
-                        (apply string-append `("csc"
+                        (apply string-append `("csc -R r7rs -X r7rs"
                                                " "
                                                ,(util-getenv "COMPILE_R7RS_CHICKEN")
                                                " "

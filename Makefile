@@ -2,6 +2,10 @@ PREFIX=/usr/local
 SCHEME=chibi
 R6RSTMP=tmp/${SCHEME}-r6rs
 R7RSTMP=tmp/${SCHEME}-r7rs
+DOCKERIMG=${SCHEME}
+ifeq "${SCHEME}" "chicken"
+DOCKERIMG="chicken:5"
+endif
 
 all: build
 
@@ -41,7 +45,7 @@ test-r6rs:
 	@grep "Test successfull" ${R6RSTMP}/compile-r7rs-test-result.txt || (echo "Test failed, output: " && cat ${R6RSTMP}/compile-r7rs-test-result.txt && exit 1)
 
 test-r6rs-docker:
-	docker build -f Dockerfile.test --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .
+	docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .
 	docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c "make && make install && make SCHEME=${SCHEME} test-r6rs"
 
 test-r7rs:
@@ -50,10 +54,10 @@ test-r7rs:
 	mkdir -p ${R7RSTMP}/libs
 	mkdir -p ${R7RSTMP}/libs/foo
 	mkdir -p ${R7RSTMP}/libs/hello
-	echo "(import (scheme base) (foo bar) (hello world) (srfi 9001)) (baz) (hello-word) (over-9000)" > ${R7RSTMP}/main.scm
+	echo "(import (scheme base) (foo bar) (hello world) (srfi 9001)) (baz) (hello-world) (over-9000)" > ${R7RSTMP}/main.scm
 	echo "(define baz (lambda () (display \"Test successfull\") (newline)))" > ${R7RSTMP}/libs/foo/bar.scm
 	echo "(define-library (foo bar) (import (scheme base) (scheme write) (hello world)) (export baz) (include \"bar.scm\"))" > ${R7RSTMP}/libs/foo/bar.sld
-	echo "(define hello-world (lambda ()  (+ 1 1)))" > ${R7RSTMP}/libs/hello/world.scm
+	echo "(define hello-world (lambda () (+ 1 1)))" > ${R7RSTMP}/libs/hello/world.scm
 	echo "(define-library (hello world) (import (scheme base) (scheme write)) (export hello-world) (include \"world.scm\"))" > ${R7RSTMP}/libs/hello/world.sld
 	mkdir -p ${R7RSTMP}/libs/srfi
 	echo "(define over-9000 (lambda () (+ 1 1)))" > ${R7RSTMP}/libs/srfi/9001.scm
@@ -63,7 +67,7 @@ test-r7rs:
 	@grep "Test successfull" ${R7RSTMP}/compile-r7rs-test-result.txt || (echo "Test failed, output: " && cat ${R7RSTMP}/compile-r7rs-test-result.txt && exit 1)
 
 test-r7rs-docker:
-	docker build -f Dockerfile.test --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .
+	docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .
 	docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c "make && make install && make SCHEME=${SCHEME} test-r7rs"
 
 clean:

@@ -294,21 +294,25 @@ tried to compile them in wrong order you would run:
 ## Usage with Docker
 <a name="#usage-with-docker"></a>
 
-Here is a sample Dockerfile to get you started.
+The project has
+[docker image](https://hub.docker.com/repository/docker/retropikzel1/compile-r7rs/general).
 
-    ARG COMPILE_R7RS=chibi
-    FROM schemers/${COMPILE_R7RS}
-    RUN apt-get update && apt-get install -y make git chicken-bin
-    RUN chicken-install r7rs
-    ARG COMPILE_R7RS=chibi
-    ENV COMPILE_R7RS=${COMPILE_R7RS}
-    RUN git clone https://git.sr.ht/~retropikzel/compile-r7rs && cd compile-r7rs && make && make install
+It is statically built with Chicken scheme and installed under /opt/compile-r7rs,
+so it can be copied in your Dockerfile.
+
+Here is a sample Dockerfile to get you started:
+
+    ARG SCHEME=chibi
+    FROM schemers/${SCHEME}
+    COPY --from=retropikzel1/compile-r7rs /opt/compile-r7rs /opt/compile-r7rs
+    ENV PATH=/opt/compile-r7rs/bin:${PATH}
+    ENV COMPILE_R7RS=${SCHEME}
 
 To use this run:
 
-    export COMPILE_R7RS=<your scheme>
-    docker build --build-arg COMPILE_R7RS=${COMPILE_R7RS} --tag=compile-r7rs-${COMPILE_R7RS} .
-    docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-${COMPILE_R7RS} sh -c "compile-r7rs -I -o main ./snow main.scm"
+    docker build --build-arg SCHEME=${SCHEME} --tag=sometag .
+    docker run -v "${PWD}":/workdir -w /workdir -t sometag sh -c "compile-r7rs -I . -o main ./snow main.scm"
+
 
 ## Usual RnRS projects
 <a name="#usual-rnrs-projects"></a>

@@ -16,6 +16,26 @@ build: deps
 	echo "#!/bin/sh" > compile-r7rs
 	echo "chibi-scheme -A ${PREFIX}/lib/compile-r7rs ${PREFIX}/lib/compile-r7rs/main.scm \"\$$@\"" >> compile-r7rs
 
+build-chicken-static: deps
+	csc -R r7rs -X r7rs -I snow/foreign/c -static -c -J -unit foreign.c -o foreign.c.o deps/foreign-c/foreign/c.sld
+	ar rcs foreign.c.a foreign.c.o
+	csc -R r7rs -X r7rs -static -c -J -unit srfi-170 -o srfi-170.o deps/foreign-c-srfi-170/srfi/170.sld
+	ar rcs srfi-170.a srfi-170.o
+	csc -R r7rs -X r7rs -static -c -J -unit libs.util -o libs.util.o libs/util.sld
+	ar rcs libs.util.a libs.util.o
+	csc -R r7rs -X r7rs -static -c -J -unit libs.library-util -o libs.library-util.o libs/library-util.sld
+	ar rcs libs.library-util.a libs.library-util.o
+	csc -R r7rs -X r7rs -static -c -J -unit libs.data -o libs.data.o libs/data.sld
+	ar rcs libs.data.a libs.data.o
+	csc -R r7rs -X r7rs -static \
+		-o compile-r7rs \
+		-uses libs.util \
+		-uses libs.library-util \
+		-uses libs.data \
+		-uses foreign.c \
+		-uses srfi-170 \
+		compile-r7rs.scm
+
 deps:
 	mkdir -p deps
 	git clone https://git.sr.ht/~retropikzel/foreign-c deps/foreign-c --depth=1

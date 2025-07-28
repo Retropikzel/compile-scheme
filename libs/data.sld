@@ -149,7 +149,7 @@
         (gambit
           (type . compiler)
           (library-command . ,(lambda (library-file prepend-directories append-directories r6rs?)
-                                (apply string-append `("gsc -obj "
+                                (apply string-append `("gsc -:r7rs -obj "
                                                        ,@(map (lambda (item)
                                                                 (string-append item "/ "))
                                                               (append prepend-directories

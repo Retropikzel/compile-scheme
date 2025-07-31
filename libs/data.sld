@@ -68,9 +68,7 @@
                                                                   (string-append "-I " item " "))
                                                                 (append append-directories
                                                                         prepend-directories))
-                                                         " "
-                                                         "-unit"
-                                                         " "
+                                                         "-unit "
                                                          ,unit
                                                          " "
                                                          "&&"
@@ -92,7 +90,6 @@
                                                ,@(map (lambda (item)
                                                         (string-append "-I " item " "))
                                                       (append append-directories prepend-directories))
-                                               " "
                                                ,@(map (lambda (library-file)
                                                         (string-append "-uses "
                                                                        (if (string-starts-with? library-file "srfi")
@@ -119,17 +116,18 @@
                                          ,library-file))))
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
                         (apply string-append
-                               `("cyclone"
-                                 " "
+                               `("cyclone "
                                  ,(util-getenv "COMPILE_R7RS_CYCLONE")
-                                 " "
-                                 "-o"
-                                 " "
-                                 ,output-file
                                  " "
                                  ,@(map (lambda (item) (string-append "-I " item " ")) prepend-directories)
                                  ,@(map (lambda (item) (string-append "-A " item " ")) append-directories)
-                                 ,input-file)))))
+                                 ,input-file
+                                 " && "
+                                 "mv "
+                                 ,(string-cut-from-end input-file 4)
+                                 " "
+                                 ,output-file
+                                 )))))
         (foment
           (type . interpreter)
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)

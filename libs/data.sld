@@ -105,7 +105,7 @@
                                                ,input-file)))))
         (cyclone
           (type . compiler)
-          #;(library-command . ,(lambda (library-file prepend-directories append-directories r6rs?)
+          (library-command . ,(lambda (library-file prepend-directories append-directories r6rs?)
                                 (apply string-append
                                        `("cyclone"
                                          " "
@@ -113,7 +113,9 @@
                                          " "
                                          ,@(map (lambda (item) (string-append "-I " item " ")) prepend-directories)
                                          ,@(map (lambda (item) (string-append "-A " item " ")) append-directories)
-                                         ,library-file))))
+                                         ,(search-library-file (append prepend-directories
+                                                                       append-directories)
+                                                               library-file)))))
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
                         (apply string-append
                                `("cyclone "
@@ -122,12 +124,14 @@
                                  ,@(map (lambda (item) (string-append "-I " item " ")) prepend-directories)
                                  ,@(map (lambda (item) (string-append "-A " item " ")) append-directories)
                                  ,input-file
-                                 " && "
-                                 "mv "
-                                 ,(string-cut-from-end input-file 4)
-                                 " "
-                                 ,output-file
-                                 )))))
+                                 ,(if (not (string=? (string-cut-from-end input-file 4) output-file))
+                                    (string-append
+                                      " && "
+                                      "mv "
+                                      (string-cut-from-end input-file 4)
+                                      " "
+                                      output-file)
+                                    ""))))))
         (foment
           (type . interpreter)
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
@@ -372,6 +376,22 @@
                                ,input-file
                                " "
                                "--eval \"(exit 0)\"")))))
+      (meevax
+        (type . interpreter)
+        (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
+                      (apply string-append
+                             `("meevax"
+                               " "
+                               ,(util-getenv "COMPILE_R7RS_MEEVAX")
+                               " "
+                               ,@(map (lambda (item)
+                                        (string-append "-I" " " item " "))
+                                      prepend-directories)
+                               " "
+                               ,@(map (lambda (item)
+                                        (string-append "-A" " " item " "))
+                                      append-directories)
+                               ,input-file)))))
       (mosh
         (type . interpreter)
         (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)

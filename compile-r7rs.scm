@@ -29,6 +29,7 @@
                        kawa
                        larceny
                        loko
+                       meevax
                        mit-scheme
                        mosh
                        racket

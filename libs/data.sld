@@ -349,10 +349,13 @@
                                " "
                                ,(util-getenv "COMPILE_R7RS_MEEVAX")
                                " "
-                               ;,@(map (lambda (item) (string-append "--load " item " ")) library-files)
-                               ;,@(map (lambda (item) (string-append " " item " ")) prepend-directories)
-                               ;,@(map (lambda (item) (string-append " " item " ")) append-directories)
+                               ,@(map (lambda (item)
+                                        (string-append "-I" " " item " "))
+                                      prepend-directories)
                                " "
+                               ,@(map (lambda (item)
+                                        (string-append "-A" " " item " "))
+                                      append-directories)
                                ,input-file)))))
       (mit-scheme
         (type . interpreter)
@@ -376,22 +379,6 @@
                                ,input-file
                                " "
                                "--eval \"(exit 0)\"")))))
-      (meevax
-        (type . interpreter)
-        (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
-                      (apply string-append
-                             `("meevax"
-                               " "
-                               ,(util-getenv "COMPILE_R7RS_MEEVAX")
-                               " "
-                               ,@(map (lambda (item)
-                                        (string-append "-I" " " item " "))
-                                      prepend-directories)
-                               " "
-                               ,@(map (lambda (item)
-                                        (string-append "-A" " " item " "))
-                                      append-directories)
-                               ,input-file)))))
       (mosh
         (type . interpreter)
         (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)

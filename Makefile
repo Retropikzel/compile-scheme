@@ -60,7 +60,7 @@ test-r6rs:
 	mkdir -p ${R6RSTMP}/libs/foo
 	printf "#!r6rs\n(library (foo bar) (export baz) (import (rnrs)) (define baz (lambda () (display \"Test successfull\") (newline))))" > ${R6RSTMP}/libs/foo/bar.sls
 	printf "#!r6rs\n(import (rnrs) (foo bar)) (baz)" > ${R6RSTMP}/main.sps
-	cd ${R6RSTMP} && COMPILE_R7RS=${SCHEME} compile-r7rs -I ./libs -o main main.sps
+	cd ${R6RSTMP} && COMPILE_R7RS=${SCHEME} timeout 60 compile-r7rs -I ./libs -o main main.sps
 	-cd ${R6RSTMP} && timeout 60 ./main > compile-r7rs-test-result.txt 2>&1
 	@grep "Test successfull" ${R6RSTMP}/compile-r7rs-test-result.txt || (echo "Test failed, output: " && cat ${R6RSTMP}/compile-r7rs-test-result.txt && exit 1)
 

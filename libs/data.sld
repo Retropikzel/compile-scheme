@@ -423,7 +423,7 @@
                                   (apply string-append
                                          `("printf"
                                            " "
-                                           "'#lang r7rs\\n(import (scheme base))\\n(include \""
+                                           "'#lang r7rs\\n(import (only (scheme base) include))\\n(include \""
                                            ,(path->filename library-file)
                                            "\")\\n"
                                            "'"

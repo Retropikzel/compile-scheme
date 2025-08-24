@@ -17,8 +17,7 @@ WORKDIR /builddir
 COPY Makefile .
 COPY compile-r7rs.scm .
 COPY libs/ libs/
-#RUN git clone https://github.com/ashinn/chibi-scheme.git --depth=1
-RUN git clone https://github.com/Retropikzel/chibi-scheme.git --depth=1 --branch=snow-chibi-chicken-static
+RUN git clone https://github.com/ashinn/chibi-scheme.git --depth=1
 RUN cd chibi-scheme && make -j 32 && make -j 32 install
 RUN make PREFIX=/opt/compile-r7rs build-chicken-static && make PREFIX=/opt/compile-r7rs install
 

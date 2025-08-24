@@ -423,7 +423,9 @@
                                   (apply string-append
                                          `("printf"
                                            " "
-                                           "'#lang r7rs\\n(import (only (scheme base) include))\\n(include \""
+                                           "'#lang r7rs\\n"
+                                           "(import (except (scheme base) let string-copy string-copy! string-for-each string-map string-fill! string->list))\\n"
+                                           "(include \""
                                            ,(path->filename library-file)
                                            "\")\\n"
                                            "'"
@@ -444,21 +446,17 @@
                               (lambda ()
                                 (display "#lang r7rs")
                                 (newline)
-                                (display "(import (scheme base))")
+                                (display "(import (except (scheme base) let string-copy string-copy! string-for-each string-map string-fill! string->list))")
                                 (newline)
                                 (display "(include \"")
                                 (display (path->filename input-file))
                                 (display "\")")
                                 (newline)))))
                         (apply string-append
-                               `("racket"
-                                 " "
+                               `("racket "
                                  ,(util-getenv "COMPILE_R7RS_RACKET")
                                  " "
-                                 "-I"
-                                 " "
-                                 ,(if r6rs? "r6rs" "r7rs")
-                                 " "
+                                 ;"-I " ,(if r6rs? "r6rs " "r7rs ")
                                  ,@(map (lambda (item)
                                           (string-append "-S " item " "))
                                         (append prepend-directories

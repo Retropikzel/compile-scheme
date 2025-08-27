@@ -424,7 +424,7 @@
                                          `("printf"
                                            " "
                                            "'#lang r7rs\\n"
-                                           "(import (except (scheme base) let string-copy string-copy! string-for-each string-map string-fill! string->list))\\n"
+                                           "(import (except (scheme base) let let-values let*-values string-copy string-copy! string-for-each string-map string-fill! string->list))\\n"
                                            "(include \""
                                            ,(path->filename library-file)
                                            "\")\\n"
@@ -446,7 +446,7 @@
                               (lambda ()
                                 (display "#lang r7rs")
                                 (newline)
-                                (display "(import (except (scheme base) let string-copy string-copy! string-for-each string-map string-fill! string->list))")
+                                (display "(import (except (scheme base) let let-values let*-values string-copy string-copy! string-for-each string-map string-fill! string->list))")
                                 (newline)
                                 (display "(include \"")
                                 (display (path->filename input-file))

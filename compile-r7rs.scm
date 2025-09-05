@@ -196,8 +196,7 @@
                               prepend-directories
                               append-directories
                               library-files
-                              r6rs?))
-                 (string #\newline)))
+                              r6rs?))))
 
 (define scheme-library-command
   (lambda (library-file)
@@ -264,18 +263,23 @@
     (display scheme-command)
     (newline)
     (with-output-to-file
-    (if (string=? compilation-target "windows")
-      (string-append output-file ".bat")
-      output-file)
-    (lambda ()
-      (cond ((string=? compilation-target "unix")
-             (display "#!/bin/sh")
-             (newline))
-            ((string=? compilation-target "windows")
-             (display "@echo off")
-             (newline)
-             (display "start")))
-      (display scheme-command)))
+      (if (string=? compilation-target "windows")
+        (string-append output-file ".bat")
+        output-file)
+      (lambda ()
+        (cond ((string=? compilation-target "unix")
+               (display "#!/bin/sh")
+               (newline))
+              ((string=? compilation-target "windows")
+               (display "@echo off")
+               (newline)
+               (display "start")))
+        (display scheme-command)
+        (cond ((string=? compilation-target "unix")
+               (display " \"")
+               (display "$@")
+               (display "\"")))
+        (newline)))
   (cond ((string=? compilation-target "unix")
          (c-system (string->c-utf8 (string-append "chmod +x " output-file))))))
 

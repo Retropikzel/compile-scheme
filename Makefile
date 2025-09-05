@@ -9,18 +9,11 @@ endif
 
 all: build
 
-container:
-	docker build -f Dockerfile.test --tag=compile-r7rs
-
-build: deps
+build:
 	echo "#!/bin/sh" > compile-r7rs
 	echo "chibi-scheme -A ${PREFIX}/lib/compile-r7rs ${PREFIX}/lib/compile-r7rs/main.scm \"\$$@\"" >> compile-r7rs
 
-build-chicken-static: deps
-	csc -R r7rs -X r7rs -I snow/foreign/c -static -c -J -unit foreign.c -o foreign.c.o deps/foreign-c/foreign/c.sld
-	ar rcs foreign.c.a foreign.c.o
-	csc -R r7rs -X r7rs -static -c -J -unit srfi-170 -o srfi-170.o deps/foreign-c-srfi-170/srfi/170.sld
-	ar rcs srfi-170.a srfi-170.o
+build-chicken-static:
 	csc -R r7rs -X r7rs -static -c -J -unit libs.util -o libs.util.o libs/util.sld
 	ar rcs libs.util.a libs.util.o
 	csc -R r7rs -X r7rs -static -c -J -unit libs.library-util -o libs.library-util.o libs/library-util.sld
@@ -42,8 +35,7 @@ deps:
 	git clone https://git.sr.ht/~retropikzel/foreign-c-srfi-170 deps/foreign-c-srfi-170 --depth=1
 
 install:
-	cd deps/foreign-c && make all install
-	cd deps/foreign-c-srfi-170 && make all install
+	mkdir -p ${PREFIX}/bin
 	mkdir -p ${PREFIX}/lib/compile-r7rs
 	cp -r libs ${PREFIX}/lib/compile-r7rs/
 	cp compile-r7rs.scm ${PREFIX}/lib/compile-r7rs/main.scm

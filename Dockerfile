@@ -9,16 +9,16 @@ RUN apt-get update && apt-get install -y \
     pandoc \
     chicken-bin \
     libc-dev
-RUN mkdir -p /opt/compile-r7rs
-RUN mkdir -p /opt/compile-r7rs/bin
-RUN mkdir -p /opt/compile-r7rs/lib
 RUN chicken-install r7rs
-WORKDIR /builddir
-COPY Makefile .
-COPY compile-r7rs.scm .
-COPY libs/ libs/
+WORKDIR /build
 RUN git clone https://github.com/ashinn/chibi-scheme.git --depth=1
 RUN cd chibi-scheme && make -j 32 && make -j 32 install
+ENV SCHEME=chicken
+RUN snow-chibi --impls=${SCHEME} --always-yes install "(foreign c)"
+RUN snow-chibi --impls=${SCHEME} --always-yes install "(srfi 170)"
+COPY Makefile .
+COPY compile-r7rs.scm .
+COPY libs libs
 RUN make PREFIX=/opt/compile-r7rs build-chicken-static && make PREFIX=/opt/compile-r7rs install
 
 FROM debian:trixie-slim

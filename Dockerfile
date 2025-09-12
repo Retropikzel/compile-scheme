@@ -1,4 +1,4 @@
-FROM debian:trixie-slim AS build
+FROM docker.io/debian:trixie-slim AS build
 RUN mkdir -p ${HOME}/.snow && echo "()" > ${HOME}/.snow/config.scm
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -19,8 +19,9 @@ RUN snow-chibi --impls=${SCHEME} --always-yes install "(srfi 170)"
 COPY Makefile .
 COPY compile-r7rs.scm .
 COPY libs libs
-RUN make PREFIX=/opt/compile-r7rs build-chicken-static && make PREFIX=/opt/compile-r7rs install
+RUN make PREFIX=/opt/compile-r7rs build-static
+RUN make PREFIX=/opt/compile-r7rs install
 
-FROM debian:trixie-slim
+FROM docker.io/debian:trixie-slim
 COPY --from=build /opt/compile-r7rs /opt/compile-r7rs
 ENV PATH=/opt/compile-r7rs/bin:${PATH}

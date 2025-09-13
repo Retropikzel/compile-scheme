@@ -90,6 +90,8 @@ as compiler.
     - compiler
     - R6RS
     - R7RS
+- meevax
+    - r7rs
 - mit-scheme
     - interpreter
     - R7RS
@@ -127,11 +129,6 @@ as compiler.
     - husk
         - Dont know how to add directories to load path yet, might not be
         implemented
-        - r7rs
-    - meevax
-        - Asked how to add directory to load path
-        https://github.com/yamacir-kit/meevax/issues/494, might not be
-        implemented yet
         - r7rs
     - picrin
         - Might not be possible, seems to not have (include...) that works like

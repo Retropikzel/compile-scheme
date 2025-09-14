@@ -61,14 +61,14 @@ test-r7rs:
 	mkdir -p ${R7RSTMP}/libs
 	mkdir -p ${R7RSTMP}/libs/foo
 	mkdir -p ${R7RSTMP}/libs/hello
-	echo "(import (scheme base) (foo bar) (hello world) (srfi 9001)) (baz) (hello-world) (over-9000)" > ${R7RSTMP}/main.scm
+	echo "(import (scheme base) (foo bar) (hello world) (other hellolib)) (baz) (hello-world) (over-9000)" > ${R7RSTMP}/main.scm
 	echo "(define baz (lambda () (display \"Test successfull\") (newline)))" > ${R7RSTMP}/libs/foo/bar.scm
 	echo "(define-library (foo bar) (import (scheme base) (scheme write) (hello world)) (export baz) (include \"bar.scm\"))" > ${R7RSTMP}/libs/foo/bar.sld
 	echo "(define hello-world (lambda () (+ 1 1)))" > ${R7RSTMP}/libs/hello/world.scm
 	echo "(define-library (hello world) (import (scheme base) (scheme write)) (export hello-world) (include \"world.scm\"))" > ${R7RSTMP}/libs/hello/world.sld
-	mkdir -p ${R7RSTMP}/libs/srfi
-	echo "(define over-9000 (lambda () (+ 1 1)))" > ${R7RSTMP}/libs/srfi/9001.scm
-	echo "(define-library (srfi 9001) (import (scheme base) (scheme write)) (export over-9000) (include \"9001.scm\"))" > ${R7RSTMP}/libs/srfi/9001.sld
+	mkdir -p ${R7RSTMP}/libs/other
+	echo "(define over-9000 (lambda () (+ 1 1)))" > ${R7RSTMP}/libs/other/hellolib.scm
+	echo "(define-library (other hellolib) (import (scheme base) (scheme write)) (export over-9000) (include \"hellolib.scm\"))" > ${R7RSTMP}/libs/other/hellolib.sld
 	cd ${R7RSTMP} && COMPILE_R7RS=${SCHEME} compile-r7rs -I ./libs -o main main.scm
 	-cd ${R7RSTMP} && ./main > compile-r7rs-test-result.txt 2>&1
 	@grep "Test successfull" ${R7RSTMP}/compile-r7rs-test-result.txt || (echo "Test failed, output: " && cat ${R7RSTMP}/compile-r7rs-test-result.txt && exit 1)

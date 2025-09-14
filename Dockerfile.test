@@ -7,10 +7,7 @@ RUN apt-get update && apt-get install -y \
     libffi-dev \
     ca-certificates \
     git \
-    pandoc \
-    chicken-bin
-RUN chicken-install r7rs
-ENV PATH=${PATH}:/usr/local-other/bin
+    pandoc
 ARG SCHEME=chibi
 ENV COMPILE_R7RS=${SCHEME}
 COPY --from=local-build-compile-r7rs /opt/compile-r7rs /opt/compile-r7rs

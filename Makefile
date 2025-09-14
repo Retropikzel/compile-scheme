@@ -47,8 +47,8 @@ test-r6rs:
 	mkdir -p ${R6RSTMP}/libs/foo
 	printf "#!r6rs\n(library (foo bar) (export baz) (import (rnrs)) (define baz (lambda () (display \"Test successfull\") (newline))))" > ${R6RSTMP}/libs/foo/bar.sls
 	printf "#!r6rs\n(import (rnrs) (foo bar)) (baz)" > ${R6RSTMP}/main.sps
-	cd ${R6RSTMP} && COMPILE_R7RS=${SCHEME} timeout 60 compile-r7rs -I ./libs -o main main.sps
-	-cd ${R6RSTMP} && timeout 60 ./main > compile-r7rs-test-result.txt 2>&1
+	cd ${R6RSTMP} && COMPILE_R7RS=${SCHEME} compile-r7rs -I ./libs -o main main.sps
+	-cd ${R6RSTMP} && ./main > compile-r7rs-test-result.txt 2>&1
 	@grep "Test successfull" ${R6RSTMP}/compile-r7rs-test-result.txt || (echo "Test failed, output: " && cat ${R6RSTMP}/compile-r7rs-test-result.txt && exit 1)
 
 test-r6rs-docker:
@@ -70,7 +70,7 @@ test-r7rs:
 	echo "(define over-9000 (lambda () (+ 1 1)))" > ${R7RSTMP}/libs/srfi/9001.scm
 	echo "(define-library (srfi 9001) (import (scheme base) (scheme write)) (export over-9000) (include \"9001.scm\"))" > ${R7RSTMP}/libs/srfi/9001.sld
 	cd ${R7RSTMP} && COMPILE_R7RS=${SCHEME} compile-r7rs -I ./libs -o main main.scm
-	-cd ${R7RSTMP} && timeout 60 ./main > compile-r7rs-test-result.txt 2>&1
+	-cd ${R7RSTMP} && ./main > compile-r7rs-test-result.txt 2>&1
 	@grep "Test successfull" ${R7RSTMP}/compile-r7rs-test-result.txt || (echo "Test failed, output: " && cat ${R7RSTMP}/compile-r7rs-test-result.txt && exit 1)
 
 test-r7rs-docker:

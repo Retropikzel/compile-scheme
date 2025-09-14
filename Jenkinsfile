@@ -1,16 +1,26 @@
 pipeline {
+
     agent {
-        dockerfile {
-            filename 'Dockerfile.jenkins'
-                args '--user=root -v /var/run/docker.sock:/var/run/docker.sock'
-        }
+        label 'linux'
     }
+
     options {
         disableConcurrentBuilds()
-            buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
+        buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
     }
+
+    parameters {
+        booleanParam(name: 'DOCKER', defaultValue: false, description: 'Build and push docker image')
+    }
+
     stages {
         stage('Test R6RS implementations') {
+            agent {
+                dockerfile {
+                    filename 'Dockerfile.jenkins'
+                    args '--user=root -v /var/run/docker.sock:/var/run/docker.sock'
+                }
+            }
             steps {
                 script {
                     def r6rs_implementations = sh(script: 'chibi-scheme -I ./snow -I . compile-r7rs.scm --list-r6rs-schemes', returnStdout: true).split()
@@ -29,6 +39,12 @@ pipeline {
         }
 
         stage('Test R7RS implementations') {
+            agent {
+                dockerfile {
+                    filename 'Dockerfile.jenkins'
+                    args '--user=root -v /var/run/docker.sock:/var/run/docker.sock'
+                }
+            }
             steps {
                 script {
                     def r7rs_implementations = sh(script: 'chibi-scheme -I ./snow -I . compile-r7rs.scm --list-r7rs-schemes', returnStdout: true).split()
@@ -43,6 +59,50 @@ pipeline {
                         ]
                     }
                 }
+            }
+        }
+
+        stage('Docker build/login/push x84-64') {
+            agent {
+                label 'linux-x86-64'
+            }
+            when {
+                branch 'main'
+                expression {
+                    return params.DOCKER
+                }
+            }
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    sh 'docker build . --tag=retropikzel1/compile-r7rs'
+                    sh 'docker login -u ${DOCKER_HUB_USERNAME} -p ${DOCKER_HUB_TOKEN}'
+                    sh 'docker push retropikzel1/compile-r7rs'
+                }
+            }
+        }
+
+        stage('Docker build/login/push arm') {
+            agent {
+                label 'linux-arm'
+            }
+            when {
+                branch 'main'
+                expression {
+                    return params.DOCKER
+                }
+            }
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    sh 'docker build . --tag=retropikzel1/compile-r7rs'
+                    sh 'docker login -u ${DOCKER_HUB_USERNAME} -p ${DOCKER_HUB_TOKEN}'
+                    sh 'docker push retropikzel1/compile-r7rs'
+                }
+            }
+        }
+
+        stage('Docker logout') {
+            steps {
+                sh 'docker logout'
             }
         }
 

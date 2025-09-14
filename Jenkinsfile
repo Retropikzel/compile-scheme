@@ -22,8 +22,12 @@ pipeline {
                         [(SCHEME): {
                                 stage("${SCHEME} R6RS") {
                                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                                        sh 'docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .'
-                                        sh 'docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c "make && make install && make SCHEME=${SCHEME} test-r6rs"'
+                                        def DOCKERIMG="${SCHEME}:head"
+                                        if("${SCHEME}" == "chicken") {
+                                            DOCKERIMG="chicken:5"
+                                        }
+                                        sh "docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} ."
+                                        sh "docker run -v ${WORKSPACE}:/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c \"make && make install && make SCHEME=${SCHEME} test-r6rs\""
                                     }
                                 }
                             }
@@ -41,8 +45,12 @@ pipeline {
                         [(SCHEME): {
                                 stage("${SCHEME} R7RS") {
                                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                                        sh 'docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .'
-                                        sh 'docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c "make && make install && make SCHEME=${SCHEME} test-r7rs"'
+                                        def DOCKERIMG="${SCHEME}:head"
+                                        if("${SCHEME}" == "chicken") {
+                                            DOCKERIMG="chicken:5"
+                                        }
+                                        sh "docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} ."
+                                        sh "docker run -v ${WORKSPACE}:/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c \"make && make install && make SCHEME=${SCHEME} test-r7rs\""
                                     }
                                 }
                             }

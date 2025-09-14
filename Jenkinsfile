@@ -1,7 +1,7 @@
 pipeline {
 
     agent {
-        label 'linux'
+        label 'docker-x86_64'
     }
 
     options {
@@ -64,7 +64,7 @@ pipeline {
 
         stage('Docker build/login/push x84-64') {
             agent {
-                label 'linux-x86-64'
+                label 'linux-x86_64'
             }
             when {
                 allOf {

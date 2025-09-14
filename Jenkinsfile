@@ -67,9 +67,11 @@ pipeline {
                 label 'linux-x86-64'
             }
             when {
-                branch 'main'
-                expression {
-                    return params.DOCKER
+                allOf {
+                    branch 'main'
+                    expression {
+                        return params.DOCKER
+                    }
                 }
             }
             steps {
@@ -86,9 +88,11 @@ pipeline {
                 label 'linux-arm'
             }
             when {
-                branch 'main'
-                expression {
-                    return params.DOCKER
+                allOf {
+                    branch 'main'
+                    expression {
+                        return params.DOCKER
+                    }
                 }
             }
             steps {

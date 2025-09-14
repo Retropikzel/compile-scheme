@@ -15,21 +15,15 @@ pipeline {
 
     stages {
         stage('Test R6RS implementations') {
-            agent {
-                dockerfile {
-                    label 'docker-x86_64'
-                    filename 'Dockerfile.jenkins'
-                    args '--user=root -v /var/run/docker.sock:/var/run/docker.sock'
-                }
-            }
             steps {
                 script {
                     def r6rs_implementations = sh(script: 'chibi-scheme compile-r7rs.scm --list-r6rs-schemes', returnStdout: true).split()
-                    parallel r6rs_implementations.collectEntries { implementation->
-                        [(implementation): {
-                                stage("${implementation} R6RS") {
+                    parallel r6rs_implementations.collectEntries { SCHEME ->
+                        [(SCHEME): {
+                                stage("${SCHEME} R6RS") {
                                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                                        sh "make test-r6rs-docker SCHEME=${implementation}"
+                                        sh 'docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .'
+                                        sh 'docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c "make && make install && make SCHEME=${SCHEME} test-r6rs"'
                                     }
                                 }
                             }
@@ -40,21 +34,15 @@ pipeline {
         }
 
         stage('Test R7RS implementations') {
-            agent {
-                dockerfile {
-                    label 'docker-x86_64'
-                    filename 'Dockerfile.jenkins'
-                    args '--user=root -v /var/run/docker.sock:/var/run/docker.sock'
-                }
-            }
             steps {
                 script {
                     def r7rs_implementations = sh(script: 'chibi-scheme compile-r7rs.scm --list-r7rs-schemes', returnStdout: true).split()
-                    parallel r7rs_implementations.collectEntries { implementation->
-                        [(implementation): {
-                                stage("${implementation} R7RS") {
+                    parallel r7rs_implementations.collectEntries { SCHEME ->
+                        [(SCHEME): {
+                                stage("${SCHEME} R7RS") {
                                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                                        sh "make test-r7rs-docker SCHEME=${implementation}"
+                                        sh 'docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .'
+                                        sh 'docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c "make && make install && make SCHEME=${SCHEME} test-r7rs"'
                                     }
                                 }
                             }

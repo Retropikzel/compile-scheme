@@ -15,6 +15,12 @@ pipeline {
     }
 
     stages {
+        stage('Build') {
+            steps {
+                sh "podman build -f Dockerfile --tag=local-build-compile-r7rs ."
+            }
+        }
+
         stage('Test R6RS implementations') {
             steps {
                 script {

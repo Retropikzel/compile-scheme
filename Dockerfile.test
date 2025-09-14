@@ -13,8 +13,5 @@ RUN chicken-install r7rs
 ENV PATH=${PATH}:/usr/local-other/bin
 ARG SCHEME=chibi
 ENV COMPILE_R7RS=${SCHEME}
-RUN git clone https://github.com/ashinn/chibi-scheme.git --depth=1
-RUN cd chibi-scheme && make -j 16 && make -j 16 install
-RUN mkdir -p ${HOME}/.snow && echo "()" > ${HOME}/.snow/config.scm
-RUN snow-chibi install --always-yes --impls=chibi,chicken "(foreign c)"
-RUN snow-chibi install --always-yes --impls=chibi,chicken "(srfi 170)"
+COPY --from=local-build-compile-r7rs /opt/compile-r7rs /opt/compile-r7rs
+ENV PATH=/opt/compile-r7rs:${PATH}

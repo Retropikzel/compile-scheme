@@ -52,6 +52,7 @@ test-r6rs:
 	@grep "Test successfull" ${R6RSTMP}/compile-r7rs-test-result.txt || (echo "Test failed, output: " && cat ${R6RSTMP}/compile-r7rs-test-result.txt && exit 1)
 
 test-r6rs-docker:
+	docker build -f Dockerfile --tag=local-compile-r7rs .
 	docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .
 	docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c "make && make install && make SCHEME=${SCHEME} test-r6rs"
 
@@ -74,6 +75,7 @@ test-r7rs:
 	@grep "Test successfull" ${R7RSTMP}/compile-r7rs-test-result.txt || (echo "Test failed, output: " && cat ${R7RSTMP}/compile-r7rs-test-result.txt && exit 1)
 
 test-r7rs-docker:
+	docker build -f Dockerfile --tag=local-compile-r7rs .
 	docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .
 	docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c "make && make install && make SCHEME=${SCHEME} test-r7rs"
 

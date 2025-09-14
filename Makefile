@@ -2,7 +2,7 @@ PREFIX=/usr/local
 SCHEME=chibi
 R6RSTMP=tmp/${SCHEME}-r6rs
 R7RSTMP=tmp/${SCHEME}-r7rs
-DOCKERIMG=${SCHEME}:head
+DOCKERIMG=docker.io/${SCHEME}:head
 ifeq "${SCHEME}" "chicken"
 DOCKERIMG="chicken:5"
 endif

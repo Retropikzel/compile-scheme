@@ -16,8 +16,8 @@ pipeline {
     stages {
         stage('Test R6RS implementations') {
             agent {
-                label 'docker-x86_64'
                 dockerfile {
+                    label 'docker-x86_64'
                     filename 'Dockerfile.jenkins'
                     args '--user=root -v /var/run/docker.sock:/var/run/docker.sock'
                 }
@@ -41,8 +41,8 @@ pipeline {
 
         stage('Test R7RS implementations') {
             agent {
-                label 'docker-x86_64'
                 dockerfile {
+                    label 'docker-x86_64'
                     filename 'Dockerfile.jenkins'
                     args '--user=root -v /var/run/docker.sock:/var/run/docker.sock'
                 }

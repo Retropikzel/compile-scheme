@@ -7,8 +7,10 @@ RUN apt-get update && apt-get install -y \
     docker.io \
     libffi-dev \
     pandoc
-RUN git clone https://github.com/ashinn/chibi-scheme.git --depth=1 \
-    && cd chibi-scheme && make -j 16 && make -j 16 install
+RUN git clone https://github.com/ashinn/chibi-scheme.git --depth=1
+RUN cd chibi-scheme && make -j 16 && make -j 16 install
+RUN snow-chibi install "(foreign c)"
+RUN snow-chibi install "(srfi 170)"
 WORKDIR /builddir
 COPY Makefile .
 COPY compile-r7rs.scm .

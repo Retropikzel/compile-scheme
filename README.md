@@ -189,15 +189,23 @@ Libuv is distributed with compile-r7rs on Windows.
 ## Installation
 <a name="#Installation"></a>
 
-You will need Chibi scheme and snow-chibi installed.
+You will need Chibi scheme and snow-chibi installed. For static build you need
+chicken 5.
 
 First install linux dependencies:
 
-    apt-get install build-essential make libffi-dev
+    apt-get install build-essential make libffi-dev chicken-bin
+
+Then install latest Chibi scheme from git.
 
 And then run:
 
     make
+    make install
+
+Or:
+
+    make build-static
     make install
 
 ## Usage

@@ -17,7 +17,7 @@ pipeline {
         stage('Test R6RS implementations') {
             steps {
                 script {
-                    def r6rs_implementations = sh(script: 'chibi-scheme compile-r7rs.scm --list-r6rs-schemes', returnStdout: true).split()
+                    def r6rs_implementations = sh(script: 'docker run retropikzel1/compile-r7rs bash -c "compile-r7rs.scm --list-r6rs-schemes"', returnStdout: true).split()
                     parallel r6rs_implementations.collectEntries { SCHEME ->
                         [(SCHEME): {
                                 stage("${SCHEME} R6RS") {
@@ -36,7 +36,7 @@ pipeline {
         stage('Test R7RS implementations') {
             steps {
                 script {
-                    def r7rs_implementations = sh(script: 'chibi-scheme compile-r7rs.scm --list-r7rs-schemes', returnStdout: true).split()
+                    def r7rs_implementations = sh(script: 'docker run retropikzel1/compile-r7rs bash -c "compile-r7rs.scm --list-r7rs-schemes"', returnStdout: true).split()
                     parallel r7rs_implementations.collectEntries { SCHEME ->
                         [(SCHEME): {
                                 stage("${SCHEME} R7RS") {

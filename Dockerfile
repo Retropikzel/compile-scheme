@@ -10,7 +10,7 @@ RUN cd chibi-scheme && make DESTDIR=/opt/compile-r7rs/chibi all
 RUN cd chibi-scheme && make DESTDIR=/opt/compile-r7rs/chibi install
 RUN mkdir -p /opt/compile-r7rs/bin
 RUN echo "#!/bin/sh" > /opt/compile-r7rs/bin/snow-chibi
-RUN echo "PATH=${PATH}:/opt/compile-r7rs/chibi/usr/local/bin CHIBI_MODULE_PATH=/opt/compile-r7rs/chibi/usr/local/share/chibi:/opt/compile-r7rs/chibi/usr/local/lib/chibi LD_LIBRARY_PATH=/opt/compile-r7rs/chibi/usr/local/lib exec chibi-scheme -mchibi.snow.commands -mchibi.snow.interface -mchibi.snow.package -mchibi.snow.utils /opt/compile-r7rs/chibi/usr/local/bin/snow-chibi.scm \"\$@\"" >> /opt/compile-r7rs/bin/snow-chibi
+RUN echo "PATH=${PATH}:/opt/compile-r7rs/chibi/usr/local/bin CHIBI_MODULE_PATH=/opt/compile-r7rs/chibi/usr/local/share/chibi:/opt/compile-r7rs/chibi/usr/local/lib/chibi LD_LIBRARY_PATH=/opt/compile-r7rs/chibi/usr/local/lib exec /opt/compile-r7rs/chibi/usr/local/bin/chibi-scheme -mchibi.snow.commands -mchibi.snow.interface -mchibi.snow.package -mchibi.snow.utils /opt/compile-r7rs/chibi/usr/local/bin/snow-chibi.scm \"\$@\"" >> /opt/compile-r7rs/bin/snow-chibi
 RUN chmod +x /opt/compile-r7rs/bin/snow-chibi
 ENV SCHEME=chicken
 RUN snow-chibi --impls=${SCHEME} --always-yes install "(foreign c)"

@@ -4,7 +4,7 @@ RUN apt-get update && apt-get install -y \
     gcc wget ca-certificates xz-utils make git libffi-dev unzip lbzip2 cmake \
     g++ python3 locate zlib1g-dev
 WORKDIR /build
-ENV PATH=${PATH}:/opt/compile-r7rs/bin
+ENV PATH=/opt/compile-r7rs/bin:${PATH}
 RUN git clone https://github.com/ashinn/chibi-scheme.git --depth=1
 RUN cd chibi-scheme && make DESTDIR=/opt/compile-r7rs/chibi all
 RUN cd chibi-scheme && make DESTDIR=/opt/compile-r7rs/chibi install

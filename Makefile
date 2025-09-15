@@ -2,7 +2,7 @@ PREFIX=/usr/local
 SCHEME=chibi
 R6RSTMP=tmp/${SCHEME}-r6rs
 R7RSTMP=tmp/${SCHEME}-r7rs
-DOCKERIMG=docker.io/${SCHEME}:head
+DOCKERIMG=${SCHEME}:head
 ifeq "${SCHEME}" "chicken"
 DOCKERIMG="chicken:5"
 endif
@@ -51,8 +51,10 @@ test-r6rs:
 	-cd ${R6RSTMP} && ./main > compile-r7rs-test-result.txt 2>&1
 	@grep "Test successfull" ${R6RSTMP}/compile-r7rs-test-result.txt || (echo "Test failed, output: " && cat ${R6RSTMP}/compile-r7rs-test-result.txt && exit 1)
 
-test-r6rs-docker:
-	docker build -f Dockerfile --tag=local-compile-r7rs .
+build-local-docker:
+	docker build -f Dockerfile --tag=local-build-compile-r7rs .
+
+test-r6rs-docker: build-local-docker
 	docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .
 	docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c "make && make install && make SCHEME=${SCHEME} test-r6rs"
 
@@ -74,8 +76,7 @@ test-r7rs:
 	-cd ${R7RSTMP} && ./main > compile-r7rs-test-result.txt 2>&1
 	@grep "Test successfull" ${R7RSTMP}/compile-r7rs-test-result.txt || (echo "Test failed, output: " && cat ${R7RSTMP}/compile-r7rs-test-result.txt && exit 1)
 
-test-r7rs-docker:
-	docker build -f Dockerfile --tag=local-compile-r7rs .
+test-r7rs-docker: build-local-docker
 	docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .
 	docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c "make && make install && make SCHEME=${SCHEME} test-r7rs"
 

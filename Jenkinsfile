@@ -17,14 +17,20 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh "podman build -f Dockerfile --tag=local-build-compile-r7rs ."
+                sh "docker build -f Dockerfile --tag=local-build-compile-r7rs ."
+            }
+        }
+
+        stage('Warm up cache') {
+            steps {
+                sh "docker build -f Dockerfile.test --build-arg IMAGE=chibi:head --build-arg SCHEME=chibi --tag=compile-r7rs-test-chibi ."
             }
         }
 
         stage('Test R6RS implementations') {
             steps {
                 script {
-                    def r6rs_implementations = sh(script: 'podman run docker.io/retropikzel1/compile-r7rs bash -c "compile-r7rs --list-r6rs-schemes"', returnStdout: true).split()
+                    def r6rs_implementations = sh(script: 'docker run retropikzel1/compile-r7rs bash -c "compile-r7rs --list-r6rs-schemes"', returnStdout: true).split()
                     parallel r6rs_implementations.collectEntries { SCHEME ->
                         [(SCHEME): {
                                 stage("${SCHEME} R6RS") {
@@ -33,8 +39,8 @@ pipeline {
                                         if("${SCHEME}" == "chicken") {
                                             DOCKERIMG="chicken:5"
                                         }
-                                        sh "podman build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} ."
-                                        sh "podman run -v ${WORKSPACE}:/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c \"make && make install && make SCHEME=${SCHEME} test-r6rs\""
+                                        sh "docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} ."
+                                        sh "docker run -v ${WORKSPACE}:/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c \"make && make install && make SCHEME=${SCHEME} test-r6rs\""
                                     }
                                 }
                             }
@@ -47,7 +53,7 @@ pipeline {
         stage('Test R7RS implementations') {
             steps {
                 script {
-                    def r7rs_implementations = sh(script: 'podman run retropikzel1/compile-r7rs bash -c "compile-r7rs --list-r7rs-schemes"', returnStdout: true).split()
+                    def r7rs_implementations = sh(script: 'docker run retropikzel1/compile-r7rs bash -c "compile-r7rs --list-r7rs-schemes"', returnStdout: true).split()
                     parallel r7rs_implementations.collectEntries { SCHEME ->
                         [(SCHEME): {
                                 stage("${SCHEME} R7RS") {
@@ -56,8 +62,8 @@ pipeline {
                                         if("${SCHEME}" == "chicken") {
                                             DOCKERIMG="chicken:5"
                                         }
-                                        sh "podman build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} ."
-                                        sh "podman run -v ${WORKSPACE}:/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c \"make && make install && make SCHEME=${SCHEME} test-r7rs\""
+                                        sh "docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} ."
+                                        sh "docker run -v ${WORKSPACE}:/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c \"make && make install && make SCHEME=${SCHEME} test-r7rs\""
                                     }
                                 }
                             }

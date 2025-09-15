@@ -472,12 +472,9 @@
         (type . interpreter)
         (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
                       (apply string-append
-                             `("sash"
-                               " "
+                             `("sash "
                                ,(util-getenv "COMPILE_R7RS_SAGITTARIUS")
-                               " "
-                               ,(if r6rs? "-r6" "-r7")
-                               " "
+                               ,(if r6rs? " -r6 " " -r7 ")
                                ,@(map (lambda (item)
                                         (string-append "-L " item " "))
                                       prepend-directories)

@@ -1,14 +1,21 @@
 ARG SCHEME=chibi
 ARG IMAGE=chibi:head
-FROM docker.io/schemers/${IMAGE}
+FROM debian:trixie AS build
 RUN apt-get update && apt-get install -y \
+    --download-only \
+    --no-install-recommends \
+    --no-install-suggests \
     build-essential \
     make \
     libffi-dev \
     ca-certificates \
     git \
-    pandoc
+    cmark
+
 ARG SCHEME=chibi
 ENV COMPILE_R7RS=${SCHEME}
+FROM schemers/${IMAGE}
+COPY --from=build /var/cache/apt/archives /debs
+RUN dpkg -i /debs/*.deb
 COPY --from=local-build-compile-r7rs /opt/compile-r7rs /opt/compile-r7rs
-ENV PATH=/opt/compile-r7rs:${PATH}
+ENV PATH=${PATH}:/opt/compile-r7rs/bin

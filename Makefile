@@ -7,19 +7,29 @@ ifeq "${SCHEME}" "chicken"
 DOCKERIMG="chicken:5"
 endif
 
+STATIC_LIBS=libs.util.a libs.library-util.a libs.data.a libs.srfi-64-util.a
+
 all: build
 
-build:
-	echo "#!/bin/sh" > compile-r7rs
-	echo "chibi-scheme -A ${PREFIX}/lib/compile-r7rs ${PREFIX}/lib/compile-r7rs/main.scm \"\$$@\"" >> compile-r7rs
+build: compile-r7rs test-r7rs
 
-build-static:
+libs.util.a: libs/util.sld libs/util.scm
 	csc -R r7rs -X r7rs -static -c -J -unit libs.util -o libs.util.o libs/util.sld
 	ar rcs libs.util.a libs.util.o
+
+libs.library-util.a: libs/library-util.sld libs/library-util.scm
 	csc -R r7rs -X r7rs -static -c -J -unit libs.library-util -o libs.library-util.o libs/library-util.sld
 	ar rcs libs.library-util.a libs.library-util.o
+
+libs.data.a: libs/data.sld libs/data.scm
 	csc -R r7rs -X r7rs -static -c -J -unit libs.data -o libs.data.o libs/data.sld
 	ar rcs libs.data.a libs.data.o
+
+libs.srfi-64-util.a: libs/srfi-64-util.sld libs/srfi-64-util.scm
+	csc -R r7rs -X r7rs -static -c -J -unit libs.srfi-64-util -o libs.srfi-64-util.o libs/srfi-64-util.sld
+	ar rcs libs.srfi-64-util.a libs.srfi-64-util.o
+
+compile-r7rs: compile-r7rs.scm ${STATIC_LIBS}
 	csc -R r7rs -X r7rs -static \
 		-o compile-r7rs \
 		-uses libs.util \
@@ -29,18 +39,32 @@ build-static:
 		-uses srfi-170 \
 		compile-r7rs.scm
 
+test-r7rs: test-r7rs.scm ${STATIC_LIBS}
+	csc -R r7rs -X r7rs -static \
+		-o test-r7rs \
+		-uses libs.util \
+		-uses libs.library-util \
+		-uses libs.data \
+		-uses libs.srfi-64-util \
+		-uses foreign.c \
+		-uses retropikzel.system \
+		-uses srfi-170 \
+		test-r7rs.scm
+
 install:
 	mkdir -p ${PREFIX}/bin
 	mkdir -p ${PREFIX}/lib/compile-r7rs
 	cp -r libs ${PREFIX}/lib/compile-r7rs/
-	cp compile-r7rs.scm ${PREFIX}/lib/compile-r7rs/main.scm
+	cp compile-r7rs.scm ${PREFIX}/lib/compile-r7rs/compile-r7rs.scm
 	install compile-r7rs ${PREFIX}/bin/compile-r7rs
+	cp compile-r7rs.scm ${PREFIX}/lib/compile-r7rs/test-r7rs.scm
+	install test-r7rs ${PREFIX}/bin/test-r7rs
 
 uninstall:
 	rm -rf ${PREFIX}/lib/compile-r7rs
 	rm -rf ${PREFIX}/bin/compile-r7rs
 
-test-r6rs:
+run-test-r6rs:
 	rm -rf ${R6RSTMP}
 	mkdir -p ${R6RSTMP}
 	mkdir -p ${R6RSTMP}/libs
@@ -54,11 +78,11 @@ test-r6rs:
 build-local-docker:
 	docker build -f Dockerfile --tag=local-build-compile-r7rs .
 
-test-r6rs-docker: build-local-docker
+run-test-r6rs-docker: build-local-docker
 	docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .
 	docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c "make && make install && make SCHEME=${SCHEME} test-r6rs"
 
-test-r7rs:
+run-test-r7rs:
 	rm -rf ${R7RSTMP}
 	mkdir -p ${R7RSTMP}
 	mkdir -p ${R7RSTMP}/libs
@@ -76,11 +100,13 @@ test-r7rs:
 	-cd ${R7RSTMP} && ./main > compile-r7rs-test-result.txt 2>&1
 	@grep "Test successfull" ${R7RSTMP}/compile-r7rs-test-result.txt || (echo "Test failed, output: " && cat ${R7RSTMP}/compile-r7rs-test-result.txt && exit 1)
 
-test-r7rs-docker: build-local-docker
+run-test-r7rs-docker: build-local-docker
 	docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .
 	docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c "make && make install && make SCHEME=${SCHEME} test-r7rs"
 
 clean:
+	rm -rf test-r7rs
+	rm -rf compile-r7rs
 	find . -name "*.so" -delete
 	find . -name "*.o*" -delete
 	find . -name "*.a*" -delete

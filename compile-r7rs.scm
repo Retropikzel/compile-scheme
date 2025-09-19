@@ -9,38 +9,6 @@
         (libs library-util)
         (srfi 170))
 
-(define r6rs-schemes '(chezscheme
-                       guile
-                       ikarus
-                       ironscheme
-                       larceny
-                       loko
-                       mosh
-                       racket
-                       sagittarius
-                       ypsilon))
-(define r7rs-schemes '(chibi
-                       chicken
-                       cyclone
-                       gambit
-                       foment
-                       gauche
-                       guile
-                       kawa
-                       larceny
-                       loko
-                       meevax
-                       mit-scheme
-                       mosh
-                       racket
-                       sagittarius
-                       skint
-                       stklos
-                       tr7
-                       ypsilon))
-
-(define all-schemes (append r6rs-schemes r7rs-schemes))
-
 (when (member "--list-r6rs-schemes" (command-line))
   (for-each
     (lambda (scheme)
@@ -69,8 +37,7 @@
                   (string->symbol (get-environment-variable "COMPILE_R7RS"))
                   #f))
 (when (not scheme) (error "Environment variable COMPILE_R7RS not set."))
-(when (not (assoc scheme data))
-  (error "Unsupported implementation" scheme))
+(when (not (assoc scheme data)) (error "Unsupported implementation" scheme))
 (define compilation-target (if (get-environment-variable "TARGET")
                              (get-environment-variable "TARGET")
                              (cond-expand (windows "windows")

@@ -18,4 +18,4 @@ FROM schemers/${IMAGE}
 COPY --from=build /var/cache/apt/archives /debs
 RUN dpkg -i /debs/*.deb
 COPY --from=local-build-compile-r7rs /opt/compile-r7rs /opt/compile-r7rs
-ENV PATH=/opt/compile-r7rs/bin:${PATH}
+ENV PATH=/opt/compile-r7rs/bin:${PATH}:/opt/compile-r7rs/snow-chibi/bin

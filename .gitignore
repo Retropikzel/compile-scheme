@@ -2,6 +2,7 @@
 *.swo
 *.link
 compile-r7rs
+test-r7rs
 test
 *.c
 *.o

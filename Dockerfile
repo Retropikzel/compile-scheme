@@ -24,6 +24,6 @@ RUN make PREFIX=/opt/compile-r7rs build
 RUN make PREFIX=/opt/compile-r7rs install
 
 FROM schemers/chibi
-RUN apt-get update && apt-get install -y docker.io podman make
+RUN apt-get update && apt-get install -y podman-docker make
 COPY --from=build /opt/compile-r7rs /opt/compile-r7rs
 ENV PATH=/opt/compile-r7rs/bin:${PATH}

@@ -49,7 +49,10 @@
     result))
 
 (define (line->data line)
-  (let ((pair (apply cons (map trim-both (string-split line #\:)))))
+  (let* ((splitted (map trim-both (string-split line #\:)))
+         (pair (if (= (length splitted) 2)
+                 (cons (list-ref splitted 0) (list-ref splitted 1))
+                 (cons (list-ref splitted 0) #f))))
     (cons (string->symbol (car pair)) (cdr pair))))
 
 (define (read-test-data)
@@ -79,6 +82,8 @@
                     group
                     (read-line)))
            (else (looper results group (read-line)))))))
-    (with-input-from-file
-      path
-      (lambda () (looper (list) '(group . "") (read-line))))))
+    (if (not (file-exists? path))
+      (list)
+      (with-input-from-file
+        path
+        (lambda () (looper (list) '(group . "") (read-line)))))))

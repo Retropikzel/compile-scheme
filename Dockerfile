@@ -10,17 +10,20 @@ RUN make install
 WORKDIR /build
 
 ENV SCHEME=chicken
+RUN mkdir -p ${HOME}/.snow && echo "()" > ${HOME}/.snow/config.scm
 RUN snow-chibi --impls=${SCHEME} --always-yes install "(foreign c)"
+RUN snow-chibi --impls=${SCHEME} --always-yes install "(retropikzel system)"
 RUN snow-chibi --impls=${SCHEME} --always-yes install "(srfi 170)"
 
 COPY Makefile .
 COPY compile-r7rs.scm .
-COPY test-r7rs.sh .
+COPY test-r7rs.scm .
 COPY libs libs
 
-RUN make PREFIX=/opt/compile-r7rs build-static
+RUN make PREFIX=/opt/compile-r7rs build
 RUN make PREFIX=/opt/compile-r7rs install
 
-FROM debian:trixie-slim
+FROM schemers/chibi
+RUN apt-get update && apt-get install -y docker.io podman make
 COPY --from=build /opt/compile-r7rs /opt/compile-r7rs
 ENV PATH=/opt/compile-r7rs/bin:${PATH}

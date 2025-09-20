@@ -11,6 +11,21 @@
         (srfi 170)
         (retropikzel system))
 
+(define timeout
+  (if (get-environment-variable "TEST_R7RS_TIMEOUT")
+    (get-environment-variable "TEST_R7RS_TIMEOUT")
+    "6000"))
+
+(define input-file
+  (let ((input-file #f))
+    (for-each
+      (lambda (item)
+        (when (or (string-ends-with? item ".scm")
+                  (string-ends-with? item ".sps"))
+          (set! input-file item)))
+      (list-tail (command-line) 1))
+    input-file))
+
 (define output-file
   (if (member "-o" (command-line))
     (cadr (member "-o" (command-line)))
@@ -184,22 +199,32 @@
     dockerfile-path))
 
 (define (docker-run-cmd tag cmd)
-  (string-append "docker run -v \"${PWD}:/workdir\" --workdir /workdir "
-                 tag
-                 " sh -c \"" cmd "\""))
+  (string-append "docker run -it -v \"${PWD}:/workdir\" --workdir /workdir "
+                 tag " sh -c \"timeout " timeout " " cmd "\""))
 
 (for-each
   (lambda (path) (when (not (file-exists? path)) (create-directory path)))
-  `(".test-r7rs"
-    ".test-r7rs/tmp"))
+  `(".test-r7rs" ".test-r7rs/tmp"))
+
+(define timestamp-path ".test-r7rs/timestamp")
+(system (string-append "date --iso-8601=minutes --utc > " timestamp-path))
+(define timestamp
+  (if (file-exists? timestamp-path)
+    (with-input-from-file timestamp-path (lambda () (read-line)))
+    ""))
 
 (for-each
   echo
   `(,(string-append "# Test report - " output-file)
      ""
+     ,(string-append "Timestamp(UTC): " timestamp)
+     ""
      "Output files are under .test-r7rs/output"
      "Log files are under .test-r7rs/logs"
      "Any other output is under .test-r7rs/tmp for debugging"
+     ,(string-append "Timeout: " timeout)
+     ""
+     ;"Exit code 124 means timed out."
      ""
      "First run may take a while as docker containers are being built"
      ""
@@ -208,11 +233,15 @@
                   "Unexpected passes"
                   "Failures"
                   "Expected failures"
-                  "Skipped tests"))
-     ,(make-row (list lines lines lines lines lines lines))))
+                  "Skipped tests"
+                  "Build exit code"
+                  "Run exit code"))
+     ,(make-row (list lines lines lines lines lines lines lines lines))))
 
 (for-each
   (lambda (scheme)
+    (display (make-cell scheme))
+    (flush-output-port)
     (let*
       ((scheme-dir (let ((path (string-append ".test-r7rs/" scheme)))
                      (when (not (file-exists? path)) (create-directory path))
@@ -224,14 +253,14 @@
        (docker-tag
          (string-append "test-r7rs-" scheme "-run"))
        (docker-build-out
-         (string-append ".test-r7rs/tmp/last-docker-build"))
+         (string-append ".test-r7rs/tmp/" scheme "-last-docker-build"))
        (docker-build-cmd
          (string-append "docker build"
                         " -f " dockerfile-path
                         " --tag=" docker-tag
                         " > " docker-build-out " 2>&1"))
        (build-out
-         (string-append ".test-r7rs/tmp/last-build"))
+         (string-append ".test-r7rs/tmp/" scheme "-last-build"))
        (build-cmd
          (docker-run-cmd docker-tag
                          (string-append
@@ -239,7 +268,7 @@
                            original-arguments
                            (string-append " > " build-out " 2>&1"))))
        (run-out
-         (string-append ".test-r7rs/tmp/last-run"))
+         (string-append ".test-r7rs/tmp/" scheme "-last-run"))
        (run-cmd
          (docker-run-cmd docker-tag
                          (string-append
@@ -258,10 +287,10 @@
                          ""
                          (get-test-name run-out)))
              (logfile (string-append testname ".log"))
-             (scheme-docker-build-out (string-append scheme-log-dir "/" testname "-docker.log"))
-             (scheme-build-out (string-append scheme-log-dir "/" testname "-build.log"))
-             (scheme-run-out (string-append scheme-log-dir "/" testname "-run.log"))
-             (scheme-results-out (string-append scheme-log-dir "/" testname "-srfi-64.log"))
+             (scheme-docker-build-out (string-append scheme-log-dir "/" output-file "-docker.log"))
+             (scheme-build-out (string-append scheme-log-dir "/" output-file "-build.log"))
+             (scheme-run-out (string-append scheme-log-dir "/" output-file "-run.log"))
+             (scheme-results-out (string-append scheme-log-dir "/" output-file "-results.log"))
              (short-test-results (srfi-64-output-read (if (file-exists? run-out) (slurp run-out) "")))
              (passes (cdr (assoc 'expected-passes short-test-results)))
              (failures (cdr (assoc 'failures short-test-results)))
@@ -270,12 +299,22 @@
              (skipped (cdr (assoc 'skipped short-test-results)))
              (test-results (srfi-64-log-results logfile)))
 
-        (system (string-append "mv " docker-build-out " " scheme-docker-build-out " > /dev/null 2>&1"))
-        (system (string-append "mv " build-out " " scheme-build-out " > /dev/null 2>&1"))
-        (system (string-append "mv " run-out " " scheme-run-out " > /dev/null 2>&1"))
-        (system (string-append "mv " logfile " " scheme-results-out " > /dev/null 2>&1"))
+          (system (string-append "mv " docker-build-out " " scheme-docker-build-out " > /dev/null 2>&1"))
+          (system (string-append "mv " build-out " " scheme-build-out " > /dev/null 2>&1"))
+          (system (string-append "mv " run-out " " scheme-run-out " > /dev/null 2>&1"))
+        (when (not (string=? testname ""))
+          (system (string-append "mv " logfile " " scheme-results-out " > /dev/null 2>&1")))
 
-        (echo (make-row (list scheme passes unexpected-passes failures expected-failures skipped)))
+        (echo
+          (make-row
+            (list passes
+                  unexpected-passes
+                  failures
+                  expected-failures
+                  skipped
+                  build-exit-code
+                  run-exit-code)))
+
         (when stop-on-error?
           (when (not (string=? build-exit-code "0"))
             (display "Error on build:")
@@ -284,8 +323,7 @@
             (display ": ")
             (newline)
             (cat scheme-build-out)
-            (exit 1)
-            )
+            (exit 1))
           (when (not (string=? run-exit-code "0"))
             (display "Error on run:")
             (newline)
@@ -293,8 +331,7 @@
             (display ": ")
             (newline)
             (cat scheme-run-out)
-            (exit 1)
-            ))
+            (exit 1)))
         (when stop-on-fail?
           (when (and (string->number failures) (> (string->number failures) 0))
             (let ((pretty-print (lambda (pair)
@@ -307,14 +344,14 @@
               (for-each
                 (lambda (result)
                   (when (string=? (cdr (assoc 'result-kind result)) "fail")
-                  (pretty-print (assq 'test-name result))
-                  (for-each
-                    (lambda (item)
-                      (when (not (equal? (car item) 'test-name))
-                      (display "  ")
-                      (pretty-print item)))
-                    (cdr result))
-                  (newline)))
+                    (pretty-print (assq 'test-name result))
+                    (for-each
+                      (lambda (item)
+                        (when (not (equal? (car item) 'test-name))
+                          (display "  ")
+                          (pretty-print item)))
+                      (cdr result))
+                    (newline)))
                 test-results)
               (exit 1)))))))
   schemes)

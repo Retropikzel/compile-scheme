@@ -29,9 +29,7 @@
 (define output-file
   (if (member "-o" (command-line))
     (cadr (member "-o" (command-line)))
-    (if input-file
-      "a.out"
-      #f)))
+      "a.out"))
 
 (define stop-on-error?
   (if (member "--stop-on-error" (command-line)) #t #f))
@@ -41,6 +39,9 @@
 
 (define use-docker-head?
   (if (member "--use-docker-head" (command-line)) #t #f))
+
+(define debug?
+  (if (member "--debug" (command-line)) #t #f))
 
 (define schemes
   (let ((compile-r7rs (get-environment-variable "COMPILE_R7RS")))
@@ -154,17 +155,28 @@
         (for-each
           echo
           `("FROM debian:trixie AS build"
-            "RUN apt-get update && apt-get install -y git gcc wget make guile-3.0-dev libcurl4-openssl-dev"
+            "RUN apt-get update && apt-get install -y git gcc wget make guile-3.0-dev libcurl4-openssl-dev chicken-bin"
+            "RUN chicken-install r7rs"
             "WORKDIR /cache"
-            "RUN git clone https://github.com/ashinn/chibi-scheme.git --depth=1"
-            "RUN wget https://gitlab.com/-/project/6808260/uploads/819fd1f988c6af5e7df0dfa70aa3d3fe/akku-1.1.0.tar.gz && tar -xf akku-1.1.0.tar.gz"
-            "RUN mv akku-1.1.0 akku"
 
+            "RUN git clone https://github.com/ashinn/chibi-scheme.git --depth=1"
             "WORKDIR /cache/chibi-scheme"
             "RUN make"
+            "RUN make install"
 
+            "WORKDIR /cache"
+            "RUN wget https://gitlab.com/-/project/6808260/uploads/819fd1f988c6af5e7df0dfa70aa3d3fe/akku-1.1.0.tar.gz && tar -xf akku-1.1.0.tar.gz"
+            "RUN mv akku-1.1.0 akku"
             "WORKDIR /cache/akku"
             "RUN ./configure && make"
+
+            "WORKDIR /cache"
+            "RUN snow-chibi install --always-yes --impls=chicken \"(foreign c)\""
+            "RUN snow-chibi install --always-yes --impls=chicken \"(retropikzel system)\""
+            "RUN snow-chibi install --always-yes --impls=chicken \"(srfi 170)\""
+            "RUN git clone https://gitea.scheme.org/Retropikzel/compile-r7rs.git --depth=1"
+            "WORKDIR /cache/compile-r7rs"
+            "RUN make"
 
             ,(string-append "FROM schemers/"
                             scheme
@@ -174,7 +186,7 @@
                                   (use-docker-head? ":head")
                                   (else "")))
             ,(string-append
-               "RUN apt-get update && apt-get install -y make guile-3.0 libcurl4-openssl-dev " apt-pkgs)
+               "RUN apt-get update && apt-get install -y make guile-3.0 libcurl4-openssl-dev time tree file " apt-pkgs)
             "RUN mkdir -p ${HOME}/.snow && echo \"()\" > ${HOME}/.snow/config.scm"
 
             "COPY --from=build /cache /cache"
@@ -189,6 +201,9 @@
             "WORKDIR /cache/akku"
             "RUN make install"
 
+            "WORKDIR /cache/compile-r7rs"
+            "RUN make install"
+
             "WORKDIR /akku"
 
             "RUN akku update"
@@ -199,8 +214,8 @@
     dockerfile-path))
 
 (define (docker-run-cmd tag cmd)
-  (string-append "docker run -it -v \"${PWD}:/workdir\" --workdir /workdir "
-                 tag " sh -c \"timeout " timeout " " cmd "\""))
+  (string-append "docker run -i -v \"${PWD}:/workdir\" --workdir /workdir "
+                 tag " sh -c \"time timeout " timeout " " cmd "\""))
 
 (for-each
   (lambda (path) (when (not (file-exists? path)) (create-directory path)))
@@ -255,7 +270,7 @@
        (docker-build-out
          (string-append ".test-r7rs/tmp/" scheme "-last-docker-build"))
        (docker-build-cmd
-         (string-append "docker build"
+         (string-append "docker build . "
                         " -f " dockerfile-path
                         " --tag=" docker-tag
                         " > " docker-build-out " 2>&1"))
@@ -309,18 +324,11 @@
           (system (string-append "mv " docker-build-out " " scheme-docker-build-out " > /dev/null 2>&1"))
           (system (string-append "mv " build-out " " scheme-build-out " > /dev/null 2>&1"))
           (system (string-append "mv " run-out " " scheme-run-out " > /dev/null 2>&1"))
+
         (when (not (string=? testname ""))
           (system (string-append "mv " logfile " " scheme-results-out " > /dev/null 2>&1")))
 
-        (echo
-          (make-row
-            (list passes
-                  unexpected-passes
-                  failures
-                  expected-failures
-                  skipped
-                  build-exit-code
-                  run-exit-code)))
+        (echo (make-row (list passes unexpected-passes failures expected-failures skipped build-exit-code run-exit-code)))
 
         (when stop-on-error?
           (when (not (string=? build-exit-code "0"))

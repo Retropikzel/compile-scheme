@@ -20,10 +20,9 @@ COPY compile-r7rs.scm .
 COPY test-r7rs.scm .
 COPY libs libs
 
-RUN make PREFIX=/opt/compile-r7rs build
+RUN make PREFIX=/opt/compile-r7rs
 RUN make PREFIX=/opt/compile-r7rs install
 
-FROM schemers/chibi
-RUN apt-get update && apt-get install -y podman-docker make
+FROM debian:trixie
 COPY --from=build /opt/compile-r7rs /opt/compile-r7rs
 ENV PATH=/opt/compile-r7rs/bin:${PATH}

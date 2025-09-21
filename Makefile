@@ -9,9 +9,23 @@ endif
 
 STATIC_LIBS=libs.util.a libs.library-util.a libs.data.a libs.srfi-64-util.a
 
-all: build
+all: build-static
 
-build: compile-r7rs test-r7rs
+build:
+	echo "#!/bin/sh" > compile-r7rs
+	echo "chibi-scheme -A ${PREFIX}/lib/compile-r7rs ${PREFIX}/lib/compile-r7rs/compile-r7rs.scm \"\$$@\"" >> compile-r7rs
+	echo "#!/bin/sh" > test-r7rs
+	echo "chibi-scheme -A ${PREFIX}/lib/compile-r7rs ${PREFIX}/lib/compile-r7rs/test-r7rs.scm \"\$$@\"" >> test-r7rs
+
+build-static: compile-r7rs test-r7rs
+
+build-docker-images: build-docker-image-debian
+
+build-docker-image-debian:
+	docker build . -f Dockerfile --tag=retropikzel1/compile-r7rs
+
+push-docker-image-debian:
+	docker push retropikzel1/compile-r7rs
 
 libs.util.a: libs/util.sld libs/util.scm
 	csc -R r7rs -X r7rs -static -c -J -unit libs.util -o libs.util.o libs/util.sld
@@ -57,7 +71,7 @@ install:
 	cp -r libs ${PREFIX}/lib/compile-r7rs/
 	cp compile-r7rs.scm ${PREFIX}/lib/compile-r7rs/compile-r7rs.scm
 	install compile-r7rs ${PREFIX}/bin/compile-r7rs
-	cp compile-r7rs.scm ${PREFIX}/lib/compile-r7rs/test-r7rs.scm
+	cp test-r7rs.scm ${PREFIX}/lib/compile-r7rs/test-r7rs.scm
 	install test-r7rs ${PREFIX}/bin/test-r7rs
 
 uninstall:

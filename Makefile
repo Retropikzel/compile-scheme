@@ -9,7 +9,7 @@ endif
 
 STATIC_LIBS=libs.util.a libs.library-util.a libs.data.a libs.srfi-64-util.a
 
-all: build-static
+all: build
 
 build:
 	echo "#!/bin/sh" > compile-r7rs
@@ -17,15 +17,28 @@ build:
 	echo "#!/bin/sh" > test-r7rs
 	echo "chibi-scheme -A ${PREFIX}/lib/compile-r7rs ${PREFIX}/lib/compile-r7rs/test-r7rs.scm \"\$$@\"" >> test-r7rs
 
+build-sagittarius:
+	echo "#!/bin/sh" > compile-r7rs
+	echo "sash -A ${PREFIX}/lib/compile-r7rs ${PREFIX}/lib/compile-r7rs/compile-r7rs.scm \"\$$@\"" >> compile-r7rs
+	echo "#!/bin/sh" > test-r7rs
+	echo "sash -A ${PREFIX}/lib/compile-r7rs ${PREFIX}/lib/compile-r7rs/test-r7rs.scm \"\$$@\"" >> test-r7rs
+
 build-static: compile-r7rs test-r7rs
 
-build-docker-images: build-docker-image-debian
+docker-images: build-docker-image-debian build-docker-image-alpine
 
-build-docker-image-debian:
-	docker build . -f Dockerfile --tag=retropikzel1/compile-r7rs
+docker-image-debian:
+	docker build . -f Dockerfile --tag=retropikzel1/compile-r7rs:latest
 
-push-docker-image-debian:
-	docker push retropikzel1/compile-r7rs
+docker-image-debian-push:
+	docker push retropikzel1/compile-r7rs:latest
+
+docker-image-alpine:
+	docker build . -f Dockerfile.alpine --tag=retropikzel1/compile-r7rs:alpine-latest
+
+docker-image-alpine-push:
+	docker push retropikzel1/compile-r7rs:alpine-latest
+
 
 libs.util.a: libs/util.sld libs/util.scm
 	csc -R r7rs -X r7rs -static -c -J -unit libs.util -o libs.util.o libs/util.sld

@@ -39,7 +39,6 @@ docker-image-alpine:
 docker-image-alpine-push:
 	docker push retropikzel1/compile-r7rs:alpine-latest
 
-
 libs.util.a: libs/util.sld libs/util.scm
 	csc -R r7rs -X r7rs -static -c -J -unit libs.util -o libs.util.o libs/util.sld
 	ar rcs libs.util.a libs.util.o

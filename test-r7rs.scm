@@ -11,10 +11,61 @@
         (srfi 170)
         (retropikzel system))
 
+(for-each
+  (lambda (path) (when (not (file-exists? path)) (create-directory path)))
+  `(".test-r7rs" ".test-r7rs/tmp"))
+
+(define lines ":----------------")
+
+(define cell-width 17)
+
+(define (make-cell text)
+  (letrec* ((looper (lambda (result)
+                      (if (> (string-length result) cell-width)
+                        result
+                        (looper (string-append result " "))))))
+    (string-append "| " (looper text))))
+
+(define (make-row items)
+  (string-append (apply string-append (map make-cell items)) "|"))
+
+(define (print-header output-file timestamp timeout)
+  (for-each
+    echo
+    `(,(string-append "# Test report - " output-file)
+       ""
+       ,(string-append "Timestamp(UTC): " timestamp)
+       ""
+       "Output files are under .test-r7rs/output"
+       "Log files are under .test-r7rs/logs"
+       "Any other output is under .test-r7rs/tmp for debugging"
+       ,(string-append "Timeout: " timeout)
+       ""
+       ;"Exit code 124 means timed out."
+       ""
+       "First run may take a while as docker containers are being built"
+       ""
+       ,(make-row '("Implementation"
+                    "Passes"
+                    "Unexpected passes"
+                    "Failures"
+                    "Expected failures"
+                    "Skipped tests"
+                    "Build exit code"
+                    "Run exit code"))
+       ,(make-row (list lines lines lines lines lines lines lines lines)))))
+
 (define timeout
-  (if (get-environment-variable "TEST_R7RS_TIMEOUT")
-    (get-environment-variable "TEST_R7RS_TIMEOUT")
-    "6000"))
+  (if (member "--timeout" (command-line))
+    (cadr (member "--timeout" (command-line)))
+      "6000"))
+
+(define timestamp-path ".test-r7rs/timestamp")
+(system (string-append "date --iso-8601=minutes --utc > " timestamp-path))
+(define timestamp
+  (if (file-exists? timestamp-path)
+    (with-input-from-file timestamp-path (lambda () (read-line)))
+    ""))
 
 (define input-file
   (let ((input-file #f))
@@ -30,6 +81,14 @@
   (if (member "-o" (command-line))
     (cadr (member "-o" (command-line)))
       "a.out"))
+
+(define print-header?
+  (if (member "--no-header" (command-line)) #f #t))
+
+(when print-header?
+  (print-header output-file timestamp timeout))
+
+(when (member "--only-header" (command-line)) (exit 0))
 
 (define stop-on-error?
   (if (member "--stop-on-error" (command-line)) #t #f))
@@ -50,12 +109,8 @@
        #f)
       ((not (string? compile-r7rs))
             (error "COMPILE_R7RS is not a string" compile-r7rs))
-      ((string=? compile-r7rs "all-r6rs")
-       (map symbol->string r6rs-schemes))
-      ((string=? compile-r7rs "all-r7rs")
-       (map symbol->string r7rs-schemes))
       (else
-        (list compile-r7rs)))))
+        (string-split compile-r7rs #\space)))))
 (when (not schemes) (error "Environment variable COMPILE_R7RS not set."))
 (when (and (< (length schemes) 2)
            (not (assoc (string->symbol (car schemes)) data)))
@@ -109,16 +164,6 @@
     (get-output-string pkgs)))
 
 (define apt-pkgs (util-getenv "APT_PKGS"))
-(define lines ":----------------")
-(define cell-width 17)
-(define (make-cell text)
-  (letrec* ((looper (lambda (result)
-                      (if (> (string-length result) cell-width)
-                        result
-                        (looper (string-append result " "))))))
-    (string-append "| " (looper text))))
-(define (make-row items)
-  (string-append (apply string-append (map make-cell items)) "|"))
 (define (string-copy-until text begin-index until-char)
   (letrec* ((end (string->list (string-copy text begin-index)))
             (looper (lambda (c rest result)
@@ -141,10 +186,12 @@
                         (string-copy-until line prefix-length #\()
                         (when (not (eof-object? line))
                           (looper (read-line)))))))
-    (with-input-from-file
-      run-out
-      (lambda ()
-        (trim-both (looper (read-line)))))))
+    (if (file-exists? run-out)
+      (with-input-from-file
+        run-out
+        (lambda ()
+          (trim-both (looper (read-line)))))
+      "")))
 
 (define (write-dockerfile scheme snow-pkgs akku-pkgs apt-pkgs)
   (let ((dockerfile-path (string-append ".test-r7rs/" scheme "/Dockerfile")))
@@ -154,104 +201,24 @@
       (lambda ()
         (for-each
           echo
-          `("FROM debian:trixie AS build"
-            "RUN apt-get update && apt-get install -y git gcc wget make guile-3.0-dev libcurl4-openssl-dev chicken-bin"
-            "RUN chicken-install r7rs"
-            "WORKDIR /cache"
-
-            "RUN git clone https://github.com/ashinn/chibi-scheme.git --depth=1"
-            "WORKDIR /cache/chibi-scheme"
-            "RUN make"
-            "RUN make install"
-
-            "WORKDIR /cache"
-            "RUN wget https://gitlab.com/-/project/6808260/uploads/819fd1f988c6af5e7df0dfa70aa3d3fe/akku-1.1.0.tar.gz && tar -xf akku-1.1.0.tar.gz"
-            "RUN mv akku-1.1.0 akku"
-            "WORKDIR /cache/akku"
-            "RUN ./configure && make"
-
-            "WORKDIR /cache"
-            "RUN snow-chibi install --always-yes --impls=chicken \"(foreign c)\""
-            "RUN snow-chibi install --always-yes --impls=chicken \"(retropikzel system)\""
-            "RUN snow-chibi install --always-yes --impls=chicken \"(srfi 170)\""
-            "RUN git clone https://gitea.scheme.org/Retropikzel/compile-r7rs.git --depth=1"
-            "WORKDIR /cache/compile-r7rs"
-            "RUN make"
-
-            ,(string-append "FROM schemers/"
+          `(,(string-append "FROM schemers/"
                             scheme
                             (cond ((and (string=? scheme "chicken")
                                         use-docker-head?)
                                    ":5")
                                   (use-docker-head? ":head")
                                   (else "")))
-            ,(string-append
-               "RUN apt-get update && apt-get install -y make guile-3.0 libcurl4-openssl-dev time tree file " apt-pkgs)
-            "RUN mkdir -p ${HOME}/.snow && echo \"()\" > ${HOME}/.snow/config.scm"
-
-            "COPY --from=build /cache /cache"
-
+            "RUN mkdir -p ${HOME}/.snow && echo '()' > ${HOME}/.snow/config.scm"
             "COPY --from=retropikzel1/compile-r7rs /opt/compile-r7rs /opt/compile-r7rs"
-
-            "ENV PATH=/opt/compile-r7rs/bin:${PATH}"
+            "ENV PATH=/opt/compile-r7rs:${PATH}"
+            ,(string-append "RUN /opt/compile-r7rs/snow-chibi install --always-yes --impls=" scheme " " snow-pkgs)
             ,(string-append "ENV COMPILE_R7RS=" scheme)
-
-            "WORKDIR /cache/chibi-scheme"
-            "RUN make install"
-            "WORKDIR /cache/akku"
-            "RUN make install"
-
-            "WORKDIR /cache/compile-r7rs"
-            "RUN make install"
-
-            "WORKDIR /akku"
-
-            "RUN akku update"
-            ,(string-append "RUN snow-chibi install --always-yes --impls=" scheme " " snow-pkgs)
-            ,(string-append "RUN akku install " akku-pkgs)
-
             "WORKDIR /workdir"))))
     dockerfile-path))
 
 (define (docker-run-cmd tag cmd)
   (string-append "docker run -i -v \"${PWD}:/workdir\" --workdir /workdir "
-                 tag " sh -c \"time timeout " timeout " " cmd "\""))
-
-(for-each
-  (lambda (path) (when (not (file-exists? path)) (create-directory path)))
-  `(".test-r7rs" ".test-r7rs/tmp"))
-
-(define timestamp-path ".test-r7rs/timestamp")
-(system (string-append "date --iso-8601=minutes --utc > " timestamp-path))
-(define timestamp
-  (if (file-exists? timestamp-path)
-    (with-input-from-file timestamp-path (lambda () (read-line)))
-    ""))
-
-(for-each
-  echo
-  `(,(string-append "# Test report - " output-file)
-     ""
-     ,(string-append "Timestamp(UTC): " timestamp)
-     ""
-     "Output files are under .test-r7rs/output"
-     "Log files are under .test-r7rs/logs"
-     "Any other output is under .test-r7rs/tmp for debugging"
-     ,(string-append "Timeout: " timeout)
-     ""
-     ;"Exit code 124 means timed out."
-     ""
-     "First run may take a while as docker containers are being built"
-     ""
-     ,(make-row '("Implementation"
-                  "Passes"
-                  "Unexpected passes"
-                  "Failures"
-                  "Expected failures"
-                  "Skipped tests"
-                  "Build exit code"
-                  "Run exit code"))
-     ,(make-row (list lines lines lines lines lines lines lines lines))))
+                 tag " sh -c \"timeout " timeout " " cmd "\""))
 
 (for-each
   (lambda (scheme)
@@ -311,7 +278,7 @@
              (logfile (string-append testname ".log"))
              (scheme-docker-build-out (string-append scheme-log-dir "/" output-file "-docker.log"))
              (scheme-build-out (string-append scheme-log-dir "/" output-file "-build.log"))
-             (scheme-run-out (string-append scheme-log-dir "/" output-file "-run.log"))
+             (scheme-run-out(string-append scheme-log-dir "/" output-file "-run.log"))
              (scheme-results-out (string-append scheme-log-dir "/" output-file "-results.log"))
              (short-test-results (srfi-64-output-read (if (file-exists? run-out) (slurp run-out) "")))
              (passes (cdr (assoc 'expected-passes short-test-results)))
@@ -347,6 +314,7 @@
             (newline)
             (cat scheme-run-out)
             (exit 1)))
+
         (when stop-on-fail?
           (when (and (string->number failures) (> (string->number failures) 0))
             (let ((pretty-print (lambda (pair)

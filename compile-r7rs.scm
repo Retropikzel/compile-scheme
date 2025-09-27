@@ -11,14 +11,17 @@
 
 (when (member "--list-r6rs-schemes" (command-line))
   (for-each (lambda (scheme) (display scheme) (display " ")) r6rs-schemes)
+  (newline)
   (exit 0))
 
 (when (member "--list-r7rs-schemes" (command-line))
   (for-each (lambda (scheme) (display scheme) (display " ")) r7rs-schemes)
+  (newline)
   (exit 0))
 
 (when (member "--list-schemes" (command-line))
   (for-each (lambda (scheme) (display scheme) (display " ")) all-schemes)
+  (newline)
   (exit 0))
 
 (define scheme (if (get-environment-variable "COMPILE_R7RS")

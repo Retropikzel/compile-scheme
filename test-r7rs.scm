@@ -208,12 +208,13 @@
                                    ":5")
                                   (use-docker-head? ":head")
                                   (else "")))
-            "RUN mkdir -p ${HOME}/.snow && echo '()' > ${HOME}/.snow/config.scm"
-            "COPY --from=retropikzel1/compile-r7rs /opt/compile-r7rs /opt/compile-r7rs"
-            "ENV PATH=/opt/compile-r7rs:${PATH}"
-            ,(string-append "RUN /opt/compile-r7rs/snow-chibi install --always-yes --impls=" scheme " " snow-pkgs)
-            ,(string-append "ENV COMPILE_R7RS=" scheme)
-            "WORKDIR /workdir"))))
+          ,(string-append "RUN apt-get update && apt-get install -y tree " apt-pkgs)
+          "RUN mkdir -p ${HOME}/.snow && echo '()' > ${HOME}/.snow/config.scm"
+          "COPY --from=retropikzel1/compile-r7rs /opt/compile-r7rs /opt/compile-r7rs"
+          "ENV PATH=/opt/compile-r7rs:${PATH}"
+          ,(string-append "RUN /opt/compile-r7rs/snow-chibi install --always-yes --impls=" scheme " " snow-pkgs)
+          ,(string-append "ENV COMPILE_R7RS=" scheme)
+          "WORKDIR /workdir"))))
     dockerfile-path))
 
 (define (docker-run-cmd tag cmd)

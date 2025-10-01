@@ -41,9 +41,9 @@ build-kawa:
 	echo "#!/bin/sh" > compile-r7rs
 	echo "kawa -J--add-exports=java.base/jdk.internal.foreign.abi=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign.layout=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign=ALL-UNNAMED -J--enable-native-access=ALL-UNNAMED -Dkawa.import.path=/usr/local/share/kawa/lib/*.sld:${PREFIX}/lib/compile-r7rs/*.sld --r7rs ${PREFIX}/lib/compile-r7rs/compile-r7rs.scm \"\$$@\" 2> /dev/null" >> compile-r7rs
 
-build-racket:
-	echo "#!/bin/sh" > compile-r7rs
-	echo "racket -I r7rs -S ${PREFIX}/lib/compile-r7rs --script ${PREFIX}/lib/compile-r7rs/compile-r7rs.scm \"\$$@\"" >> compile-r7rs
+#build-racket:
+	#echo "#!/bin/sh" > compile-r7rs
+	#echo "racket -I r7rs -S ${PREFIX}/lib/compile-r7rs --script ${PREFIX}/lib/compile-r7rs/compile-r7rs.scm \"\$$@\"" >> compile-r7rs
 
 build-sagittarius:
 	echo "#!/bin/sh" > compile-r7rs

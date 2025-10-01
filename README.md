@@ -9,11 +9,8 @@ Despite it's name it also supports R6RS. Schemers, unite! <3
 - [Supported implementations](#supported-implementations)
 - [Roadmap](#roadmap)
 - [Dependencies](#dependencies)
-    - [Linux](#dependencies-linux)
-    - [Windows](#dependencies-windows)
+- [Building](#building)
 - [Installation](#installation)
-    - [Linux](#installation-linux)
-    - [Windows](#installation-windows)
 - [Usage](#usage)
     - [Chicken](#usage-chicken)
     - [Mosh](#usage-mosh)
@@ -164,48 +161,27 @@ as compiler.
 ## Dependencies
 <a name="#dependencies"></a>
 
-### Linux
-<a name="#dependencies-linux"></a>
+- (foreign c)
+- (srfi 170)
 
-#### Chicken Scheme and R7RS library
+To install:
 
-On Debian/Ubuntu/Mint:
+    snow-chibi --impls=SCHEME "(foreign c)"
+    snow-chibi --impls=SCHEME "(srfi 170)"
 
-    apt-get install -y chicken-bin
-    chicken-install r7rs
+## Building
+<a name="#building"></a>
 
-### Windows
-<a name="#dependencies-windows"></a>
+The Makefile has build jobs for Schemes that compile-r7rs can be run with. The
+default is chibi. Run:
 
-### Sagittarius Scheme
-Download the installer from
-[https://bitbucket.org/ktakashi/sagittarius-scheme/downloads/](https://bitbucket.org/ktakashi/sagittarius-scheme/downloads/)
-and install it into **default location**.
-
-### libuv
-
-Libuv is distributed with compile-r7rs on Windows.
+    make build-SCHEME
 
 ## Installation
-<a name="#Installation"></a>
+<a name="#installation"></a>
 
-You will need Chibi scheme and snow-chibi installed. For static build you need
-chicken 5.
+Run:
 
-First install linux dependencies:
-
-    apt-get install build-essential make libffi-dev chicken-bin
-
-Then install latest Chibi scheme from git.
-
-And then run:
-
-    make
-    make install
-
-Or:
-
-    make build-static
     make install
 
 ## Usage
@@ -241,44 +217,6 @@ No other file suffixes are supported at the moment.
 
 Setting value of COMPILE\_R7RS to implementation name that supports only r7rs
 and input file to .sps file and other way around is undefined behaviour.
-
-### Chicken
-<a name="#usage-chicken"></a>
-
-By default Chicken 6 is assumed, for Chicken 5 use environment variable to
-add R7RS libraries:
-
-    COMPILE_R7RS_CHIKEN="-X r7r -R r7rs"
-
-### mit-scheme
-<a name="#usage-mit-scheme"></a>
-
-Only allows one loadpath. Workaround in compile-r7rs is that each library is
-loaded individually, like so:
-
-    mit-scheme --load foo/bar.sld --load foo/baz.sld ... main.scm
-
-This does not require actions from the user and is done automatically.
-
-### Compiling a single library
-<a name="#usage-compiling-a-single-library"></a>
-
-Sometimes implementations need the libraries compiled in certain order,
-specially the compilers. Since doing analysing from the files about which
-library depends on which library I've decided to outsource it to you. :)
-
-To compile single library run the same command (including all the arguments
-other than -o)
-you would run for executable, except change the input file to the library.
-
-Example of compiling main program:
-
-    COMPILE_R7RS=<implementation name> compile-r7rs -I . -o main main.scm
-
-And if the main program needed library called foo/bar.sld, and the compile-r7rs
-tried to compile them in wrong order you would run:
-
-    COMPILE_R7RS=<implementation name> compile-r7rs -I . foo/bar.sld
 
 ### Environment variables
 <a name="#usage-environment-variables"></a>

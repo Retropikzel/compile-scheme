@@ -1,5 +1,5 @@
-FROM debian:trixie-slim AS build
-RUN apt-get update && apt-get install -y make gcc gcc chicken-bin git
+FROM alpine AS build
+RUN apk add make gcc chicken git
 RUN chicken-install r7rs
 
 WORKDIR /build
@@ -19,6 +19,6 @@ COPY libs ./libs
 RUN make PREFIX=/opt/compile-r7rs build-chicken
 RUN make PREFIX=/opt/compile-r7rs install
 
-FROM debian:trixie-slim
+FROM alpine
 COPY --from=build /opt/compile-r7rs /opt/compile-r7rs
 ENV PATH=/opt/compile-r7rs:${PATH}

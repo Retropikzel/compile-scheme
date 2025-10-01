@@ -21,4 +21,4 @@ RUN make PREFIX=/opt/compile-r7rs install
 
 FROM alpine
 COPY --from=build /opt/compile-r7rs /opt/compile-r7rs
-ENV PATH=/opt/compile-r7rs:${PATH}
+ENV PATH=/opt/compile-r7rs/bin:${PATH}

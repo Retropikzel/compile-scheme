@@ -41,9 +41,9 @@ pipeline {
                 script {
                     def SCHEMES = "chibi chicken cyclone gambit foment gauche guile kawa larceny loko meevax mit-scheme mosh racket sagittarius skint stklos tr7 ypsilon"
                     SCHEMES.split().each { SCHEME ->
-                        stage("${SCHEME} R6RS") {
+                        stage("${SCHEME} R7RS") {
                             catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                                sh "make SCHEME=${SCHEME} test-r6rs-docker"
+                                sh "make SCHEME=${SCHEME} test-r7rs-docker"
                             }
                         }
                     }

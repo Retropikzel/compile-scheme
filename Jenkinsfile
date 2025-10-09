@@ -29,24 +29,22 @@ pipeline {
                 script {
                     def SCHEMES = "chezscheme guile ikarus ironscheme larceny loko mosh racket sagittarius ypsilon"
                     SCHEMES.split().each { SCHEME ->
-                                stage("${SCHEME} R6RS") {
-                                    def IMG="${SCHEME}:head"
-                                    if("${SCHEME}" == "chicken") {
-                                        IMG="${SCHEME}:5"
-                                    }
-                                    agent {
-                                        docker {
-                                            image "schemers/${IMG}"
-                                                label "docker-x86_64"
-                                                args "--user=root"
-                                        }
-                                    }
-                                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                                        sh "make SCHEME=${SCHEME} test-r6rs"
-                                    }
+                        stage("${SCHEME} R6RS") {
+                            def IMG="${SCHEME}:head"
+                                if("${SCHEME}" == "chicken") {
+                                    IMG="${SCHEME}:5"
+                                }
+                            agent {
+                                docker {
+                                    image "schemers/${IMG}"
+                                        label "docker-x86_64"
+                                        args "--user=root"
                                 }
                             }
-                        ]
+                            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                                sh "make SCHEME=${SCHEME} test-r6rs"
+                            }
+                        }
                     }
                 }
             }

@@ -1,21 +1,23 @@
 ARG SCHEME=chibi
 ARG IMAGE=chibi:head
-FROM debian:trixie AS build
-RUN apt-get update && apt-get install -y \
-    --download-only \
-    --no-install-recommends \
-    --no-install-suggests \
-    build-essential \
-    make \
-    libffi-dev \
-    ca-certificates \
-    git \
-    cmark
+FROM debian:bookworm AS cache
+RUN apt-get update && apt-get install -y gcc make git
+WORKDIR /cache
+RUN git clone https://github.com/ashinn/chibi-scheme.git --depth=1
+WORKDIR /cache/chibi-scheme
+RUN make
 
 ARG SCHEME=chibi
-ENV COMPILE_R7RS=${SCHEME}
+ARG IMAGE=chibi:head
 FROM schemers/${IMAGE}
-COPY --from=build /var/cache/apt/archives /debs
-RUN dpkg -i /debs/*.deb
-COPY --from=local-build-compile-r7rs /opt/compile-r7rs /opt/compile-r7rs
-ENV PATH=/opt/compile-r7rs/bin:${PATH}:/opt/compile-r7rs/snow-chibi/bin
+RUN apt-get update && apt-get install -y make gcc libffi-dev unzip
+COPY --from=cache /cache /cache
+WORKDIR /cache/chibi-scheme
+RUN make install
+WORKDIR /
+RUN snow-chibi install --always-yes "(foreign c)"
+RUN snow-chibi install --always-yes "(srfi 170)"
+COPY Makefile .
+COPY libs libs/
+COPY compile-r7rs.scm .
+RUN make build-chibi && make install

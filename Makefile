@@ -94,7 +94,7 @@ test-r7rs:
 
 test-r7rs-docker:
 	docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .
-	docker run -it -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c "make SCHEME=${SCHEME} test-r7rs"
+	docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c "make SCHEME=${SCHEME} test-r7rs"
 
 clean:
 	rm -rf test-r7rs

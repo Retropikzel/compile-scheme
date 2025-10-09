@@ -1,9 +1,9 @@
 pipeline {
 
     agent {
-        docker {
+        dockerfile {
             label 'docker-x86_64'
-            image 'schemers/chibi:head'
+            filepath 'Dockerfile.jenkins'
             args '--user=root --privileged -v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
@@ -16,9 +16,6 @@ pipeline {
     stages {
         stage('Build and install') {
             steps {
-                sh "apt-get update && apt-get install -y make libffi-dev build-essential"
-                sh 'snow-chibi install --always-yes "(foreign c)"'
-                sh 'snow-chibi install --always-yes "(srfi 170)"'
                 sh "make build-chibi"
                 sh "make install"
             }

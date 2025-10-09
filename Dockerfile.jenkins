@@ -1,0 +1,4 @@
+FROM schemers/chibi:head
+RUN apt-get update && apt-get install -y make libffi-dev build-essential docker.io
+RUN snow-chibi install --always-yes "(foreign c)"
+RUN snow-chibi install --always-yes "(srfi 170)"

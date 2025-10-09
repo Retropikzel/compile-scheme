@@ -24,21 +24,25 @@ pipeline {
             }
         }
 
-        /*
         stage('Test R6RS implementations') {
             steps {
                 script {
-                    def r6rs_implementations = "chezscheme guile ikarus ironscheme larceny loko mosh racket sagittarius ypsilon".split()
-                    r6rs_implementations.collectEntries { SCHEME ->
-                        [(SCHEME): {
+                    def SCHEMES = "chezscheme guile ikarus ironscheme larceny loko mosh racket sagittarius ypsilon"
+                    SCHEMES.split().each { SCHEME ->
                                 stage("${SCHEME} R6RS") {
-                                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                                        def DOCKERIMG="${SCHEME}:head"
-                                        if("${SCHEME}" == "chicken") {
-                                            DOCKERIMG="chicken:5"
+                                    def IMG="${SCHEME}:head"
+                                    if("${SCHEME}" == "chicken") {
+                                        IMG="${SCHEME}:5"
+                                    }
+                                    agent {
+                                        docker {
+                                            image "schemers/${IMG}"
+                                                label "docker-x86_64"
+                                                args "--user=root"
                                         }
-                                        sh "docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} ."
-                                        sh "docker run -v ${WORKSPACE}:/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c \"make && make install && make SCHEME=${SCHEME} test-r6rs\""
+                                    }
+                                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                                        sh "make SCHEME=${SCHEME} test-r6rs"
                                     }
                                 }
                             }
@@ -47,6 +51,8 @@ pipeline {
                 }
             }
         }
+
+        /*
 
         stage('Test R7RS implementations') {
             steps {

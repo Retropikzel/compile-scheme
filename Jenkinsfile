@@ -3,7 +3,7 @@ pipeline {
     agent {
         dockerfile {
             label 'docker-x86_64'
-            filepath 'Dockerfile.jenkins'
+            filename 'Dockerfile.jenkins'
             args '--user=root --privileged -v /var/run/docker.sock:/var/run/docker.sock'
         }
     }

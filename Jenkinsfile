@@ -16,7 +16,7 @@ pipeline {
     stages {
         stage('Build and install') {
             steps {
-                sh "apt-get install -y make libffi-dev build-essential"
+                sh "apt-get update && apt-get install -y make libffi-dev build-essential"
                 sh 'snow-chibi install --always-yes "(foreign c)"'
                 sh 'snow-chibi install --always-yes "(srfi 170)"'
                 sh "make build-chibi"

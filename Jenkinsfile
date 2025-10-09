@@ -24,25 +24,14 @@ pipeline {
             }
         }
 
-        stage('Test R6RS implementations') {
+        stage('Test R6RS') {
             steps {
                 script {
                     def SCHEMES = "chezscheme guile ikarus ironscheme larceny loko mosh racket sagittarius ypsilon"
                     SCHEMES.split().each { SCHEME ->
                         stage("${SCHEME} R6RS") {
-                            def IMG="${SCHEME}:head"
-                                if("${SCHEME}" == "chicken") {
-                                    IMG="${SCHEME}:5"
-                                }
-                            agent {
-                                docker {
-                                    image "schemers/${IMG}"
-                                        label "docker-x86_64"
-                                        args "--user=root"
-                                }
-                            }
                             catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                                sh "make SCHEME=${SCHEME} test-r6rs"
+                                sh "make SCHEME=${SCHEME} test-r6rs-docker"
                             }
                         }
                     }
@@ -52,7 +41,7 @@ pipeline {
 
         /*
 
-        stage('Test R7RS implementations') {
+        stage('Test R7RS') {
             steps {
                 script {
                     def r7rs_implementations = "chibi chicken cyclone gambit foment gauche guile kawa larceny loko meevax mit-scheme mosh racket sagittarius skint stklos tr7 ypsilon".split()

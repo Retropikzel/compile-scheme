@@ -8,8 +8,7 @@ DOCKERIMG="chicken:5"
 endif
 STATIC_LIBS=libs.util.a libs.library-util.a libs.data.a libs.srfi-64-util.a
 
-all:
-	echo "HERE!"
+all: build-chibi
 
 build-chibi:
 	echo "#!/bin/sh" > compile-r7rs

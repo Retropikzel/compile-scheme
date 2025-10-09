@@ -5,38 +5,84 @@ Despite it's name it also supports R6RS. Schemers, unite! <3
 
 [Jenkins](https://jenkins.scheme.org/job/retropikzel/job/compile-r7rs/)
 
-- [Notes](#notes)
-- [Supported implementations](#supported-implementations)
-- [Roadmap](#roadmap)
-- [Dependencies](#dependencies)
-- [Building](#building)
-- [Installation](#installation)
-- [Usage](#usage)
-    - [Chicken](#usage-chicken)
-    - [Mosh](#usage-mosh)
-    - [mit-scheme](#usage-mit-scheme)
-    - [Compiling a single library](#usage-compiling-single-library)
-    - [Environment variables](#usage-environment-variables)
-- [Usage with docker](#usage-with-docker)
-- [Usual RnRS project](#usual-rnrs-project)
-    - [File structure](#usual-rnrs-project-file-structure)
-    - [Installation of your project](#usual-rnrs-project-installation-of-your-project)
-- [How it works](#how-it-works)
-    - [Gambit](#how-it-works-gambit)
-    - [Racket](#how-it-works-racket)
-- [Development](#development)
-    - [Adding new implementations](#development-adding-new-implementations)
-    - [Misc notes](#development-misc-notes)
-
 ## Notes
-<a name="#notes"></a>
 
 - No support for -D flag yet.
 - Not all implementations support adding to beginning or end o load path so
 -I and -A might work the same
 
+## Building
+
+### Dependencies
+
+- (foreign c)
+- (srfi 170)
+
+To install:
+
+    snow-chibi --impls=SCHEME "(foreign c)"
+    snow-chibi --impls=SCHEME "(srfi 170)"
+
+The Makefile has build jobs for Schemes that compile-r7rs can be run with. The
+default is chibi. Run:
+
+    make build-SCHEME
+
+## Installation
+
+Run:
+
+    make install
+
+## Usage
+
+You need to install each Scheme implementation yourself.
+
+The environment variable COMPILE\_R7RS must be set to the **name** of the
+implementation as specified in the support list.
+**This differs from the SRFI** as the SRFI excepts a path.
+
+To get the list of supported R6RS implementations run:
+
+    compile-r7rs --list-r6rs-schemes
+
+To get the list of supported R7RS implementations run:
+
+    compile-r7rs --list-r7rs-schemes
+
+To get the list of all supported implementations run:
+
+    compile-r7rs --list-schemes
+
+Then run it with the .scm file for r7rs, or .sps file for r6rs.
+
+    COMPILE_R7RS=<implementation name> compile-r7rs -I . -o main main.scm
+
+Which produces file called main, which you can run. Note that when given Scheme
+is interpreter the file contains commands that run the script, and even when
+the file is combiled binary it might need the compiled libraries.
+
+No other file suffixes are supported at the moment.
+
+Setting value of COMPILE\_R7RS to implementation name that supports only r7rs
+and input file to .sps file and other way around is undefined behaviour.
+
+### Environment variables
+
+- COMPILE\_R7RS
+    - **Name** of the implementation you want to compile with
+    - **This differs from the SRFI** as it excepts a path
+- COMPILE\_R7RS\_SCHEME_NAME
+    - Additional string to insert right after the command and it's arguments
+    can be used for example to pass C compiler flags on implementations that
+    compile to C or anything or otherwise as backdoor
+    - For example for Chicken to link with libcurl you would set
+    COMPILE\_R7RS\_CHICKEN="-L -lcurl"
+    - If implementation has - it is changed to \_, for example mit-scheme ->
+    MIT\_SCHEME
+    - **This differs from the SRFI** as it's not in there
+
 ## Supported implementations
-<a name="#supported-implementations"></a>
 
 Some implementations support both compiling and interpreting, in that
 case only the compiler functionality is used and the implementation is marked
@@ -52,9 +98,6 @@ as compiler.
     - compiler
     - R7RS
 - cyclone
-    - compiler
-    - R7RS
-- gambit
     - compiler
     - R7RS
 - foment
@@ -120,9 +163,9 @@ as compiler.
     - R7RS
 
 ## Roadmap
-<a name="#roadmap"></a>
 
 - Support for more implementations
+    - gambit
     - husk
         - Dont know how to add directories to load path yet, might not be
         implemented
@@ -158,243 +201,4 @@ as compiler.
     - Since for example for interpreters the program produces .bat file with
     command to run the interpreter "cross compiling" is easy.
 
-## Dependencies
-<a name="#dependencies"></a>
 
-- (foreign c)
-- (srfi 170)
-
-To install:
-
-    snow-chibi --impls=SCHEME "(foreign c)"
-    snow-chibi --impls=SCHEME "(srfi 170)"
-
-## Building
-<a name="#building"></a>
-
-The Makefile has build jobs for Schemes that compile-r7rs can be run with. The
-default is chibi. Run:
-
-    make build-SCHEME
-
-## Installation
-<a name="#installation"></a>
-
-Run:
-
-    make install
-
-## Usage
-<a name="#usage"></a>
-
-You need to install each Scheme implementation yourself.
-
-The environment variable COMPILE\_R7RS must be set to the **name** of the
-implementation as specified in the support list.
-**This differs from the SRFI** as the SRFI excepts a path.
-
-To get the list of supported R6RS implementations run:
-
-    compile-r7rs --list-r6rs-schemes
-
-To get the list of supported R7RS implementations run:
-
-    compile-r7rs --list-r7rs-schemes
-
-To get the list of all supported implementations run:
-
-    compile-r7rs --list-schemes
-
-Then run it with the .scm file for r7rs, or .sps file for r6rs.
-
-    COMPILE_R7RS=<implementation name> compile-r7rs -I . -o main main.scm
-
-Which produces file called main, which you can run. Note that when given Scheme
-is interpreter the file contains commands that run the script, and even when
-the file is combiled binary it might need the compiled libraries.
-
-No other file suffixes are supported at the moment.
-
-Setting value of COMPILE\_R7RS to implementation name that supports only r7rs
-and input file to .sps file and other way around is undefined behaviour.
-
-### Environment variables
-<a name="#usage-environment-variables"></a>
-
-- COMPILE\_R7RS
-    - **Name** of the implementation you want to compile with
-    - **This differs from the SRFI** as it excepts a path
-- COMPILE\_R7RS\_SCHEME_NAME
-    - Additional string to insert right after the command and it's arguments
-    can be used for example to pass C compiler flags on implementations that
-    compile to C or anything or otherwise as backdoor
-    - For example for Chicken to link with libcurl you would set
-    COMPILE\_R7RS\_CHICKEN="-L -lcurl"
-    - If implementation has - it is changed to \_, for example mit-scheme ->
-    MIT\_SCHEME
-    - **This differs from the SRFI** as it's not in there
-
-## Usage with Docker
-<a name="#usage-with-docker"></a>
-
-The project has
-[docker image](https://hub.docker.com/repository/docker/retropikzel1/compile-r7rs/general).
-
-It is statically built with Chicken scheme and installed under /opt/compile-r7rs,
-so it can be copied in your Dockerfile.
-
-Here is a sample Dockerfile to get you started:
-
-    ARG SCHEME=chibi
-    FROM schemers/${SCHEME}
-    COPY --from=retropikzel1/compile-r7rs /opt/compile-r7rs /opt/compile-r7rs
-    ENV PATH=/opt/compile-r7rs/bin:${PATH}
-    ENV COMPILE_R7RS=${SCHEME}
-
-To use this run:
-
-    docker build --build-arg SCHEME=${SCHEME} --tag=sometag .
-    docker run -v "${PWD}":/workdir -w /workdir -t sometag sh -c "compile-r7rs -I . -o main ./snow main.scm"
-
-
-## Usual RnRS projects
-<a name="#usual-rnrs-projects"></a>
-
-The reports do not say much, if anything, about the file structure of your
-project. However in practice certain patterns will repeat a lot. Here we use
-R7RS .sld and .scm files as example but for R6RS .sld = .sld and .scm = .sps.
-
-### File structure
-<a name="#usual-rnrs-projects-file-structure"></a>
-
-The implementations most often expect library named (foo bar) to be in file
-foo/bar.sld. Some implementations add the current directory to the load path
-implicitly, some do not. If you store your libraries directly in your projects
-root it's propably best to always pass . as load path to compile-r7rs.
-
-For example if your projects file structure is:
-
-    foo/bar.sld
-    main.scm
-
-The command to compile and run this project is:
-
-    compile-r7rs -I . -o myproject main.scm
-    ./myproject
-
-If your project has more than one library then you propably want to store the
-libraries in one directory. For example:
-
-    snow/foo/bar.sld
-    main.scm
-
-This is the case the compile-r7rs is tested against, main.scm imports (foo bar).
-The command to compile and run this project is:
-
-    compile-r7rs -I ./snow -o myproject main.scm
-    ./myproject
-
-### Installation of your project
-<a name="#usual-rnrs-projects-installation-of-your-project"></a>
-
-compile-r7rs (that is, this project) does not install your project files
-anywhere, that is left for you to do. I will update this section as I use this
-project more but here are some ideas. Basically each implementation might need
-it's own specific way and is outside of scope of this project.
-
-#### Interpreters
-
-The interpreters, that is for example Sagittarius, Gauche, Chibi and STklos,
-produce an executable that contains the command to run the main .scm file
-and add given paths to the implementations load paths. So if you run this:
-
-    compile-r7rs -I ./snow -o main main.scm
-
-the resulting main file will only work in this directory, as the load path is
-relative. For system wide installation the paths would need to be more like this:
-
-    compile-r7rs -I /usr/local/lib/myproject/snow -o myproject main.scm
-
-and then in makefile you would have:
-
-    install:
-        mkdir -p /usr/local/lib/myproject
-        cp -r snow /usr/local/lib/myproject/
-        install myproject /usr/local/bin/
-
-#### Compilers
-
-Compilers, that is for example Chicken, Gambit, Cyclone either produce static
-executable or shared libraries. Cyclone produces static executable so
-if you run this:
-
-    compile-r7rs -I /usr/local/lib/myproject/snow -o myproject main.scm
-
-and then in makefile you would have:
-
-    install:
-        install myproject /usr/local/bin/
-
-Chicken compiles shared object files and is different from that, like I said I
-hope to update this section when I get more experience with installing stuff
-compiled by using this project. :)
-
-## How it works
-<a name="#how-it-works"></a>
-
-### Gambit
-<a name="#how-it-works-gambit"></a>
-
-To add library path into executables load path you need to compile Gambit
-script, not code. The script needs to be shebang and then the code:
-
-    #!/usr/bin/env gsi -:search=./snow
-    (import (scheme base)
-            (scheme write))
-    (display "Hello world")
-    (newline)
-
-So in order to do this compile-r7rs creates a main.tmp file that contains the
-shebang line, library directories you want and then your input files code.
-
-### Racket
-<a name="#how-it-works-racket"></a>
-
-#### r7rs
-
-Racket only supports .rkt files, so the transformer creates .rkt file for each
-.sld file and the given .scm file. This file only needs to contain:
-
-    #!lang r7rs
-    (import (scheme base))
-    (include "file.scm/.sld")
-
-## Development
-<a name="#development"></a>
-
-The program relies on two projects,
-[r7rs-pffi](https://sr.ht/~retropikzel/r7rs-pffi/) and
-[pffi-srfi-170](https://git.sr.ht/~retropikzel/pffi-srfi-170). They both are
-stil work in progress so best way to help this project is to help on those
-projects. That said bug fixes for this projects are also welcome. Pull requests
-that add more SRFI-138 support are also welcome, but lets keep the scope on
-that.
-
-The program itself is a quite straighforward transformer of SRFI-138 inputs to
-implementation specific inputs. It stands on the shoulders of giants and relies
-on the implementations to have all the needed features, then unifies the
-interface to use them.
-
-### Adding new implementations
-<a name="#development-adding-new-implementations"></a>
-
-The main program reads the flags and other inputs and passes them to a
-transformer functions. So to add support for new implementations you need
-to add the transformer functions and other data for it in libs/data.scm. You
-should be able to deduct how they work from other transformers. If you need to
-make utility functions add them into libs/util.scm and export them in
-libs/util.sld.
-
-If the transformer has to go trough hoops, that is is little or much unusual
-then it is a good idea to explain how it works in this readmes how it works
-section.

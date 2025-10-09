@@ -46,7 +46,7 @@
     (define r7rs-schemes '(chibi
                             chicken
                             cyclone
-                            gambit
+                            ;gambit
                             foment
                             gauche
                             guile

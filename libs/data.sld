@@ -136,7 +136,7 @@
                                  ,@(map (lambda (item)
                                           (string-append "-A" " " item " "))
                                         append-directories))))))
-        (gambit
+        #;(gambit
           (type . compiler)
           (library-command . ,(lambda (library-file prepend-directories append-directories r6rs?)
                                 `(,(string-append "gsc "

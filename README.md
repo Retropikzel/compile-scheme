@@ -11,27 +11,14 @@ Despite it's name it also supports R6RS. Schemers, unite! <3
 - Not all implementations support adding to beginning or end o load path so
 -I and -A might work the same
 
-## Building
+## Build and install
 
-### Dependencies
-
-- (foreign c)
-- (srfi 170)
-
-To install:
+You can run compile-r7rs on Chibi, Chicken, Gauche, Guile, Kawa, Sagittarius or
+STklos.
 
     snow-chibi --impls=SCHEME "(foreign c)"
     snow-chibi --impls=SCHEME "(srfi 170)"
-
-The Makefile has build jobs for Schemes that compile-r7rs can be run with. The
-default is chibi. Run:
-
     make build-SCHEME
-
-## Installation
-
-Run:
-
     make install
 
 ## Usage

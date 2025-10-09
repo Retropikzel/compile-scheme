@@ -36,30 +36,19 @@ pipeline {
             }
         }
 
-        /*
-
         stage('Test R7RS') {
             steps {
                 script {
-                    def r7rs_implementations = "chibi chicken cyclone gambit foment gauche guile kawa larceny loko meevax mit-scheme mosh racket sagittarius skint stklos tr7 ypsilon".split()
-                    r7rs_implementations.collectEntries { SCHEME ->
-                        [(SCHEME): {
-                                stage("${SCHEME} R7RS") {
-                                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                                        def DOCKERIMG="${SCHEME}:head"
-                                        if("${SCHEME}" == "chicken") {
-                                            DOCKERIMG="chicken:5"
-                                        }
-                                        sh "docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} ."
-                                        sh "docker run -v ${WORKSPACE}:/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c \"make && make install && make SCHEME=${SCHEME} test-r7rs\""
-                                    }
-                                }
+                    def SCHEMES = "chibi chicken cyclone gambit foment gauche guile kawa larceny loko meevax mit-scheme mosh racket sagittarius skint stklos tr7 ypsilon"
+                    SCHEMES.split().each { SCHEME ->
+                        stage("${SCHEME} R6RS") {
+                            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                                sh "make SCHEME=${SCHEME} test-r6rs-docker"
                             }
-                        ]
+                        }
                     }
                 }
             }
         }
-        */
     }
 }

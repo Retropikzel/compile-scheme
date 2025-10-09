@@ -16,6 +16,8 @@ pipeline {
     stages {
         stage('Build and install') {
             steps {
+                sh 'snow-chibi install --always-yes "(foreign c)"'
+                sh 'snow-chibi install --always-yes "(srfi 170)"'
                 sh "apt-get install -y make"
                 sh "make build-chibi"
                 sh "make install"
@@ -26,8 +28,8 @@ pipeline {
         stage('Test R6RS implementations') {
             steps {
                 script {
-                    def r6rs_implementations = sh(script: 'docker run retropikzel1/compile-r7rs bash -c "compile-r7rs --list-r6rs-schemes"', returnStdout: true).split()
-                    parallel r6rs_implementations.collectEntries { SCHEME ->
+                    def r6rs_implementations = "chezscheme guile ikarus ironscheme larceny loko mosh racket sagittarius ypsilon".split()
+                    r6rs_implementations.collectEntries { SCHEME ->
                         [(SCHEME): {
                                 stage("${SCHEME} R6RS") {
                                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
@@ -49,8 +51,8 @@ pipeline {
         stage('Test R7RS implementations') {
             steps {
                 script {
-                    def r7rs_implementations = sh(script: 'docker run retropikzel1/compile-r7rs bash -c "compile-r7rs --list-r7rs-schemes"', returnStdout: true).split()
-                    parallel r7rs_implementations.collectEntries { SCHEME ->
+                    def r7rs_implementations = "chibi chicken cyclone gambit foment gauche guile kawa larceny loko meevax mit-scheme mosh racket sagittarius skint stklos tr7 ypsilon".split()
+                    r7rs_implementations.collectEntries { SCHEME ->
                         [(SCHEME): {
                                 stage("${SCHEME} R7RS") {
                                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {

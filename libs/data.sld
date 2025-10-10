@@ -265,9 +265,8 @@
                                                   (string-append dir ":"))
                                                 (append prepend-directories append-directories)))))
                                   `(,(string-append
-                                       "CLASSPATH="
-                                       classpath
-                                       " kawa "
+                                       "CLASSPATH=" classpath
+                                       " kawa -J--add-exports=java.base/jdk.internal.foreign.abi=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign.layout=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign=ALL-UNNAMED -J--enable-native-access=ALL-UNNAMED -J--enable-preview "
                                        (util-getenv "COMPILE_R7RS_KAWA")
                                        " "
                                        load-paths
@@ -277,17 +276,22 @@
                                        " -C "
                                        library-file-path)))))
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
-                        (let ((output-jar (string-append output-file ".jar"))
+                        (set! append-directories
+                                  (append append-directories
+                                          (list "/usr/local/share/kawa/lib")))
+                        (let* ((output-jar (string-append output-file ".jar"))
                               (main-class
                                 (string-append (string-cut-from-end (path->filename input-file)
                                                                     4)))
                               (kawa-jar-path "/usr/local/share/kawa/lib/kawa.jar")
                               (classpath
-                                (apply
-                                  string-append
-                                  (map (lambda (dir)
-                                         (string-append dir " "))
-                                       (append prepend-directories append-directories))))
+                                (string-append
+                                  kawa-jar-path " "
+                                  (apply
+                                    string-append
+                                    (map (lambda (dir)
+                                           (string-append dir " "))
+                                         (append prepend-directories append-directories)))))
                               (import-paths
                                 (apply
                                   string-append
@@ -296,6 +300,11 @@
                                              (string-append dir "/*.sld:"))
                                            (append prepend-directories append-directories))
                                     "*.sld")))
+                              (library-dirs (apply string-append
+                                                   (append (map (lambda (item)
+                                                                  (string-append item " "))
+                                                                (append prepend-directories
+                                                                        append-directories)))))
                               (class-files
                                 (apply
                                   string-append
@@ -309,12 +318,11 @@
                                           4)
                                         ".class "))
                                     library-files))))
-                          `(,(string-append
-                               "unzip -d . " kawa-jar-path)
+                          `(;,(string-append "unzip -o -d . " kawa-jar-path)
                              ,(string-append
                                 "echo 'Main-Class: " main-class "\nClass-Path: . " classpath "' > MANIFEST.mf")
                              ,(string-append "kawa " import-paths " --main -C " input-file)
-                             ,(string-append "jar cfm " output-jar " MANIFEST.mf gnu kawa " class-files " " main-class ".class")
+                             ,(string-append "jar cfm " output-jar " MANIFEST.mf " library-dirs " " main-class ".class")
                              ,(string-append "printf '#!/bin/sh\nMYSELF=$(which \"$0\" 2>/dev/null)\n[ $? -gt 0 -a -f \"$0\" ] && MYSELF=\"./$0\"\njava=java\nif test -n \"$JAVA_HOME\"; then\n java=\"$JAVA_HOME/bin/java\"\nfi\nexec \"$java\" --add-exports=java.base/jdk.internal.foreign.abi=ALL-UNNAMED --add-exports=java.base/jdk.internal.foreign.layout=ALL-UNNAMED --add-exports=java.base/jdk.internal.foreign=ALL-UNNAMED --enable-native-access=ALL-UNNAMED --enable-preview -jar $MYSELF \"$@\"\nexit 1\n' > " output-file)
                              ,(string-append "cat " output-jar " >> " output-file)
                              ,(string-append "chmod +x " output-file))))))

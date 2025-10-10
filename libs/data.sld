@@ -420,12 +420,16 @@
         (mosh
           (type . interpreter)
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
-                        (apply string-append
-                               `("mosh "
-                                 ,(util-getenv "COMPILE_R7RS_MOSH")
-                                 " "
-                                 ,@(map (lambda (item) (string-append "--loadpath=" item " "))
-                                        (append append-directories prepend-directories)))))))
+                        (let ((dirs (append append-directories prepend-directories)))
+                          (apply string-append
+                                 `(,(if (> (length dirs) 0)
+                                      (string-append
+                                        "MOSH_LOADPATH="
+                                        (apply string-append
+                                               (map (lambda (item) (string-append item ":")) dirs)))
+                                      "")
+                                    " mosh "
+                                    ,(util-getenv "COMPILE_R7RS_MOSH")))))))
         (racket
           (type . interpreter)
           (library-command . ,(lambda (library-file prepend-directories append-directories r6rs?)

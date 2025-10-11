@@ -31,21 +31,24 @@ build-chicken:
 		-uses srfi-170 \
 		compile-r7rs.scm
 
-build-gauche:
-	echo "#!/bin/sh" > compile-r7rs
-	echo "gosh -r -I ${PREFIX}/lib/compile-r7rs -I ${PREFIX}/lib/compile-r7rs/libs ${PREFIX}/lib/compile-r7rs/compile-r7rs.scm \"\$$@\"" >> compile-r7rs
-	chmod +x compile-r7rs
+# FIXME
+#build-gauche:
+	#echo "#!/bin/sh" > compile-r7rs
+	#echo "gosh -r -I ${PREFIX}/lib/compile-r7rs -I ${PREFIX}/lib/compile-r7rs/libs ${PREFIX}/lib/compile-r7rs/compile-r7rs.scm \"\$$@\"" >> compile-r7rs
+	#chmod +x compile-r7rs
 
 build-guile:
 	echo "#!/bin/sh" > compile-r7rs
 	echo "guile --r7rs --auto-compile -I -q -L ${PREFIX}/lib/compile-r7rs ${PREFIX}/lib/compile-r7rs/compile-r7rs.scm \"\$$@\" 2> /dev/null" >> compile-r7rs
 	chmod +x compile-r7rs
 
-build-kawa:
-	echo "#!/bin/sh" > compile-r7rs
-	echo "kawa -J--add-exports=java.base/jdk.internal.foreign.abi=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign.layout=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign=ALL-UNNAMED -J--enable-native-access=ALL-UNNAMED -Dkawa.import.path=/usr/local/share/kawa/lib/*.sld:${PREFIX}/lib/compile-r7rs/*.sld --r7rs ${PREFIX}/lib/compile-r7rs/compile-r7rs.scm \"\$$@\" 2> /dev/null" >> compile-r7rs
-	chmod +x compile-r7rs
+# FIXME
+#build-kawa:
+	#echo "#!/bin/sh" > compile-r7rs
+	#echo "kawa -J--add-exports=java.base/jdk.internal.foreign.abi=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign.layout=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign=ALL-UNNAMED -J--enable-native-access=ALL-UNNAMED -Dkawa.import.path=/usr/local/share/kawa/lib/*.sld:${PREFIX}/lib/compile-r7rs/*.sld --r7rs ${PREFIX}/lib/compile-r7rs/compile-r7rs.scm \"\$$@\" 2> /dev/null" >> compile-r7rs
+	#chmod +x compile-r7rs
 
+# FIXME
 #build-racket:
 	#echo "#!/bin/sh" > compile-r7rs
 	#echo "racket -I r7rs -S ${PREFIX}/lib/compile-r7rs --script ${PREFIX}/lib/compile-r7rs/compile-r7rs.scm \"\$$@\"" >> compile-r7rs

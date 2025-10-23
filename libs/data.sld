@@ -84,12 +84,12 @@
                                                       (append append-directories prepend-directories)))
                                           (apply string-append
                                                  (map (lambda (library-file)
-                                                       (string-append "-uses "
-                                                                      (if (string-starts-with? library-file "srfi")
-                                                                        (string-replace (string-cut-from-end library-file 4) #\/ #\-)
-                                                                        (string-replace (string-cut-from-end library-file 4) #\/ #\.))
-                                                                      " "))
-                                                 library-files))
+                                                        (string-append "-uses "
+                                                                       (if (string-starts-with? library-file "srfi")
+                                                                         (string-replace (string-cut-from-end library-file 4) #\/ #\-)
+                                                                         (string-replace (string-cut-from-end library-file 4) #\/ #\.))
+                                                                       " "))
+                                                      library-files))
                                           " -output-file "
                                           output-file
                                           " "
@@ -137,19 +137,19 @@
                                           (string-append "-A" " " item " "))
                                         append-directories))))))
         #;(gambit
-          (type . compiler)
-          (library-command . ,(lambda (library-file prepend-directories append-directories r6rs?)
-                                `(,(string-append "gsc "
-                                                  (apply string-append
-                                                         (map (lambda (item)
-                                                                (string-append item "/ "))
-                                                              (append prepend-directories
-                                                                      append-directories)))
-                                                  (search-library-file (append append-directories
-                                                                               prepend-directories)
-                                                                       library-file)))))
-          (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
-                        (let ((output-tmp-file (string-append output-file ".tmp")))
+        (type . compiler)
+        (library-command . ,(lambda (library-file prepend-directories append-directories r6rs?)
+                              `(,(string-append "gsc "
+                                                (apply string-append
+                                                       (map (lambda (item)
+                                                              (string-append item "/ "))
+                                                            (append prepend-directories
+                                                                    append-directories)))
+                                                (search-library-file (append append-directories
+                                                                             prepend-directories)
+                                                                     library-file)))))
+        (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
+                      (let ((output-tmp-file (string-append output-file ".tmp")))
                         `(,(string-append "echo \"#!/usr/bin/env gsi -:r7rs,search="
                                           (apply string-append
                                                  (map (lambda (item)
@@ -157,33 +157,33 @@
                                                       (append prepend-directories
                                                               append-directories)))
                                           "\" > " output-tmp-file)
-                          ,(string-append "cat " input-file " >> " output-tmp-file)
-                          ,(string-append "gsc "
-                                          (apply string-append
-                                                 (map (lambda (item)
-                                                        (string-append item "/ "))
-                                                      (append prepend-directories
-                                                              append-directories)))
-                                          " -o " output-file
-                                          " -exe -nopreload "
-                                          output-tmp-file))))))
-        (gauche
-          (type . interpreter)
-          (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
-                        (apply string-append
-                               `("gosh "
-                                 ,(util-getenv "COMPILE_R7RS_GAUCHE")
-                                 " -r7 "
-                                 ,@(map (lambda (item)
-                                          (string-append "-I" " " item " "))
-                                        prepend-directories)
-                                 ,@(map (lambda (item)
-                                          (string-append "-A" " " item " "))
-                                        append-directories))))))
-        (guile
-          (type . interpreter)
-          (library-command . ,(lambda (library-file prepend-directories append-directories r6rs?)
-                                (let ((library-path (search-library-file (append append-directories
+                           ,(string-append "cat " input-file " >> " output-tmp-file)
+                           ,(string-append "gsc "
+                                           (apply string-append
+                                                  (map (lambda (item)
+                                                         (string-append item "/ "))
+                                                       (append prepend-directories
+                                                               append-directories)))
+                                           " -o " output-file
+                                           " -exe -nopreload "
+                                           output-tmp-file))))))
+      (gauche
+        (type . interpreter)
+        (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
+                      (apply string-append
+                             `("gosh "
+                               ,(util-getenv "COMPILE_R7RS_GAUCHE")
+                               " -r7 "
+                               ,@(map (lambda (item)
+                                        (string-append "-I" " " item " "))
+                                      prepend-directories)
+                               ,@(map (lambda (item)
+                                        (string-append "-A" " " item " "))
+                                      append-directories))))))
+      (guile
+        (type . interpreter)
+        (library-command . ,(lambda (library-file prepend-directories append-directories r6rs?)
+                              (let ((library-path (search-library-file (append append-directories
                                                                                prepend-directories)
                                                                        library-file)))
                                 `(,(string-append "guild compile "
@@ -199,69 +199,97 @@
                                                     (string-cut-from-end library-path 4)
                                                     ".go")
                                                   library-path)))))
-          (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
-                        (apply string-append
-                               `("guile "
-                                 ,(util-getenv "COMPILE_R7RS_GUILE")
-                                 ,(if r6rs? " --r6rs -x .sls " " --r7rs -x .sld ")
-                                 ,@(map (lambda (item)
-                                          (string-append "-L " item " "
-                                                         "-L " (dirname item) " "))
-                                        (append prepend-directories
-                                                append-directories))
-                                 " -s"
-                                 ,(string #\newline)
-                                 "!#")))))
-        (ikarus
-          (type . interpreter)
-          (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
-                        (apply string-append
-                               `( "IKARUS_LIBRARY_PATH="
-                                  ,@(map (lambda (item) (string-append item ":")) prepend-directories)
-                                  ,@(map (lambda (item) (string-append item ":")) append-directories)
-                                  " ikarus "
-                                  ,(util-getenv "COMPILE_R7RS_IKARUS")
-                                  " --r6rs-script"
-                                  )))))
-        (ironscheme
-          (type . interpreter)
-          (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
-                        (apply string-append
-                               `("ironscheme "
-                                 ,(util-getenv "COMPILE_R7RS_IRONSCHEME")
-                                 " "
-                                 ,@(map (lambda (item)
-                                          (string-append "-I \"" item "\" "))
-                                        prepend-directories)
-                                 ,@(map (lambda (item)
-                                          (string-append "-I \"" item "\" "))
-                                        append-directories))))))
-        (kawa
-          (type . interpreter)
-          (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
-                        (apply string-append
-                               `(,"sh"
-                                  ,(string #\newline)
-                                  "filename=\"$(basename ${0})\""
-                                  ,(string #\newline)
-                                  "tmpfile=\"/tmp/kawa.${filename}\""
-                                  ,(string #\newline)
-                                  "tail -n+8 \"${0}\" > \"${tmpfile}\""
-                                  ,(string #\newline)
-                                  "kawa -J--add-exports=java.base/jdk.internal.foreign.abi=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign.layout=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign=ALL-UNNAMED -J--enable-native-access=ALL-UNNAMED -J--enable-preview -Dkawa.import.path="
-                                  ,(apply string-append
-                                          (map
-                                            (lambda (item)
-                                              (string-append item "/*.sld:"))
-                                            (append prepend-directories
-                                                    append-directories)))
-                                  " --r7rs --full-tailcalls "
-                                  " -f \"${tmpfile}\" \"$@\""
-                                  ,(string #\newline)
-                                  "rm -rf \"${tmpfile}\""
-                                  ,(string #\newline)
-                                  "exit"
-                                  ,(string #\newline))))))
+        (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
+                      (apply string-append
+                             `("guile "
+                               ,(util-getenv "COMPILE_R7RS_GUILE")
+                               ,(if r6rs? " --r6rs -x .sls " " --r7rs -x .sld ")
+                               ,@(map (lambda (item)
+                                        (string-append "-L " item " "
+                                                       "-L " (dirname item) " "))
+                                      (append prepend-directories
+                                              append-directories))
+                               " -s"
+                               ,(string #\newline)
+                               "!#")))))
+      (ikarus
+        (type . interpreter)
+        (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
+                      (apply string-append
+                             `( "IKARUS_LIBRARY_PATH="
+                                ,@(map (lambda (item) (string-append item ":")) prepend-directories)
+                                ,@(map (lambda (item) (string-append item ":")) append-directories)
+                                " ikarus "
+                                ,(util-getenv "COMPILE_R7RS_IKARUS")
+                                " --r6rs-script"
+                                )))))
+      (ironscheme
+        (type . interpreter)
+        (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
+                      (apply string-append
+                             `("ironscheme "
+                               ,(util-getenv "COMPILE_R7RS_IRONSCHEME")
+                               " "
+                               ,@(map (lambda (item)
+                                        (string-append "-I \"" item "\" "))
+                                      prepend-directories)
+                               ,@(map (lambda (item)
+                                        (string-append "-I \"" item "\" "))
+                                      append-directories))))))
+      (kawa
+        (type . compiler)
+        (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
+                      (set! append-directories
+                        (append append-directories
+                                (list "/usr/local/share/kawa/lib")))
+                      (let* ((output-jar (string-append output-file ".jar"))
+                             (main-class
+                               (string-append (string-cut-from-end (path->filename input-file)
+                                                                   4)))
+                             (kawa-jar-path "/usr/local/share/kawa/lib/kawa.jar")
+                             (classpath
+                               (string-append
+                                 kawa-jar-path " "
+                                 (apply
+                                   string-append
+                                   (map (lambda (dir)
+                                          (string-append dir " "))
+                                        (append prepend-directories append-directories)))))
+                             (import-paths
+                               (apply
+                                 string-append
+                                 `("-Dkawa.import.path="
+                                   ,@(map (lambda (dir)
+                                            (string-append dir "/*.sld:"))
+                                          (append prepend-directories append-directories))
+                                   "*.sld")))
+                             (library-dirs (apply string-append
+                                                  (append (map (lambda (item)
+                                                                 (string-append item " "))
+                                                               (append prepend-directories
+                                                                       append-directories)))))
+                             (class-files
+                               (apply
+                                 string-append
+                                 (map
+                                   (lambda (lib)
+                                     (string-append
+                                       (string-cut-from-end
+                                         (search-library-file (append prepend-directories
+                                                                      append-directories)
+                                                              lib)
+                                         4)
+                                       ".class "))
+                                   library-files))))
+                        `(,(string-append "rm -rf " output-jar)
+                           ,(string-append
+                              "echo 'Main-Class: " main-class "\nClass-Path: . " classpath "' > MANIFEST.mf")
+                           ,(string-append "kawa " import-paths " --main -C " input-file)
+                           ,(string-append "jar cfm " output-jar " MANIFEST.mf " library-dirs " " main-class ".class")
+                           ,(string-append "printf '#!/bin/sh\nMYSELF=$(which \"$0\" 2>/dev/null)\n[ $? -gt 0 -a -f \"$0\" ] && MYSELF=\"./$0\"\njava=java\nif test -n \"$JAVA_HOME\"; then\n java=\"$JAVA_HOME/bin/java\"\nfi\nexec \"$java\" --add-exports=java.base/jdk.internal.foreign.abi=ALL-UNNAMED --add-exports=java.base/jdk.internal.foreign.layout=ALL-UNNAMED --add-exports=java.base/jdk.internal.foreign=ALL-UNNAMED --enable-native-access=ALL-UNNAMED --enable-preview -jar $MYSELF \"$@\"\nexit 1\n' > " output-file)
+                           ,(string-append "cat " output-jar " >> " output-file)
+                           ,(string-append "rm -rf " output-jar)
+                           ,(string-append "chmod +x " output-file))))))
         (larceny
           (type . interpreter)
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)

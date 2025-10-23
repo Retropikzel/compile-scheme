@@ -1,0 +1,9 @@
+on: [push]
+jobs:
+  print-content:
+    runs-on: docker
+    steps:
+      - name: Start build
+        run: curl https://jenkins.scheme.org/job/${FORGEJO_REPOSITORY_OWNER}/job/compile-r7rs/job/${FORGEJO_REF_NAME}/build?delay=0sec --user ${screts.JENKINS_USERNAME}:${secrets.JENKINS_API_KEY}
+
+

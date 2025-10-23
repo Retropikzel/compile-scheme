@@ -238,60 +238,30 @@
                                         append-directories))))))
         (kawa
           (type . interpreter)
-          (library-command . ,(lambda (library-file prepend-directories append-directories r6rs?)
-                                (let* ((load-paths (apply string-append
-                                                          (append (list "-Dkawa.import.path=")
-                                                                  (map (lambda (item)
-                                                                         (string-append item "/*.sld:"))
-                                                                       (append prepend-directories
-                                                                               append-directories)))))
-                                       (library-file-path (search-library-file (append prepend-directories
-                                                                                       append-directories)
-                                                                               library-file))
-                                       (output-dir
-                                         (let ((output-dir "."))
-                                           (for-each
-                                             (lambda (dir)
-                                               (when (string-starts-with? library-file-path
-                                                                          dir)
-                                                 (set! output-dir dir)))
-                                             (append prepend-directories
-                                                     append-directories))
-                                           output-dir))
-                                       (classpath
-                                         (apply
-                                           string-append
-                                           (map (lambda (dir)
-                                                  (string-append dir ":"))
-                                                (append prepend-directories append-directories)))))
-                                  `(,(string-append
-                                       "CLASSPATH=" classpath
-                                       " kawa -J--add-exports=java.base/jdk.internal.foreign.abi=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign.layout=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign=ALL-UNNAMED -J--enable-native-access=ALL-UNNAMED -J--enable-preview "
-                                       (util-getenv "COMPILE_R7RS_KAWA")
-                                       " "
-                                       load-paths
-                                       " -d " output-dir
-                                       " "
-                                       load-paths
-                                       " -C "
-                                       library-file-path)))))
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
-                        (let ((dirs (append prepend-directories
-                                            append-directories
-                                            (list "/usr/local/share/kawa/lib"))))
-                          (string-append "CLASSPATH="
-                                            (apply string-append
-                                                   (map (lambda (item)
-                                                          (string-append item ":"))
-                                                        dirs))
-                                            " kawa --r7rs --full-tailcalls "
-                                            (util-getenv "COMPILE_R7RS_KAWA")
-                                            " -Dkawa.import.path="
-                                            (apply string-append
-                                                   (map (lambda (item)
-                                                          (string-append item "/*.sld:"))
-                                                        dirs))
-                                            " ")))))
+                        (apply string-append
+                               `(,"sh"
+                                  ,(string #\newline)
+                                  "filename=\"$(basename ${0})\""
+                                  ,(string #\newline)
+                                  "tmpfile=\"/tmp/kawa.${filename}\""
+                                  ,(string #\newline)
+                                  "tail -n+8 \"${0}\" > \"${tmpfile}\""
+                                  ,(string #\newline)
+                                  "kawa -J--add-exports=java.base/jdk.internal.foreign.abi=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign.layout=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign=ALL-UNNAMED -J--enable-native-access=ALL-UNNAMED -J--enable-preview -Dkawa.import.path="
+                                  ,(apply string-append
+                                          (map
+                                            (lambda (item)
+                                              (string-append item "/*.sld:"))
+                                            (append prepend-directories
+                                                    append-directories)))
+                                  " --r7rs --full-tailcalls "
+                                  " -f \"${tmpfile}\" \"$@\""
+                                  ,(string #\newline)
+                                  "rm -rf \"${tmpfile}\""
+                                  ,(string #\newline)
+                                  "exit"
+                                  ,(string #\newline))))))
         (larceny
           (type . interpreter)
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)

@@ -48,23 +48,24 @@
 
   (define get-imports
    (lambda (result implementation rest)
-    (cond ((null? rest) result)
-     ((equal? (car rest) 'import) (cdr rest))
-     ((member 'cond-expand (car rest))
-      (if (assoc implementation (cdr (car rest)))
-       (get-imports result
-        implementation
-        (cdr (assoc implementation
-              (cdr (car rest)))))
-       (get-imports result
-        implementation
-        (cdr (assoc 'else
-              (cdr (car rest)))))))
-     ((member 'import (car rest))
-      (get-imports (append result (list) (cdr (car rest)))
-       implementation
-       (cdr rest)))
-     (else (get-imports result implementation (cdr rest))))))
+    (cond
+      ((null? rest) result)
+      ((equal? (car rest) 'import) (cdr rest))
+      ((member 'cond-expand (car rest))
+       (if (assoc implementation (cdr (car rest)))
+         (get-imports result
+                      implementation
+                      (cdr (assoc implementation
+                                  (cdr (car rest)))))
+         (get-imports result
+                      implementation
+                      (cdr (assoc 'else
+                                  (cdr (car rest)))))))
+      ((member 'import (car rest))
+       (get-imports (append result (list) (cdr (car rest)))
+                    implementation
+                    (cdr rest)))
+      (else (get-imports result implementation (cdr rest))))))
 
   (define remove-nonexistent
    (lambda (directories paths)
@@ -83,14 +84,15 @@
        (lambda (path)
         (letrec
          ((looper (lambda (c)
-                   (cond ((char=? c #\()
-                          (read))
-                    ((char=? c #\;)
-                     (read-line)
-                     (looper (peek-char)))
-                    (else
-                     (read-char)
-                     (looper (peek-char)))))))
+                   (cond
+                     ((char=? c #\()
+                      (read))
+                     ((char=? c #\;)
+                      (read-line)
+                      (looper (peek-char)))
+                     (else
+                       (read-char)
+                       (looper (peek-char)))))))
          (with-input-from-file
           path
           (lambda ()

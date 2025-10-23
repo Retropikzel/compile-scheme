@@ -221,13 +221,29 @@
     (delete-file output-file))
   (let ((shebang-line (string-append
                         (cond ((string=? compilation-target "unix")
-                               "#!/usr/bin/env -S ")
+                               (string-append
+                                 "#!/bin/sh"
+                                 (string #\newline)
+                                 "tmpfile=$(mktemp)"
+                                 (string #\newline)
+                                 "tail -n+7 \"$0\" > ${tmpfile}"
+                                 (string #\newline)))
                               ((string=? compilation-target "windows")
                                (string-append
                                  "@echo off"
                                  (string #\newline)
                                  "start")))
-                        scheme-command))
+                        scheme-command
+                        (cond ((string=? compilation-target "unix")
+                               (string-append
+                                 " \"$@\""
+                                 (string #\newline)
+                                 "rm -rf ${tmpfile}"
+                                 (string #\newline)
+                                 "exit"
+                                 (string #\newline)))
+                              ((string=? compilation-target "windows")
+                               ""))))
         (scheme-program (slurp input-file)))
     (display "Creating startup script    ")
     (display output-file)

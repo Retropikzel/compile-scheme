@@ -28,7 +28,7 @@
                                                                  (string-append item separator))
                                                                (append prepend-directories append-directories)))
                                                    "\"")))
-                                   " --program "))))))
+                                   " --program ${tmpfile}"))))))
         (chibi
           (type . interpreter)
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
@@ -43,7 +43,8 @@
                                  " "
                                  ,@(map (lambda (item)
                                           (string-append "-A" " " item " "))
-                                        append-directories))))))
+                                        append-directories)
+                                 " ${tmpfile}")))))
         (chicken
           (type . compiler)
           (library-command . ,(lambda (library-file prepend-directories append-directories r6rs?)
@@ -135,7 +136,8 @@
                                         prepend-directories)
                                  ,@(map (lambda (item)
                                           (string-append "-A" " " item " "))
-                                        append-directories))))))
+                                        append-directories)
+                                 " ${tmpfile}")))))
         #;(gambit
         (type . compiler)
         (library-command . ,(lambda (library-file prepend-directories append-directories r6rs?)
@@ -179,7 +181,8 @@
                                       prepend-directories)
                                ,@(map (lambda (item)
                                         (string-append "-A" " " item " "))
-                                      append-directories))))))
+                                      append-directories)
+                               " ${tmpfile}")))))
       (guile
         (type . interpreter)
         (library-command . ,(lambda (library-file prepend-directories append-directories r6rs?)
@@ -209,9 +212,7 @@
                                                        "-L " (dirname item) " "))
                                       (append prepend-directories
                                               append-directories))
-                               " -s"
-                               ,(string #\newline)
-                               "!#")))))
+                               " -s ${tmpfile}")))))
       (ikarus
         (type . interpreter)
         (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
@@ -221,8 +222,7 @@
                                 ,@(map (lambda (item) (string-append item ":")) append-directories)
                                 " ikarus "
                                 ,(util-getenv "COMPILE_R7RS_IKARUS")
-                                " --r6rs-script"
-                                )))))
+                                " --r6rs-script ${tmpfile}")))))
       (ironscheme
         (type . interpreter)
         (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
@@ -235,7 +235,8 @@
                                       prepend-directories)
                                ,@(map (lambda (item)
                                         (string-append "-I \"" item "\" "))
-                                      append-directories))))))
+                                      append-directories)
+                               " ${tmpfile}")))))
       (kawa
         (type . compiler)
         (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
@@ -294,15 +295,7 @@
           (type . interpreter)
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
                         (apply string-append
-                               `("sh"
-                                 ,(string #\newline)
-                                 "filename=\"$(basename ${0})\""
-                                 ,(string #\newline)
-                                 "tmpfile=\"/tmp/larceny.${filename}\""
-                                 ,(string #\newline)
-                                 "tail -n+8 \"${0}\" > \"${tmpfile}\""
-                                 ,(string #\newline)
-                                 "larceny -nobanner -quiet -utf8 "
+                               `("larceny -nobanner -quiet -utf8 "
                                  ,(if r6rs? " -r6 " " -r7 ")
                                  ,(util-getenv "COMPILE_R7RS_LARCENY")
                                  " "
@@ -312,11 +305,7 @@
                                  ,@(map (lambda (item)
                                           (string-append "-A " item " "))
                                         append-directories)
-                                 " -program \"${tmpfile}\" -- \"$@\""
-                                 ,(string #\newline)
-                                 "rm -rf \"${tmpfile}\""
-                                 ,(string #\newline)
-                                 "exit")))))
+                                 " -program ${tmpfile} --")))))
         (loko
           (type . compiler)
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
@@ -345,42 +334,27 @@
                         (apply string-append
                                `("meevax "
                                  ,(util-getenv "COMPILE_R7RS_MEEVAX")
-                                 " "
                                  ,@(map (lambda (item)
-                                          (string-append "-I" " " item " "))
+                                          (string-append " -I" " " item " "))
                                         prepend-directories)
-                                 " "
                                  ,@(map (lambda (item)
-                                          (string-append "-A" " " item " "))
+                                          (string-append " -A" " " item " "))
                                         append-directories)
-                                 )))))
+                                 " ${tmpfile}")))))
         (mit-scheme
           (type . interpreter)
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
                         (apply string-append
-                               `(,"sh"
-                                  ,(string #\newline)
-                                  "filename=\"$(basename ${0})\""
-                                  ,(string #\newline)
-                                  "tmpfile=\"/tmp/mit-scheme.${filename}\""
-                                  ,(string #\newline)
-                                  "tail -n+8 \"${0}\" > \"${tmpfile}\""
-                                  ,(string #\newline)
-                                  "mit-scheme --batch-mode --no-init-file "
-                                  ,@(map
-                                      (lambda (item)
-                                        (string-append "--load "
-                                                       (search-library-file (append append-directories
-                                                                                    prepend-directories)
-                                                                            item)
-                                                       " "))
-                                      library-files)
-                                  " --load \"${tmpfile}\" --eval \"(exit 0)\" --args \"$@\""
-                                  ,(string #\newline)
-                                  "rm -rf \"${tmpfile}\""
-                                  ,(string #\newline)
-                                  "exit"
-                                  ,(string #\newline))))))
+                               `("mit-scheme --batch-mode --no-init-file "
+                                 ,@(map
+                                     (lambda (item)
+                                       (string-append "--load "
+                                                      (search-library-file (append append-directories
+                                                                                   prepend-directories)
+                                                                           item)
+                                                      " "))
+                                     library-files)
+                                 " --load \"${tmpfile}\" --eval \"(exit 0)\" --args")))))
         (mosh
           (type . interpreter)
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
@@ -393,7 +367,8 @@
                                                (map (lambda (item) (string-append item ":")) dirs)))
                                       "")
                                     " mosh "
-                                    ,(util-getenv "COMPILE_R7RS_MOSH")))))))
+                                    ,(util-getenv "COMPILE_R7RS_MOSH")
+                                    " ${tmpfile}"))))))
         (racket
           (type . interpreter)
           (library-command . ,(lambda (library-file prepend-directories append-directories r6rs?)
@@ -415,14 +390,13 @@
                           (apply string-append
                                  `("racket "
                                    ,(util-getenv "COMPILE_R7RS_RACKET")
-                                   " "
+                                   ,(if r6rs?  " -I r6rs " " -I r7rs ")
                                    ,@(map (lambda (item)
-                                            (string-append "-S " item " "))
+                                            (string-append " -S " item " "))
                                           (append prepend-directories
                                                   append-directories))
-                                   ,(if r6rs?
-                                      ""
-                                      (string-append (string #\newline) "#lang r7rs"))))))))
+                                   ,(if r6rs?  "" " --script ")
+                                   " ${tmpfile}"))))))
         (sagittarius
           (type . interpreter)
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
@@ -435,20 +409,13 @@
                                         prepend-directories)
                                  ,@(map (lambda (item)
                                           (string-append " -A " item " "))
-                                        append-directories))))))
+                                        append-directories)
+                                 " ${tmpfile}")))))
         (skint
           (type . interpreter)
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
                         (apply string-append
-                               `("sh"
-                                 ,(string #\newline)
-                                 "filename=\"$(basename ${0})\""
-                                 ,(string #\newline)
-                                 "tmpfile=\"/tmp/skint.${filename}\""
-                                 ,(string #\newline)
-                                 "tail -n+8 \"${0}\" > \"${tmpfile}\""
-                                 ,(string #\newline)
-                                 "skint "
+                               `("skint "
                                  ,(util-getenv "COMPILE_R7RS_SKINT")
                                  " "
                                  ,@(map (lambda (item)
@@ -457,12 +424,7 @@
                                  ,@(map (lambda (item)
                                           (string-append "-A " item "/ "))
                                         append-directories)
-                                 " --program=\"${tmpfile}\" \"$@\""
-                                 ,(string #\newline)
-                                 "rm -rf \"${tmpfile}\""
-                                 ,(string #\newline)
-                                 "exit"
-                                 ,(string #\newline))))))
+                                 " --program=${tmpfile}")))))
         (stklos
           (type . interpreter)
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
@@ -475,7 +437,8 @@
                                         prepend-directories)
                                  ,@(map (lambda (item)
                                           (string-append "-A " item " "))
-                                        append-directories))))))
+                                        append-directories)
+                                 " ${tmpfile}")))))
         (tr7
           (type . interpreter)
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
@@ -488,24 +451,21 @@
                                           (string-append item ":"))
                                         append-directories)
                                  " tr7i "
-                                 ,(util-getenv "COMPILE_R7RS_TR7"))))))
+                                 ,(util-getenv "COMPILE_R7RS_TR7")
+                                 " ${tmpfile}")))))
         (vicare
           (type . compiler)
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
                         (apply string-append
-                               `("vicare"
-                                 " "
+                               `("vicare "
                                  ,(util-getenv "COMPILE_R7RS_VICARE")
-                                 " "
                                  ,@(map (lambda (item)
-                                          (string-append "-I " item " "))
+                                          (string-append " -I " item " "))
                                         prepend-directories)
                                  ,@(map (lambda (item)
-                                          (string-append "-A " item " "))
+                                          (string-append " -A " item " "))
                                         append-directories)
-                                 " "
-                                 "--compile-program"
-                                 ,input-file)))))
+                                 " --compile-program")))))
         (ypsilon
           (type . interpreter)
           (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
@@ -521,4 +481,4 @@
                                  ,@(map (lambda (item)
                                           (string-append "--sitelib=" item " "))
                                         append-directories)
-                                 " --top-level-program")))))))))
+                                 " --top-level-program ${tmpfile}")))))))))

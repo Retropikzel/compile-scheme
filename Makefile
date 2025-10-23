@@ -6,6 +6,9 @@ DOCKERIMG=${SCHEME}:head
 ifeq "${SCHEME}" "chicken"
 DOCKERIMG="chicken:5"
 endif
+ifeq "${SCHEME}" "vicare"
+DOCKERIMG="vicare"
+endif
 STATIC_LIBS=libs.util.a libs.library-util.a libs.data.a libs.srfi-64-util.a
 
 all: build-chibi

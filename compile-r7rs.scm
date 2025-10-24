@@ -176,44 +176,41 @@
                                  result))))))
     (looper (command-line) (list))))
 
-(display "Scheme            ")
-(display scheme)
-(newline)
-(display "Type              ")
-(display scheme-type)
-(newline)
-(newline)
+;(display "Scheme            ")
+;(display scheme)
+;(newline)
+;(display "Type              ")
+;(display scheme-type)
+;(newline)
+;(newline)
 
 ; Compile libraries
 (when (not (null? library-files))
-  (if single-library-input-file
+  #;(if single-library-input-file
     (display "Given library file: ")
     (display "Found library files: "))
-  (display library-files)
-  (newline)
-  (cond ((assoc 'library-command (cdr (assoc scheme data)))
+  ;(display library-files)
+  ;(newline)
+  (when (assoc 'library-command (cdr (assoc scheme data)))
          (for-each
            (lambda (file)
              (let* ((library-command (scheme-library-command file)))
-               (display "Compiling library ")
-               (display file)
-               (newline)
+               ;(display "Compiling library ")
+               ;(display file)
+               ;(newline)
                (for-each
                  (lambda (command)
-                   (display "Running   ")
-                   (write command)
-                   (newline)
-                   (display "Exit code ")
+                   ;(display "Running   ")
+                   ;(write command)
+                   ;(newline)
+                   ;(display "Exit code ")
                    (let ((exit-code (c-system (string->c-utf8 command))))
-                     (display exit-code)
-                     (newline)
+                     ;(display exit-code)
+                     ;(newline)
                      (when (not (= exit-code 0))
                        (exit exit-code))))
                  library-command)))
-           library-files))
-        (else
-          (display "Implementation has no library build command, skipping library compilation.")
-          (newline))))
+           library-files)))
 
 ; Create executable file
 (when (and (equal? scheme-type 'interpreter) input-file)
@@ -224,9 +221,11 @@
                                (string-append
                                  "#!/bin/sh"
                                  (string #\newline)
+                                 "#|"
+                                 (string #\newline)
                                  "tmpfile=$(mktemp)"
                                  (string #\newline)
-                                 "tail -n+7 \"$0\" > ${tmpfile}"
+                                 "tail -n+9 \"$0\" > ${tmpfile}"
                                  (string #\newline)))
                               ((string=? compilation-target "windows")
                                (string-append
@@ -241,16 +240,18 @@
                                  "rm -rf ${tmpfile}"
                                  (string #\newline)
                                  "exit"
+                                 (string #\newline)
+                                 "|#"
                                  (string #\newline)))
                               ((string=? compilation-target "windows")
                                ""))))
         (scheme-program (slurp input-file)))
-    (display "Creating startup script    ")
-    (display output-file)
-    (newline)
-    (display "Starting with              ")
-    (display shebang-line)
-    (newline)
+    ;(display "Creating startup script    ")
+    ;(display output-file)
+    ;(newline)
+    ;(display "Starting with              ")
+    ;(display shebang-line)
+    ;(newline)
     (with-output-to-file
       (if (string=? compilation-target "windows")
         (string-append output-file ".bat")
@@ -266,18 +267,18 @@
 (when (and (equal? scheme-type 'compiler) input-file)
   (when (and output-file (file-exists? output-file))
     (delete-file output-file))
-  (display "Compiling file    ")
-  (display input-file)
-  (newline)
+  ;(display "Compiling file    ")
+  ;(display input-file)
+  ;(newline)
   (for-each
     (lambda (command)
-      (display "Running   ")
-      (write command)
-      (newline)
-      (display "Exit code ")
+      ;(display "Running   ")
+      ;(write command)
+      ;(newline)
+      ;(display "Exit code ")
       (let ((exit-code (c-system (string->c-utf8 command))))
-        (display exit-code)
-        (newline)
+        ;(display exit-code)
+        ;(newline)
         (when (not (= exit-code 0))
           (exit exit-code))))
     scheme-command)

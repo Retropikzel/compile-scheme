@@ -15,3 +15,5 @@ README.html
 *.import.*
 deps
 tmp
+deb
+*.deb

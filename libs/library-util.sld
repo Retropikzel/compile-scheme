@@ -100,14 +100,14 @@
 
       (define library-dependencies
        (lambda (implementation directories path previous-indent indent)
-        (for-each (lambda (item) (display " ")) indent)
-        (display path)
+        ;(for-each (lambda (item) (display " ")) indent)
+        ;(display path)
         (let ((full-path (search-library-file directories path)))
          (if (not (file-exists? full-path))
           (begin
-           (display #\space)
-           (display "not found, ignoring")
-           (newline)
+           ;(display #\space)
+           ;(display "not found, ignoring")
+           ;(newline)
            (list))
           (begin
            (newline)

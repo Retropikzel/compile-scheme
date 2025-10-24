@@ -1,5 +1,6 @@
 PREFIX=/usr/local
 SCHEME=chibi
+VERSION=1.0.0
 R6RSTMP=tmp/${SCHEME}-r6rs
 R7RSTMP=tmp/${SCHEME}-r7rs
 DOCKERIMG=${SCHEME}:head
@@ -34,6 +35,14 @@ build-chicken:
 		-uses srfi-170 \
 		compile-r7rs.scm
 
+deb: build-chicken
+	mkdir -p deb/bin
+	cp compile-r7rs deb/bin/
+	mkdir -p deb/DEBIAN
+	printf "Package: compile-r7rs\nArchitecture: amd64\nVersion: ${VERSION}\nSection: misc\nMaintainer: Retropikzel <retropikzel@iki.fi>\nDescription: SRFI 138: Compiling Scheme programs to executables - Implementation" \
+		> deb/DEBIAN/control
+	dpkg-deb -b deb
+
 # FIXME
 #build-gauche:
 	#echo "#!/bin/sh" > compile-r7rs
@@ -42,7 +51,7 @@ build-chicken:
 
 build-guile:
 	echo "#!/bin/sh" > compile-r7rs
-	echo "guile --r7rs --auto-compile -I -q -L ${PREFIX}/lib/compile-r7rs ${PREFIX}/lib/compile-r7rs/compile-r7rs.scm \"\$$@\" 2> /dev/null" >> compile-r7rs
+	echo "guile --r7rs --auto-compile -I -q -L ${PREFIX}/lib/compile-r7rs ${PREFIX}/lib/compile-r7rs/compile-r7rs.scm \"\$$@\"" >> compile-r7rs
 	chmod +x compile-r7rs
 
 # FIXME

@@ -238,8 +238,18 @@
                                       append-directories)
                                " ${tmpfile}")))))
       (kawa
-        (type . compiler)
+        (type . interpreter)
         (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
+                      (apply string-append
+                             `("kawa -J--add-exports=java.base/jdk.internal.foreign.abi=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign.layout=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign=ALL-UNNAMED -J--enable-native-access=ALL-UNNAMED -J--enable-preview "
+                               ,(util-getenv "COMPILE_R7RS_KAWA")
+                               " -Dkawa.import.path="
+                               ,@(map (lambda (item)
+                                        (string-append item "/*.sld:"))
+                                      (append prepend-directories
+                                              append-directories))
+                               " --script1 ${0}"))))
+        (command-old . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
                       (set! append-directories
                         (append append-directories
                                 (list "/usr/local/share/kawa/lib")))
@@ -286,7 +296,8 @@
                            ,(string-append
                               "echo 'Main-Class: " main-class "\nClass-Path: . " classpath "' > MANIFEST.mf")
                            ,(string-append "kawa " import-paths " --main -C " input-file)
-                           ,(string-append "jar cfm " output-jar " MANIFEST.mf " library-dirs " " main-class ".class")
+                           ,(string-append "jar cfm " output-jar " MANIFEST.mf " main-class ".class ")
+                           ,(string-append "jar uf " output-jar " " library-dirs)
                            ,(string-append "printf '#!/bin/sh\nMYSELF=$(which \"$0\" 2>/dev/null)\n[ $? -gt 0 -a -f \"$0\" ] && MYSELF=\"./$0\"\njava=java\nif test -n \"$JAVA_HOME\"; then\n java=\"$JAVA_HOME/bin/java\"\nfi\nexec \"$java\" --add-exports=java.base/jdk.internal.foreign.abi=ALL-UNNAMED --add-exports=java.base/jdk.internal.foreign.layout=ALL-UNNAMED --add-exports=java.base/jdk.internal.foreign=ALL-UNNAMED --enable-native-access=ALL-UNNAMED --enable-preview -jar $MYSELF \"$@\"\nexit 1\n' > " output-file)
                            ,(string-append "cat " output-jar " >> " output-file)
                            ,(string-append "rm -rf " output-jar)

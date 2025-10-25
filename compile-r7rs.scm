@@ -282,5 +282,6 @@
         (when (not (= exit-code 0))
           (exit exit-code))))
     scheme-command)
-  (newline))
+  ;(newline)
+  )
 

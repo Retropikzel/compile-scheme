@@ -59,8 +59,9 @@
                                   (cdr (car rest)))))
          (get-imports result
                       implementation
-                      (cdr (assoc 'else
-                                  (cdr (car rest)))))))
+                      (cdr (or (assoc 'else
+                                  (cdr (car rest)))
+                               (cons #f '()))))))
       ((member 'import (car rest))
        (get-imports (append result (list) (cdr (car rest)))
                     implementation

@@ -47,7 +47,7 @@ To get the list of all supported implementations run:
 
     compile-r7rs --list-schemes
 
-Then run it with the .scm file for r7rs, or .sps file for r6rs.
+Then run it with the .scm file for R7RS, or .sps file for R6RS.
 
     COMPILE_R7RS=<implementation name> compile-r7rs -I . -o main main.scm
 

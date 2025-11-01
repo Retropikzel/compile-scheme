@@ -23,6 +23,12 @@ STklos.
 
 ## Usage
 
+### R6RS
+
+Replace the .scm file with .sps file in the next section.
+
+### R7RS
+
 You need to install each Scheme implementation yourself.
 
 The environment variable COMPILE\_R7RS must be set to the **name** of the

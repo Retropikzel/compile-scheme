@@ -36,8 +36,8 @@
   (exit 1))
 (when (not (assoc scheme data)) (error "Unsupported implementation" scheme))
 (define compilation-target
-  (if (get-environment-variable "COMPILE_R7RS_TARGET_OS")
-    (string->symbol (get-environment-variable "COMPILE_R7RS_TARGET_OS"))
+  (if (get-environment-variable "COMPILE_R7RS_TARGET")
+    (string->symbol (get-environment-variable "COMPILE_R7RS_TARGET"))
     (cond-expand (windows 'windows)
                  (else 'unix))))
 
@@ -68,12 +68,18 @@
     #t
     #f))
 
+(define scheme-type (cdr (assoc 'type (cdr (assoc scheme data)))))
+
 (define output-file
-  (if (member "-o" (command-line))
-    (cadr (member "-o" (command-line)))
-    (if input-file
-      "a.out"
-      #f)))
+  (let ((outfile (if (member "-o" (command-line))
+                   (cadr (member "-o" (command-line)))
+                   (if input-file
+                     "a.out"
+                     #f))))
+    (if (and (symbol=? scheme-type 'compiler)
+             (symbol=? compilation-target 'php))
+      (string-append outfile ".bin")
+      outfile)))
 
 (define prepend-directories
   (letrec ((looper (lambda (rest result)
@@ -152,18 +158,22 @@
                                (list)
                                (list)))
 
-(define scheme-type (cdr (assoc 'type (cdr (assoc scheme data)))))
-
 (define scheme-command
   (apply (cdr (assoc 'command (cdr (assoc scheme data))))
          (list
-           (cond ((symbol=? compilation-target 'windows) "")
-                 (else "exec"))
+           (cond
+             ((symbol=? compilation-target 'windows) "")
+             ((symbol=? compilation-target 'php) "")
+             (else "exec"))
            ;; How to get the script file
-           (cond ((symbol=? compilation-target 'windows) "%0%")
-                 (else "$(cd -- \"$(dirname \"$0\")\" >/dev/null 2>&1 && pwd -P)/\"$0\""))
-           (cond ((symbol=? compilation-target 'windows) "")
-                 (else "\"$@\""))
+           (cond
+             ((symbol=? compilation-target 'windows) "%0%")
+             ((symbol=? compilation-target 'php) "$binname")
+             (else "$(cd -- \"$(dirname \"$0\")\" >/dev/null 2>&1 && pwd -P)/\"$0\""))
+           (cond
+             ((symbol=? compilation-target 'windows) "")
+             ((symbol=? compilation-target 'php) "")
+             (else "\"$@\""))
            (if input-file input-file "")
            (if output-file output-file "")
            prepend-directories
@@ -207,26 +217,49 @@
     (delete-file output-file))
   (let ((scheme-program (slurp input-file)))
     (with-output-to-file
-      (if (symbol=? compilation-target 'windows)
-        (string-append output-file ".bat")
-        output-file)
+      output-file
       (lambda ()
-      (if (symbol=? compilation-target 'windows)
-        ""
-        (for-each
-          display
-          `(#\newline
-            "#|"
-            #\newline
-            ,scheme-command
-            #\newline
-            "|#"
-            #\newline
-            ,scheme-program)))))
+        (cond
+          ((symbol=? compilation-target 'windows)
+           (for-each
+             display
+             `(";dir; start /WAIT " ,scheme-command " && exit"
+               #\newline
+               ,scheme-program
+               )))
+          ((symbol=? compilation-target 'php)
+           (for-each
+             display
+             `("<?php"
+               " $descriptorspec = array(0 => fopen('php://stdin', 'r'), 1 => array('pipe', 'w'), 2 => fopen('php://stderr', 'w'));"
+               " $cwd = '.';"
+               " $filepath = $_SERVER['SCRIPT_FILENAME'];"
+               " $filename = $_SERVER['SCRIPT_NAME'];"
+               " $binname = '/tmp/test.bin';"
+               " system(\"tail -n+3 $filepath > $binname\");"
+               " $scheme_command = \"" ,scheme-command "\";"
+               " $process = proc_open($scheme_command, $descriptorspec, $pipes, $cwd, $_ENV);"
+               " echo stream_get_contents($pipes[1]);"
+               " die();"
+               " ?>"
+               #\newline
+               #\newline
+               ,scheme-program)))
+          (else
+            (for-each
+              display
+              `(#\newline
+                "#|"
+                #\newline
+                ,scheme-command
+                #\newline
+                "|#"
+                #\newline
+                ,scheme-program))))))
     (cond ((symbol=? compilation-target 'unix)
            (c-system (string->c-utf8 (string-append "chmod +x " output-file)))))))
 
-(when (and (equal? scheme-type 'compiler) input-file)
+(when (and (symbol=? scheme-type 'compiler) input-file)
   (when (and output-file (file-exists? output-file))
     (delete-file output-file))
   (for-each
@@ -234,5 +267,27 @@
       (let ((exit-code (c-system (string->c-utf8 command))))
         (when (not (= exit-code 0))
           (exit exit-code))))
-    scheme-command))
+    scheme-command)
+  (cond
+    ((symbol=? compilation-target 'php)
+     (let* ((php-file (string-cut-from-end output-file 4))
+            (port (open-binary-output-file php-file))
+            (bin (slurp-bytes output-file)))
+       (for-each
+         (lambda (item) (write-bytevector (string->utf8 item) port))
+         `("<?php"
+           " $descriptorspec = array(0 => fopen('php://stdin', 'r'), 1 => array('pipe', 'w'), 2 => fopen('php://stderr', 'w'));"
+           " $cwd = '.';"
+           " $filepath = $_SERVER['SCRIPT_FILENAME'];"
+           " $binname = '/tmp/test.bin';"
+           " system(\"tail -n+3 $filepath > $binname\");"
+           " $process = proc_open($binname, $descriptorspec, $pipes, $cwd, $_ENV);"
+           " echo stream_get_contents($pipes[1]);"
+           " die();"
+           " ?>"
+           ,(string #\newline)
+           ,(string #\newline)))
+       (write-bytevector bin port)
+       (close-output-port port)))
+    (else #t)))
 

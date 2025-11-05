@@ -8,6 +8,7 @@
           (libs util))
   (export data)
   (begin
+    (define pwd (cond-expand (windows "%CD%") (else "${PWD}")))
     (define data
       `((chezscheme
           (type . interpreter)
@@ -32,12 +33,12 @@
                                       ""
                                       (apply string-append
                                              (list "--libdirs "
-                                                   "\""
+                                                   "'"
                                                    (apply string-append
                                                           (map (lambda (item)
                                                                  (string-append item separator))
                                                                (append prepend-directories append-directories)))
-                                                   "\"")))
+                                                   "'")))
                                    " --program "
                                    ,script-file
                                    " "
@@ -355,7 +356,9 @@
                       (apply string-append
                              `("CLASSPATH="
                                ,@(map (lambda (item)
-                                        (string-append "${PWD}/" item ":"))
+                                        (if (char=? (string-ref item 0) #\/)
+                                          (string-append item ":")
+                                          (string-append pwd "/" item ":")))
                                       (append prepend-directories
                                               append-directories))
                                " "
@@ -364,7 +367,9 @@
                                ,(util-getenv "COMPILE_R7RS_KAWA")
                                " -Dkawa.import.path="
                                ,@(map (lambda (item)
-                                        (string-append "${PWD}/" item "/*.sld:"))
+                                        (if (char=? (string-ref item 0) #\/)
+                                          (string-append item "/*.sld")
+                                          (string-append pwd "/" item "/*.sld")))
                                       (append prepend-directories
                                               append-directories))
                                " -f "
@@ -446,10 +451,14 @@
                                  " meevax "
                                  ,(util-getenv "COMPILE_R7RS_MEEVAX")
                                  ,@(map (lambda (item)
-                                          (string-append " -I" " " item " "))
+                                        (if (char=? (string-ref item 0) #\/)
+                                          (string-append " -I " pwd "/" item " ")
+                                          (string-append " -I " item " ")))
                                         prepend-directories)
                                  ,@(map (lambda (item)
-                                          (string-append " -A" " " item " "))
+                                        (if (char=? (string-ref item 0) #\/)
+                                          (string-append " -A " pwd "/" item " ")
+                                          (string-append " -A " item " ")))
                                         append-directories)
                                  ,script-file
                                  " "
@@ -457,31 +466,32 @@
         (mit-scheme
           (type . interpreter)
           (command . ,(lambda (exec-cmd
-                               script-file
-                               args
-                               input-file
-                               output-file
-                               prepend-directories
-                               append-directories
-                               library-files
-                               r6rs
-                               compilation-target)
+                                script-file
+                                args
+                                input-file
+                                output-file
+                                prepend-directories
+                                append-directories
+                                library-files
+                                r6rs
+                                compilation-target)
                         (apply string-append
                                `(,exec-cmd
-                                 " mit-scheme --batch-mode --no-init-file "
-                                 ,@(map
-                                     (lambda (item)
-                                       (string-append " --load "
-                                                      (search-library-file (append append-directories
-                                                                                   prepend-directories)
-                                                                           item)
-                                                      " "))
-                                     library-files)
-                                 " --load "
-                                 ,script-file
-                                 " --eval \"(exit 0)\" "
-                                 " --args "
-                                 ,args)))))
+                                  " mit-scheme --batch-mode --no-init-file "
+                                  ,@(map
+                                      (lambda (item)
+                                        (string-append " --load "
+                                                       (search-library-file (append append-directories
+                                                                                    prepend-directories)
+                                                                            item)
+                                                       " "))
+                                      library-files)
+                                  " --load "
+                                  ,script-file
+                                  " --eval '(exit 0)' "
+                                  ,(if (string=? args "")
+                                     ""
+                                     (string-append " --args " args)))))))
         (mosh
           (type . interpreter)
           (command . ,(lambda (exec-cmd
@@ -656,7 +666,7 @@
                                         append-directories)
                                  " "
                                  ,exec-cmd
-                                 " tr7i "
+                                 " tr7i -1 "
                                  ,(util-getenv "COMPILE_R7RS_TR7")
                                  ,script-file
                                  " "

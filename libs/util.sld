@@ -25,6 +25,7 @@
           dirname
           search-library-file
           slurp
+          slurp-bytes
           file->list
           trim
           trim-end
@@ -215,6 +216,17 @@
                    (map (lambda (line)
                           (string-append line (string #\newline)))
                         (looper (list) (read-line))))))))
+
+    (define (slurp-bytes path)
+      (letrec* ((looper (lambda (result bytes)
+                          (if (eof-object? bytes)
+                            result
+                            (looper (bytevector-append result bytes)
+                                    (read-bytevector 4000))))))
+        (with-input-from-file
+          path
+          (lambda ()
+            (looper (bytevector) (read-bytevector 4000))))))
 
     (define (file->list path)
       (letrec* ((looper (lambda (result line)

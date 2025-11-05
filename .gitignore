@@ -17,3 +17,4 @@ deps
 tmp
 deb
 *.deb
+test-result.txt

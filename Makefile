@@ -110,6 +110,18 @@ test-r7rs-docker:
 	docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .
 	docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c "make SCHEME=${SCHEME} test-r7rs"
 
+test-r7rs-wine:
+	rm -rf ${R7RSTMP}
+	mkdir -p ${R7RSTMP}
+	cp -r r7rs-testfiles/* ${R7RSTMP}/
+	cd ${R7RSTMP} && COMPILE_R7RS=${SCHEME} COMPILE_R7RS_TARGET_OS=windows compile-r7rs -I ./libs -o main main.scm
+	-cd ${R7RSTMP} && wine main.bat 1 2 3 > test-result.txt 2>&1
+	@grep "Test successfull (\"1\" \"2\" \"3\")" ${R7RSTMP}/test-result.txt || (echo "Test failed, output: " && cat ${R7RSTMP}/test-result.txt && exit 1)
+
+test-r7rs-wine-docker:
+	docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=compile-r7rs-test-${SCHEME} .
+	docker run -v "${PWD}":/workdir -w /workdir -t compile-r7rs-test-${SCHEME} sh -c "make SCHEME=${SCHEME} test-r7rs"
+
 clean:
 	rm -rf test-r7rs
 	rm -rf compile-r7rs

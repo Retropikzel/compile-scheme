@@ -9,17 +9,20 @@
         (libs library-util)
         (srfi 170))
 
-(when (member "--list-r6rs-schemes" (command-line))
+(when (or (member "--list-r6rs" (command-line))
+        (member "--list-r6rs-schemes" (command-line)))
   (for-each (lambda (scheme) (display scheme) (display " ")) r6rs-schemes)
   (newline)
   (exit 0))
 
-(when (member "--list-r7rs-schemes" (command-line))
+(when (or (member "--list-r7rs" (command-line))
+          (member "--list-r7rs-schemes" (command-line)))
   (for-each (lambda (scheme) (display scheme) (display " ")) r7rs-schemes)
   (newline)
   (exit 0))
 
-(when (member "--list-schemes" (command-line))
+(when (or (member "--list" (command-line))
+          (member "--list-schemes" (command-line)))
   (for-each (lambda (scheme) (display scheme) (display " ")) all-schemes)
   (newline)
   (exit 0))
@@ -32,10 +35,11 @@
   (newline (current-error-port))
   (exit 1))
 (when (not (assoc scheme data)) (error "Unsupported implementation" scheme))
-(define compilation-target (if (get-environment-variable "TARGET")
-                             (get-environment-variable "TARGET")
-                             (cond-expand (windows "windows")
-                                          (else "unix"))))
+(define compilation-target
+  (if (get-environment-variable "COMPILE_R7RS_TARGET_OS")
+    (string->symbol (get-environment-variable "COMPILE_R7RS_TARGET_OS"))
+    (cond-expand (windows 'windows)
+                 (else 'unix))))
 
 (define input-file
   (let ((input-file #f))
@@ -152,12 +156,21 @@
 
 (define scheme-command
   (apply (cdr (assoc 'command (cdr (assoc scheme data))))
-         (list (if input-file input-file "")
-               (if output-file output-file "")
-               prepend-directories
-               append-directories
-               library-files
-               r6rs?)))
+         (list
+           (cond ((symbol=? compilation-target 'windows) "")
+                 (else "exec"))
+           ;; How to get the script file
+           (cond ((symbol=? compilation-target 'windows) "%0%")
+                 (else "$(cd -- \"$(dirname \"$0\")\" >/dev/null 2>&1 && pwd -P)/\"$0\""))
+           (cond ((symbol=? compilation-target 'windows) "")
+                 (else "\"$@\""))
+           (if input-file input-file "")
+           (if output-file output-file "")
+           prepend-directories
+           append-directories
+           library-files
+           r6rs?
+           compilation-target)))
 
 (define scheme-library-command
   (lambda (library-file)
@@ -176,112 +189,50 @@
                                  result))))))
     (looper (command-line) (list))))
 
-;(display "Scheme            ")
-;(display scheme)
-;(newline)
-;(display "Type              ")
-;(display scheme-type)
-;(newline)
-;(newline)
-
-; Compile libraries
 (when (not (null? library-files))
-  #;(if single-library-input-file
-    (display "Given library file: ")
-    (display "Found library files: "))
-  ;(display library-files)
-  ;(newline)
   (when (assoc 'library-command (cdr (assoc scheme data)))
          (for-each
            (lambda (file)
              (let* ((library-command (scheme-library-command file)))
-               ;(display "Compiling library ")
-               ;(display file)
-               ;(newline)
                (for-each
                  (lambda (command)
-                   ;(display "Running   ")
-                   ;(write command)
-                   ;(newline)
-                   ;(display "Exit code ")
                    (let ((exit-code (c-system (string->c-utf8 command))))
-                     ;(display exit-code)
-                     ;(newline)
                      (when (not (= exit-code 0))
                        (exit exit-code))))
                  library-command)))
            library-files)))
 
-; Create executable file
 (when (and (equal? scheme-type 'interpreter) input-file)
   (when (and output-file (file-exists? output-file))
     (delete-file output-file))
-  (let ((shebang-line (string-append
-                        (cond ((string=? compilation-target "unix")
-                               (string-append
-                                 "#!/bin/sh"
-                                 (string #\newline)
-                                 "#|"
-                                 (string #\newline)
-                                 "tmpfile=$(mktemp)"
-                                 (string #\newline)
-                                 "tail -n+9 \"$0\" > ${tmpfile}"
-                                 (string #\newline)))
-                              ((string=? compilation-target "windows")
-                               (string-append
-                                 "@echo off"
-                                 (string #\newline)
-                                 "start")))
-                        scheme-command
-                        (cond ((string=? compilation-target "unix")
-                               (string-append
-                                 " \"$@\""
-                                 (string #\newline)
-                                 "rm -rf ${tmpfile}"
-                                 (string #\newline)
-                                 "exit"
-                                 (string #\newline)
-                                 "|#"
-                                 (string #\newline)))
-                              ((string=? compilation-target "windows")
-                               ""))))
-        (scheme-program (slurp input-file)))
-    ;(display "Creating startup script    ")
-    ;(display output-file)
-    ;(newline)
-    ;(display "Starting with              ")
-    ;(display shebang-line)
-    ;(newline)
+  (let ((scheme-program (slurp input-file)))
     (with-output-to-file
-      (if (string=? compilation-target "windows")
+      (if (symbol=? compilation-target 'windows)
         (string-append output-file ".bat")
         output-file)
       (lambda ()
-        (display shebang-line)
-        (newline)
-        (display scheme-program)
-        (newline)))
-    (cond ((string=? compilation-target "unix")
+      (if (symbol=? compilation-target 'windows)
+        ""
+        (for-each
+          display
+          `(#\newline
+            "#|"
+            #\newline
+            ,scheme-command
+            #\newline
+            "|#"
+            #\newline
+            ,scheme-program)))))
+    (cond ((symbol=? compilation-target 'unix)
            (c-system (string->c-utf8 (string-append "chmod +x " output-file)))))))
 
 (when (and (equal? scheme-type 'compiler) input-file)
   (when (and output-file (file-exists? output-file))
     (delete-file output-file))
-  ;(display "Compiling file    ")
-  ;(display input-file)
-  ;(newline)
   (for-each
     (lambda (command)
-      ;(display "Running   ")
-      ;(write command)
-      ;(newline)
-      ;(display "Exit code ")
       (let ((exit-code (c-system (string->c-utf8 command))))
-        ;(display exit-code)
-        ;(newline)
         (when (not (= exit-code 0))
           (exit exit-code))))
-    scheme-command)
-  ;(newline)
-  )
+    scheme-command))
 

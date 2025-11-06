@@ -169,7 +169,8 @@
            (cond
              ((symbol=? compilation-target 'windows) "%0%")
              ((symbol=? compilation-target 'php) "$binname")
-             (else "$(cd -- \"$(dirname \"$0\")\" >/dev/null 2>&1 && pwd -P)/\"$0\""))
+             (else "\"$0\""))
+             ;(else "$(cd -- \"$(dirname \"$0\")\" >/dev/null 2>&1 && pwd -P)/\"$0\""))
            (cond
              ((symbol=? compilation-target 'windows) "")
              ((symbol=? compilation-target 'php) "")

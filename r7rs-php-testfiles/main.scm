@@ -1,10 +1,6 @@
 (import (scheme base)
         (scheme read)
-        (scheme write)
-        (retropikzel cgi))
+        (scheme write))
 
 (display "Test successfull")
-(newline)
-
-(display (cgi))
 (newline)

@@ -15,9 +15,11 @@ STATIC_LIBS=libs.util.a libs.library-util.a libs.data.a libs.srfi-64-util.a
 
 all: build-chibi
 
-readme: manpage.1
+README.md: doc/compile-scheme.1
 	printf "<pre>\n$$(MANWIDTH=80 man -l doc/compile-scheme.1)\n</pre>" > README.md
-	cat README.md > README.html
+
+compile-scheme.pdf: doc/compile-scheme.1
+	mandoc -T pdf -l doc/compile-scheme.1 > compile-scheme.pdf
 
 build-chibi:
 	echo "#!/bin/sh" > compile-scheme
@@ -152,17 +154,6 @@ test-r7rs-php-docker:
 	docker run -v "${PWD}":/workdir -w /workdir -t ${DOCKERTAG} sh -c "make SCHEME=${SCHEME} test-r7rs-php"
 
 clean:
-	rm -rf test-r7rs
-	rm -rf compile-scheme
-	find . -name "*.so" -delete
-	find . -name "*.o*" -delete
-	find . -name "*.a*" -delete
-	find . -name "*.rkt" -delete
-	find . -name "*.link" -delete
-	find . -name "*.meta" -delete
-	find . -name "*.import.*" -delete
-	rm -rf libs.library-util.c
-	rm -rf dist
-	rm -rf deps
+	git clean -X -f
 
 

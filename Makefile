@@ -40,8 +40,11 @@ build-chicken:
 		compile-scheme.scm
 
 deb: build-gauche
-	mkdir -p deb/bin
-	cp compile-scheme deb/bin/
+	mkdir -p deb/usr/local/bin
+	cp compile-scheme deb/usr/local/bin/
+	mkdir -p deb/usr/local/lib/compile-scheme
+	cp compile-scheme.scm deb/usr/local/lib/compile-scheme/
+	cp -r libs/ deb/usr/local/lib/compile-scheme/
 	mkdir -p deb/DEBIAN
 	printf "Package: compile-scheme\nArchitecture: amd64\nDepends: gauche\nVersion: ${VERSION}\nSection: misc\nMaintainer: Retropikzel <retropikzel@iki.fi>\nDescription: SRFI 138: Compiling Scheme programs to executables - Implementation\n" \
 		> deb/DEBIAN/control

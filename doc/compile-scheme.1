@@ -2,7 +2,7 @@
 .SH NAME
 compile-scheme \- Compiling Scheme programs to executables
 .SH SYNOPSIS
-\fBcompile-scheme\fR { [\fB-A\fR \fIpath\fR] [\fB-I\fR \fIpath\fR] [\fB-o\fR \fIpath\fR] [\fB-t\fR \fItarget\fR] input-file\fI{.scm | .sps}\fR | \fIlong-options...\fR }
+\fBcompile-scheme\fR { [\fB-A\fR \fIpath\fR] [\fB-I\fR \fIpath\fR] [\fB-o\fR \fIpath\fR] [\fB-t\fR \fItarget\fR] \fIinput-file\fR{\fI.scm\fR | \fI.sps\fR} | \fIlong-option\fR }
 .SH DESCRIPTION
 .P
 \fBcompile-scheme\fR is a tool to compile R6RS and R7RS Scheme programs.
@@ -59,9 +59,13 @@ List all supported implementations.
 List all supported compilation targets.
 .SH ENVIRONMENT
 .P
-\fBCOMPILE_R7RS/COMPILE_SCHEME\fR
+\fBCOMPILE_R7RS\fR
+.P
+\fBCOMPILE_SCHEME\fR
 .IP
-This environment variable \fBmust\fR be set. Set it to the \fBname\fR of the implementation as specified in the support list.
+
+Either of these environment variables \fBmust\fR be set.
+Set either to the \fBname\fR of the implementation as specified in the support list.
 \fBThis differs from SRFI-138\fR as the SRFI excepts a path.
 .SH STANDARDS
 .P

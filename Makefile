@@ -18,9 +18,6 @@ all: build-chibi
 README.md: doc/compile-scheme.1
 	printf "<pre>\n$$(MANWIDTH=80 man -l doc/compile-scheme.1)\n</pre>" > README.md
 
-compile-scheme.pdf: doc/compile-scheme.1
-	mandoc -T pdf -l doc/compile-scheme.1 > compile-scheme.pdf
-
 build-chibi:
 	echo "#!/bin/sh" > compile-scheme
 	echo "chibi-scheme -A ${PREFIX}/lib/compile-scheme ${PREFIX}/lib/compile-scheme/compile-scheme.scm \"\$$@\"" >> compile-scheme
@@ -155,5 +152,3 @@ test-r7rs-php-docker:
 
 clean:
 	git clean -X -f
-
-

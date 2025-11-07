@@ -18,4 +18,3 @@ tmp
 deb
 *.deb
 test-result.txt
-compile-scheme.pdf

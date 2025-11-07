@@ -2,7 +2,12 @@
 .SH NAME
 compile-scheme \- Compiling Scheme programs to executables
 .SH SYNOPSIS
-\fBcompile-scheme\fR { [\fB-A\fR \fIpath\fR] [\fB-I\fR \fIpath\fR] [\fB-o\fR \fIpath\fR] [\fB-t\fR \fItarget\fR] \fIinput-file\fR{\fI.scm\fR | \fI.sps\fR} | \fIlong-option\fR }
+.P
+\fBcompile-scheme\fR [\fB-A\fR \fIpath\fR] [\fB-I\fR \fIpath\fR] [\fB-o\fR \fIpath\fR] [\fB-t\fR \fItarget\fR] \fIinput-file.sps\fR
+.P
+\fBcompile-scheme\fR [\fB-A\fR \fIpath\fR] [\fB-I\fR \fIpath\fR] [\fB-o\fR \fIpath\fR] [\fB-t\fR \fItarget\fR] \fIinput-file.scm\fR
+.P
+\fBcompile-scheme\fR \fIlong-option\fR
 .SH DESCRIPTION
 .P
 \fBcompile-scheme\fR is a tool to compile R6RS and R7RS Scheme programs.
@@ -81,6 +86,11 @@ Not all implementations support adding to beginning or end of load path so -I an
 .IP
 Only supports one input-file.
 .SH EXAMPLES
-
-
-
+.P
+Compile single R6RS file with all dependencies in the same folder.
+.IP
+COMPILE_SCHEME=<SCHEME> compile-scheme main.sps
+.P
+Compile single R7RS file with all dependencies in the same folder.
+.IP
+COMPILE_SCHEME=<SCHEME> compile-scheme main.scm

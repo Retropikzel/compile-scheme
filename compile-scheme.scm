@@ -9,6 +9,10 @@
         (libs library-util)
         (srfi 170))
 
+(when (member "--help" (command-line))
+  (newline)
+  (exit 0))
+
 (when (or (member "--list-r6rs" (command-line))
         (member "--list-r6rs-schemes" (command-line)))
   (for-each (lambda (scheme) (display scheme) (display " ")) r6rs-schemes)

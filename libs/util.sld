@@ -1,12 +1,22 @@
 (define-library
   (libs util)
-  (import (scheme base)
-          (scheme write)
-          (scheme file)
-          (scheme char)
-          (scheme process-context)
-          (foreign c))
-  (export echo
+  (cond-expand
+    (gauche
+      (import (scheme base)
+              (scheme write)
+              (scheme file)
+              (scheme char)
+              (scheme process-context)
+              (only (gauche base) sys-system)))
+    (else
+      (import (scheme base)
+              (scheme write)
+              (scheme file)
+              (scheme char)
+              (scheme process-context)
+              (foreign c))))
+  (export system
+          echo
           cat
           r6rs-schemes
           r7rs-schemes
@@ -31,6 +41,19 @@
           trim-end
           trim-both)
   (begin
+    (cond-expand
+      (gauche
+        (define system sys-system))
+      (else
+        (define-c-library c-stdlib
+                          '("stdlib.h")
+                          libc-name
+                          '((additional-versions ("6"))))
+
+        (define-c-procedure c-system c-stdlib 'system 'int '(pointer))
+        (define (system cmd)
+          (c-system (string->c-utf8 cmd)))))
+
     (define (echo text) (display text) (newline))
     (define (cat path) (for-each (lambda (line) (echo line)) (file->list path)))
     (define r6rs-schemes '(chezscheme

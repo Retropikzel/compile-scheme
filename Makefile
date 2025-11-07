@@ -18,15 +18,12 @@ all: build-chibi
 README.md: doc/compile-scheme.1
 	printf "<pre>\n$$(MANWIDTH=80 man -l doc/compile-scheme.1)\n</pre>" > README.md
 
-replace-version:
-	sed 's/DEVELOPMENT_VERSION/${VERSION}/' compile-scheme.scm
-
-build-chibi: replace-version
+build-chibi:
 	echo "#!/bin/sh" > compile-scheme
 	echo "chibi-scheme -A ${PREFIX}/lib/compile-scheme ${PREFIX}/lib/compile-scheme/compile-scheme.scm \"\$$@\"" >> compile-scheme
 	chmod +x compile-scheme
 
-build-chicken: replace-version
+build-chicken:
 	csc -R r7rs -X r7rs -static -c -J -unit libs.util -o libs.util.o libs/util.sld
 	ar rcs libs.util.a libs.util.o
 	csc -R r7rs -X r7rs -static -c -J -unit libs.library-util -o libs.library-util.o libs/library-util.sld
@@ -42,42 +39,42 @@ build-chicken: replace-version
 		-uses srfi-170 \
 		compile-scheme.scm
 
-deb: build-chicken
+deb: build-gauche
 	mkdir -p deb/bin
 	cp compile-scheme deb/bin/
 	mkdir -p deb/DEBIAN
-	printf "Package: compile-scheme\nArchitecture: amd64\nVersion: ${VERSION}\nSection: misc\nMaintainer: Retropikzel <retropikzel@iki.fi>\nDescription: SRFI 138: Compiling Scheme programs to executables - Implementation" \
+	printf "Package: compile-scheme\nArchitecture: amd64\nDepends: gauche\nVersion: ${VERSION}\nSection: misc\nMaintainer: Retropikzel <retropikzel@iki.fi>\nDescription: SRFI 138: Compiling Scheme programs to executables - Implementation\n" \
 		> deb/DEBIAN/control
 	dpkg-deb -b deb
+	mv deb.deb compile-scheme-${VERSION}.deb
 
-# FIXME
-#build-gauche: replace-version
-	#echo "#!/bin/sh" > compile-scheme
-	#echo "gosh -r -I ${PREFIX}/lib/compile-scheme -I ${PREFIX}/lib/compile-scheme/libs ${PREFIX}/lib/compile-scheme/compile-scheme.scm \"\$$@\"" >> compilescheme-
-	#chmod +x compile-scheme
+build-gauche:
+	echo "#!/bin/sh" > compile-scheme
+	echo "gosh -r7 -I ${PREFIX}/lib/compile-scheme -I ${PREFIX}/lib/compile-scheme/libs ${PREFIX}/lib/compile-scheme/compile-scheme.scm \"\$$@\"" >> compile-scheme
+	chmod +x compile-scheme
 
-build-guile: replace-version
+build-guile:
 	echo "#!/bin/sh" > compile-scheme
 	echo "guile --r7rs --auto-compile -I -q -L ${PREFIX}/lib/compile-scheme ${PREFIX}/lib/compile-scheme/compile-scheme.scm \"\$$@\"" >> compile-scheme
 	chmod +x compile-scheme
 
 # FIXME
-#build-kawa: replace-version
+#build-kawa:
 	#echo "#!/bin/sh" > compile-scheme
 	#echo "kawa -J--add-exports=java.base/jdk.internal.foreign.abi=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign.layout=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign=ALL-UNNAMED -J--enable-native-access=ALL-UNNAMED -Dkawa.import.path=/usr/local/share/kawa/lib/*.sld:${PREFIX}/lib/compile-scheme/*.sld --r7rs ${PREFIX}/lib/compile-scheme/compile-scheme.scm \"\$$@\" 2> /dev/null" >> compile-scheme
 	#chmod +x compile-scheme
 
 # FIXME
-#build-racket: replace-version
+#build-racket:
 	#echo "#!/bin/sh" > compile-scheme
 	#echo "racket -I r7rs -S ${PREFIX}/lib/compile-scheme --script ${PREFIX}/lib/compile-scheme/compile-scheme.scm \"\$$@\"" >> compile-scheme
 
-build-sagittarius: replace-version
+build-sagittarius:
 	echo "#!/bin/sh" > compile-scheme
 	echo "sash -A ${PREFIX}/lib/compile-scheme ${PREFIX}/lib/compile-scheme/compile-scheme.scm \"\$$@\"" >> compile-scheme
 	chmod +x compile-scheme
 
-build-stklos: replace-version
+build-stklos:
 	echo "#!/bin/sh" > compile-scheme
 	echo "stklos -I ${PREFIX}/lib/compile-scheme ${PREFIX}/lib/compile-scheme/compile-scheme.scm \"\$$@\"" >> compile-scheme
 	chmod +x compile-scheme

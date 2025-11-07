@@ -1,20 +1,12 @@
 (import (scheme base)
-        (scheme file)
-        (scheme read)
-        (scheme write)
-        (scheme process-context)
-        (foreign c)
-        (libs util)
-        (libs data)
-        (libs library-util)
-        (srfi 170))
-
-(define-c-library c-stdlib
-                  '("stdlib.h")
-                  libc-name
-                  '((additional-versions ("6"))))
-
-(define-c-procedure c-system c-stdlib 'system 'int '(pointer))
+            (scheme file)
+            (scheme read)
+            (scheme write)
+            (scheme process-context)
+            (libs util)
+            (libs data)
+            (libs library-util)
+            (srfi 170))
 
 (when (member "--help" (command-line))
   (display "For help see: man compile-scheme")
@@ -22,7 +14,7 @@
   (exit 0))
 
 (when (member "--version" (command-line))
-  (display "DEVELOPMENT_VERSION")
+  (display "1.0.0")
   (newline)
   (exit 0))
 
@@ -235,7 +227,7 @@
              (let* ((library-command (scheme-library-command file)))
                (for-each
                  (lambda (command)
-                   (let ((exit-code (c-system (string->c-utf8 command))))
+                   (let ((exit-code (system command)))
                      (when (not (= exit-code 0))
                        (exit exit-code))))
                  library-command)))
@@ -286,14 +278,14 @@
                 #\newline
                 ,scheme-program))))))
     (cond ((symbol=? compilation-target 'unix)
-           (c-system (string->c-utf8 (string-append "chmod +x " output-file)))))))
+           (system (string-append "chmod +x " output-file))))))
 
 (when (and (symbol=? scheme-type 'compiler) input-file)
   (when (and output-file (file-exists? output-file))
     (delete-file output-file))
   (for-each
     (lambda (command)
-      (let ((exit-code (c-system (string->c-utf8 command))))
+      (let ((exit-code (system command)))
         (when (not (= exit-code 0))
           (exit exit-code))))
     scheme-command)

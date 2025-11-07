@@ -9,7 +9,20 @@
         (libs library-util)
         (srfi 170))
 
+(define-c-library c-stdlib
+                  '("stdlib.h")
+                  libc-name
+                  '((additional-versions ("6"))))
+
+(define-c-procedure c-system c-stdlib 'system 'int '(pointer))
+
 (when (member "--help" (command-line))
+  (display "For help see: man compile-scheme")
+  (newline)
+  (exit 0))
+
+(when (member "--version" (command-line))
+  (display "DEVELOPMENT_VERSION")
   (newline)
   (exit 0))
 
@@ -137,13 +150,6 @@
                                (list)))
   (newline)
   (exit 0))
-
-(define-c-library c-stdlib
-                  '("stdlib.h")
-                  libc-name
-                  '((additional-versions ("6"))))
-
-(define-c-procedure c-system c-stdlib 'system 'int '(pointer))
 
 #;(define search-library-files
   (lambda (directory)

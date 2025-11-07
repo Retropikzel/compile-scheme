@@ -97,10 +97,26 @@ Not all implementations support adding to beginning or end of load path so -I an
 Only supports one input-file.
 .SH EXAMPLES
 .P
-Compile single R6RS file with all dependencies in the same folder.
+Compile R6RS file with all dependencies in the same directory.
 .IP
 COMPILE_SCHEME=<SCHEME> compile-scheme main.sps
 .P
-Compile single R7RS file with all dependencies in the same folder.
+Compile R7RS file with all dependencies in the same directory.
 .IP
 COMPILE_SCHEME=<SCHEME> compile-scheme main.scm
+.P
+Compile R6RS file with dependencies in libs directory.
+.IP
+COMPILE_SCHEME=<SCHEME> compile-scheme -I ./libs main.sps
+.P
+Compile R7RS file with dependencies in libs directory.
+.IP
+COMPILE_SCHEME=<SCHEME> compile-scheme -I ./libs main.scm
+.P
+Compile R6RS file with dependencies in libs directory, to output named foo.
+.IP
+COMPILE_SCHEME=<SCHEME> compile-scheme -I ./libs -o foo main.sps
+.P
+Compile R7RS file with dependencies in libs directory, to output named foo.
+.IP
+COMPILE_SCHEME=<SCHEME> compile-scheme -I ./libs -o foo main.scm

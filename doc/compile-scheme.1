@@ -3,9 +3,11 @@
 compile-scheme \- Compiling Scheme programs to executables
 .SH SYNOPSIS
 .P
-\fBcompile-scheme\fR [\fB-A\fR \fIpath\fR] [\fB-I\fR \fIpath\fR] [\fB-o\fR \fIpath\fR] [\fB-t\fR \fItarget\fR] \fIinput-file.sps\fR
+\fBcompile-scheme\fR [\fB-A\fR \fIpath\fR] [\fB-I\fR \fIpath\fR] [\fB-o\fR \fIpath\fR] \fIinput-file.sps\fR
+\#\fBcompile-scheme\fR [\fB-A\fR \fIpath\fR] [\fB-I\fR \fIpath\fR] [\fB-o\fR \fIpath\fR] [\fB-t\fR \fItarget\fR] \fIinput-file.sps\fR
 .P
-\fBcompile-scheme\fR [\fB-A\fR \fIpath\fR] [\fB-I\fR \fIpath\fR] [\fB-o\fR \fIpath\fR] [\fB-t\fR \fItarget\fR] \fIinput-file.scm\fR
+\fBcompile-scheme\fR [\fB-A\fR \fIpath\fR] [\fB-I\fR \fIpath\fR] [\fB-o\fR \fIpath\fR] \fIinput-file.scm\fR
+\#\fBcompile-scheme\fR [\fB-A\fR \fIpath\fR] [\fB-I\fR \fIpath\fR] [\fB-o\fR \fIpath\fR] [\fB-t\fR \fItarget\fR] \fIinput-file.scm\fR
 .P
 \fBcompile-scheme\fR \fIlong-option\fR
 .SH DESCRIPTION
@@ -41,19 +43,20 @@ Prepend directory to the list of directories that are searched in order to locat
 Use the \fIoutput-file\fR file, instead of the default deducted from input-file, for the executable file produced.
 .P
 Multiple instances of the -A, and -I options can be specified.
-.P
-\fB\-t\fR { \fIunix\fR | \fIwindows\fR | \fIphp\fR }
-Set the compilation target.
-This is not needed if you are compiling for the target OS you are running.
-Cross compilation is only supported in following cases:
-.IP
-From \fIunix\fR host to \fIwindows\fR target when chosen implementation is interpreter.
-.IP
-From \fIwindows\fR host to \fIunix\fR target when chosen implementation is interpreter.
-.IP
-From \fIunix\fR host to \fIphp\fR target when chosen implementation is interpreter.
-.IP
-From \fIwindows\fR host to \fIphp\fR target when chosen implementation is interpreter.
+\#.P
+\#\fB\-t\fR { \fIunix\fR | \fIwindows\fR | \fIphp\fR }
+\#\fB\-t\fR \fIunix\fR
+\#Set the compilation target.
+\#This is not needed if you are compiling for the target OS you are running.
+\#Cross compilation is only supported in following cases:
+\#.IP
+\#From \fIunix\fR host to \fIwindows\fR target when chosen implementation is interpreter.
+\#.IP
+\#From \fIwindows\fR host to \fIunix\fR target when chosen implementation is interpreter.
+\#.IP
+\#From \fIunix\fR host to \fIphp\fR target when chosen implementation is interpreter.
+\#.IP
+\#From \fIwindows\fR host to \fIphp\fR target when chosen implementation is interpreter.
 .P
 .B \-\-list-r6rs
 List supported R6RS implementations.
@@ -63,9 +66,9 @@ List supported R7RS implementations.
 .P
 .B \-\-list-all
 List all supported implementations.
-.P
-\fB\-\-list-targets\fR
-List all supported compilation targets.
+\#.P
+\#\fB\-\-list-targets\fR
+\#List all supported compilation targets.
 .P
 \fB\-\-version\fR
 Show the software version.

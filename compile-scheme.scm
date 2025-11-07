@@ -21,34 +21,35 @@
   (newline)
   (exit 0))
 
-(when (or (member "--list" (command-line))
+(when (or (member "--list-all" (command-line))
           (member "--list-schemes" (command-line)))
   (for-each (lambda (scheme) (display scheme) (display " ")) all-schemes)
   (newline)
   (exit 0))
 
-(define scheme (if (get-environment-variable "COMPILE_R7RS")
-                  (string->symbol (get-environment-variable "COMPILE_R7RS"))
-                  #f))
+(define scheme
+  (cond
+    ((get-environment-variable "COMPILE_R7RS")
+     (string->symbol (get-environment-variable "COMPILE_R7RS")))
+    ((get-environment-variable "COMPILE_SCHEME")
+     (string->symbol (get-environment-variable "COMPILE_SCHEME")))
+    (else #f)))
 (when (not scheme)
-  (display "Environment variable COMPILE_R7RS not set." (current-error-port))
+  (display "Either environment variable COMPILE_R7RS or COMPILE_SCHEME is not set." (current-error-port))
   (newline (current-error-port))
   (exit 1))
 (when (not (assoc scheme data)) (error "Unsupported implementation" scheme))
-(define compilation-target
-  (if (get-environment-variable "COMPILE_R7RS_TARGET")
-    (string->symbol (get-environment-variable "COMPILE_R7RS_TARGET"))
-    (cond-expand (windows 'windows)
-                 (else 'unix))))
 
 (define input-file
   (let ((input-file #f))
     (for-each
       (lambda (item)
-        (when (or (string-ends-with? item ".scm")
-                  (string-ends-with? item ".sps"))
+        (if (or (string-ends-with? item ".scm")
+                (string-ends-with? item ".sps"))
           (set! input-file item)))
       (list-tail (command-line) 1))
+    (when (not input-file)
+      (error "The intput-file must be either .scm (R7RS) or .sps (R6RS)"))
     input-file))
 
 (define single-library-input-file
@@ -70,12 +71,31 @@
 
 (define scheme-type (cdr (assoc 'type (cdr (assoc scheme data)))))
 
-(define output-file
+(define compilation-target
   (let ((outfile (if (member "-o" (command-line))
                    (cadr (member "-o" (command-line)))
                    (if input-file
                      "a.out"
                      #f))))
+    (if (and (symbol=? scheme-type 'compiler)
+             (symbol=? compilation-target 'php))
+      (string-append outfile ".bin")
+      outfile)))
+
+(define compilation-target
+  (cond
+    ((member "-t" (command-line))
+     (cadr (member "-t" (command-line))))
+    (else
+      (cond-expand (windows 'windows)
+                   (else 'unix)))))
+
+(define output-file
+  (let ((outfile
+          (cond
+            ((member "-o" (command-line))
+             (cadr (member "-o" (command-line))))
+            (input-file (string-cut-from-end input-file 4)))))
     (if (and (symbol=? scheme-type 'compiler)
              (symbol=? compilation-target 'php))
       (string-append outfile ".bin")

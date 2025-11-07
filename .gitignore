@@ -1,7 +1,7 @@
 *.swp
 *.swo
 *.link
-compile-r7rs
+compile-scheme
 test-r7rs
 test
 *.c

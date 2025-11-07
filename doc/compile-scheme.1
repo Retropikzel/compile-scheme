@@ -1,0 +1,82 @@
+.TH compile-scheme 1
+.SH NAME
+compile-scheme \- Compiling Scheme programs to executables
+.SH SYNOPSIS
+\fBcompile-scheme\fR { [\fB-A\fR \fIpath\fR] [\fB-I\fR \fIpath\fR] [\fB-o\fR \fIpath\fR] [\fB-t\fR \fItarget\fR] input-file\fI{.scm | .sps}\fR | \fIlong-options...\fR }
+.SH DESCRIPTION
+.P
+\fBcompile-scheme\fR is a tool to compile R6RS and R7RS Scheme programs.
+It supports most of SRFI-138 but also adds more features.
+.P
+The program \fIinput-file\fR is compiled into an executable file.
+The resulting executable file is written to file specified by the \fB-o\fR \fIpath\fR (if present) or to the file named same as \fIinput-file\fR but without the .scm or .sps suffix.
+On Windows either .bat or .exe is appended to the output name.
+.SS SUPPORT LIST
+.P
+Some implementations support both compiling and interpreting, in that
+case only the compiler functionality is used and the implementation is marked
+as compiler.
+.IP "R6RS Compilers"
+loko
+.IP "R6RS Interpreters"
+chezscheme guile ikarus ironscheme mosh racket sagittarius ypsilon
+.IP "R7RS Compilers"
+chicken cyclone loko
+.IP "R7RS Interpreters"
+chibi foment gauche guile kawa larceny meevax mit-scheme mosh racket sagittarius skint stklos tr7 ypsilon
+.SH OPTIONS
+.P
+\fB\-A\fR \fIpath\fR
+Append path to the list of directories that are searched in order to locate imported libraries.
+.P
+\fB\-I\fR \fIpath\fR
+Prepend directory to the list of directories that are searched in order to locate imported libraries.
+.P
+\fB-o\fR \fIoutput-file\fR
+Use the \fIoutput-file\fR file, instead of the default deducted from input-file, for the executable file produced.
+.P
+Multiple instances of the -A, and -I options can be specified.
+.P
+\fB\-t\fR { \fIunix\fR | \fIwindows\fR | \fIphp\fR }
+Set the compilation target.
+This is not needed if you are compiling for the target OS you are running.
+Cross compilation is only supported in following cases:
+.IP
+From \fIunix\fR host to \fIphp\fR target when chosen implementation is interpreter.
+.IP
+From \fIunix\fR host to \fIwindows\fR target when chosen implementation is interpreter.
+.P
+.B \-\-list-r6rs
+List supported R6RS implementations.
+.P
+.B \-\-list-r7rs
+List supported R7RS implementations.
+.P
+.B \-\-list-all
+List all supported implementations.
+.P
+\fB\-\-list-targets\fR
+List all supported compilation targets.
+.SH ENVIRONMENT
+.P
+\fBCOMPILE_R7RS/COMPILE_SCHEME\fR
+.IP
+This environment variable \fBmust\fR be set. Set it to the \fBname\fR of the implementation as specified in the support list.
+\fBThis differs from SRFI-138\fR as the SRFI excepts a path.
+.SH STANDARDS
+.P
+SRFI 138: Compiling Scheme programs to executables.
+https://srfi.schemers.org/srfi-138/srfi-138.html
+.SH CAVEATS
+.P
+Differences from SRFI-138
+.IP
+No support for -D flag.
+.IP
+Not all implementations support adding to beginning or end of load path so -I and -A might work the same
+.IP
+Only supports one input-file.
+.SH EXAMPLES
+
+
+

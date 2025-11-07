@@ -5,37 +5,39 @@ NAME
        compile-scheme - Compiling Scheme programs to executables
 
 SYNOPSIS
-       compile-scheme  {  [-A  path]  [-I  path]  [-o  path] [-t target] input-
-       file{.scm | .sps} | long-option }
+       compile-scheme [-A path] [-I path] [-o path] input-file.sps
+
+       compile-scheme [-A path] [-I path] [-o path] input-file.scm
+
+       compile-scheme long-option
 
 DESCRIPTION
-       compile-scheme is a tool to compile R6RS and R7RS Scheme  programs.   It
+       compile-scheme  is  a tool to compile R6RS and R7RS Scheme programs.  It
        supports most of SRFI-138 but also adds more features.
 
        The program input-file is compiled into an executable file.  The result‐
-       ing  executable  file  is  written  to file specified by the -o path (if
+       ing executable file is written to file specified  by  the  -o  path  (if
        present) or to the file named same as input-file but without the .scm or
-       .sps suffix.  On Windows either .bat or .exe is appended to  the  output
+       .sps  suffix.   On Windows either .bat or .exe is appended to the output
        name.
 
-   SUPPORT LIST
-       Some  implementations  support  both compiling and interpreting, in that
-       case only the compiler functionality is used and the  implementation  is
+SUPPORTED IMPLEMENTATIONS
+       Some implementations support both compiling and  interpreting,  in  that
+       case  only  the compiler functionality is used and the implementation is
        marked as compiler.
 
-       R6RS Compilers
-              loko
+   R6RS Compilers
+       loko
 
-       R6RS Interpreters
-              chezscheme  guile  ikarus  ironscheme mosh racket sagittarius yp‐
-              silon
+   R6RS Interpreters
+       chezscheme guile ikarus ironscheme mosh racket sagittarius ypsilon
 
-       R7RS Compilers
-              chicken cyclone loko
+   R7RS Compilers
+       chicken cyclone loko
 
-       R7RS Interpreters
-              chibi foment gauche guile kawa  larceny  meevax  mit-scheme  mosh
-              racket sagittarius skint stklos tr7 ypsilon
+   R7RS Interpreters
+       chibi foment gauche guile kawa larceny  meevax  mit-scheme  mosh  racket
+       sagittarius skint stklos tr7 ypsilon
 
 OPTIONS
        -A  path Append path to the list of directories that are searched in or‐
@@ -49,30 +51,24 @@ OPTIONS
 
        Multiple instances of the -A, and -I options can be specified.
 
-       -t  {  unix  |  windows | php } Set the compilation target.  This is not
-       needed if you are compiling for the target OS you  are  running.   Cross
-       compilation is only supported in following cases:
-
-              From unix host to php target when chosen implementation is inter‐
-              preter.
-
-              From  unix  host  to windows target when chosen implementation is
-              interpreter.
-
        --list-r6rs List supported R6RS implementations.
 
        --list-r7rs List supported R7RS implementations.
 
        --list-all List all supported implementations.
 
-       --list-targets List all supported compilation targets.
+       --version Show the software version.
+
+       --help Shows you command to read this manual page. :)
 
 ENVIRONMENT
-       COMPILE_R7RS/COMPILE_SCHEME
+       COMPILE_R7RS
 
-              This environment variable must be set. Set it to the name of  the
-              implementation  as  specified  in the support list.  This differs
-              from SRFI-138 as the SRFI excepts a path.
+       COMPILE_SCHEME
+
+              Either of these environment variables must be set.  Set either to
+              the  name of the implementation as specified in the support list.
+              This differs from SRFI-138 as the SRFI excepts a path.
 
 STANDARDS
        SRFI    138:    Compiling    Scheme     programs     to     executables.
@@ -89,5 +85,31 @@ CAVEATS
               Only supports one input-file.
 
 EXAMPLES
+       Compile R6RS file with all dependencies in the same directory.
+
+              COMPILE_SCHEME=<SCHEME> compile-scheme main.sps
+
+       Compile R7RS file with all dependencies in the same directory.
+
+              COMPILE_SCHEME=<SCHEME> compile-scheme main.scm
+
+       Compile R6RS file with dependencies in libs directory.
+
+              COMPILE_SCHEME=<SCHEME> compile-scheme -I ./libs main.sps
+
+       Compile R7RS file with dependencies in libs directory.
+
+              COMPILE_SCHEME=<SCHEME> compile-scheme -I ./libs main.scm
+
+       Compile R6RS file with dependencies in libs directory, to  output  named
+       foo.
+
+              COMPILE_SCHEME=<SCHEME> compile-scheme -I ./libs -o foo main.sps
+
+       Compile  R7RS  file with dependencies in libs directory, to output named
+       foo.
+
+              COMPILE_SCHEME=<SCHEME> compile-scheme -I ./libs -o foo main.scm
+
                                                               compile-scheme(1)
 </pre>

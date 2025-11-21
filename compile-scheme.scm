@@ -87,7 +87,8 @@
                      "a.out"
                      #f))))
     (if (and (symbol=? scheme-type 'compiler)
-             (symbol=? compilation-target 'php))
+             ;(symbol=? compilation-target 'php)
+             )
       (string-append outfile ".bin")
       outfile)))
 

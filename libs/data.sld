@@ -255,8 +255,7 @@
                                                                                prepend-directories)
                                                                        library-file)))
                                 `(,(string-append "guild compile "
-                                                  (if r6rs? " --r6rs -x .sls " " --r7rs -x .sld ")
-                                                  " -O0 "
+                                                  (if r6rs? " --r6rs " " --r7rs ")
                                                   (apply string-append
                                                          (map (lambda (item)
                                                                 (string-append "-L" " " item " "))

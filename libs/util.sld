@@ -86,9 +86,28 @@
                             stklos
                             tr7
                             ypsilon))
-
-    (define all-schemes (append r6rs-schemes r7rs-schemes))
-
+    (define all-schemes '(chezscheme
+                           chibi
+                           chicken
+                           cyclone
+                           ;gambit
+                           foment
+                           gauche
+                           guile
+                           ikarus
+                           ironscheme
+                           kawa
+                           larceny
+                           loko
+                           meevax
+                           mit-scheme
+                           mosh
+                           racket
+                           sagittarius
+                           skint
+                           stklos
+                           tr7
+                           ypsilon))
 
     (define util-getenv
       (lambda (name)

@@ -366,8 +366,8 @@
                                " -Dkawa.import.path="
                                ,@(map (lambda (item)
                                         (if (char=? (string-ref item 0) #\/)
-                                          (string-append item "/*.sld")
-                                          (string-append pwd "/" item "/*.sld")))
+                                          (string-append item "/*.sld:")
+                                          (string-append pwd "/" item "/*.sld:")))
                                       (append prepend-directories
                                               append-directories))
                                " -f "

@@ -352,16 +352,8 @@
                              r6rs?
                              compilation-target)
                       (apply string-append
-                             `("CLASSPATH="
-                               ,@(map (lambda (item)
-                                        (if (char=? (string-ref item 0) #\/)
-                                          (string-append item ":")
-                                          (string-append pwd "/" item ":")))
-                                      (append prepend-directories
-                                              append-directories))
-                               " "
-                               ,exec-cmd
-                               " kawa -J--add-exports=java.base/jdk.internal.foreign.abi=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign.layout=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign=ALL-UNNAMED -J--enable-native-access=ALL-UNNAMED -J--enable-preview "
+                             `(,exec-cmd
+                               " kawa -J--add-exports=java.base/jdk.internal.foreign.abi=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign.layout=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign=ALL-UNNAMED -J--enable-native-access=ALL-UNNAMED -J--enable-preview --full-tailcalls"
                                ,(util-getenv "COMPILE_R7RS_KAWA")
                                " -Dkawa.import.path="
                                ,@(map (lambda (item)
@@ -369,7 +361,8 @@
                                           (string-append item "/*.sld:")
                                           (string-append pwd "/" item "/*.sld:")))
                                       (append prepend-directories
-                                              append-directories))
+                                              append-directories
+                                              (list "/usr/local/share/kawa/lib")))
                                " -f "
                                ,script-file
                                " "

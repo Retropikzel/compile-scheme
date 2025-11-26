@@ -8,6 +8,8 @@
             (libs library-util)
             (srfi 170))
 
+(define debug? (if (member "--debug" (command-line)) #t #f))
+
 (when (member "--help" (command-line))
   (display "For help see: man compile-scheme")
   (newline)
@@ -203,6 +205,11 @@
            library-files
            r6rs?
            compilation-target)))
+
+(when debug?
+  (display "[debug] scheme-command: ")
+  (write scheme-command)
+  (newline))
 
 (define scheme-library-command
   (lambda (library-file)

@@ -18,7 +18,7 @@ _compile_scheme()
         #if [[ "$i" == "-t" ]] ; then
             #targetfound=true
         #fi
-    done
+    #done
 
     if [[ "$outputfound" == "false" ]]; then
         shortopts="${shortopts} -o"

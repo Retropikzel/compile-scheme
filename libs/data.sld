@@ -282,8 +282,7 @@
                                ,(util-getenv "COMPILE_R7RS_GUILE")
                                ,(if r6rs? " --r6rs -x .sls " " --r7rs -x .sld ")
                                ,@(map (lambda (item)
-                                        (string-append " -L " item " "
-                                                       " -L " (dirname item) " "))
+                                        (string-append " -L " item " "))
                                       (append prepend-directories
                                               append-directories))
                                " -s "

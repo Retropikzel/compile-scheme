@@ -190,36 +190,45 @@
                                  " "
                                  ,args)))))
         #;(gambit
-        (type . compiler)
-        (library-command . ,(lambda (library-file prepend-directories append-directories r6rs?)
-                              `(,(string-append "gsc "
-                                                (apply string-append
-                                                       (map (lambda (item)
-                                                              (string-append item "/ "))
-                                                            (append prepend-directories
-                                                                    append-directories)))
-                                                (search-library-file (append append-directories
-                                                                             prepend-directories)
-                                                                     library-file)))))
-        (command . ,(lambda (input-file output-file prepend-directories append-directories library-files r6rs?)
-                      (let ((output-tmp-file (string-append output-file ".tmp")))
-                        `(,(string-append "echo \"#!/usr/bin/env gsi -:r7rs,search="
-                                          (apply string-append
-                                                 (map (lambda (item)
-                                                        (string-append item "/ "))
-                                                      (append prepend-directories
-                                                              append-directories)))
-                                          "\" > " output-tmp-file)
-                           ,(string-append "cat " input-file " >> " output-tmp-file)
-                           ,(string-append "gsc "
-                                           (apply string-append
-                                                  (map (lambda (item)
-                                                         (string-append item "/ "))
-                                                       (append prepend-directories
-                                                               append-directories)))
-                                           " -o " output-file
-                                           " -exe -nopreload "
-                                           output-tmp-file))))))
+          (type . compiler)
+          (library-command . ,(lambda (library-file prepend-directories append-directories r6rs?)
+                                `(,(string-append "gsc "
+                                                  (apply string-append
+                                                         (map (lambda (item)
+                                                                (string-append item "/ "))
+                                                              (append prepend-directories
+                                                                      append-directories)))
+                                                  (search-library-file (append append-directories
+                                                                               prepend-directories)
+                                                                       library-file)))))
+          (command . ,(lambda (exec-cmd
+                             script-file
+                             args
+                             input-file
+                             output-file
+                             prepend-directories
+                             append-directories
+                             library-files
+                             r6rs?
+                             compilation-target)
+                        (let ((output-tmp-file (string-append output-file ".tmp")))
+                          `(,(string-append "echo \"#!/usr/bin/env gsi -:r7rs,search="
+                                            (apply string-append
+                                                   (map (lambda (item)
+                                                          (string-append item "/ "))
+                                                        (append prepend-directories
+                                                                append-directories)))
+                                            "\" > " output-tmp-file)
+                             ,(string-append "cat " input-file " >> " output-tmp-file)
+                             ,(string-append "gsc "
+                                             (apply string-append
+                                                    (map (lambda (item)
+                                                           (string-append item "/ "))
+                                                         (append prepend-directories
+                                                                 append-directories)))
+                                             " -o " output-file
+                                             " -exe -nopreload "
+                                             output-tmp-file))))))
       (gauche
         (type . interpreter)
         (command . ,(lambda (exec-cmd

@@ -216,6 +216,11 @@
     (apply (cdr (assoc 'library-command (cdr (assoc scheme data))))
       (list library-file prepend-directories append-directories r6rs?))))
 
+(when debug?
+  (display "[debug] scheme-library-command: ")
+  (write scheme-library-command)
+  (newline))
+
 
 (define list-of-features
   (letrec ((looper (lambda (rest result)

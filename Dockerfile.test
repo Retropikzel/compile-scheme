@@ -1,26 +1,9 @@
 ARG SCHEME=chibi
 ARG IMAGE=chibi:head
-FROM debian:bookworm AS cache
-RUN apt-get update && apt-get install -y gcc make git
-WORKDIR /cache
-RUN git clone https://github.com/ashinn/chibi-scheme.git --depth=1
-WORKDIR /cache/chibi-scheme
-RUN make
-
-ARG SCHEME=chibi
-ARG IMAGE=chibi:head
 FROM schemers/${IMAGE}
-RUN apt-get update && apt-get install -y \
-    --no-install-recommends \
-    build-essential libffi-dev unzip php libreadline-dev
-COPY --from=cache /cache /cache
-WORKDIR /cache/chibi-scheme
-RUN make install
-WORKDIR /
-RUN mkdir -p ${HOME}/.snow && echo "()" > ${HOME}/.snow/config.scm
-RUN snow-chibi install --always-yes "(foreign c)"
-RUN snow-chibi install --always-yes "(srfi 170)"
+RUN apt-get update && apt-get install -y gauche make
 COPY Makefile .
 COPY libs libs/
-COPY compile-r7rs.scm .
-RUN make build-chibi && make install
+COPY compile-scheme.scm .
+COPY doc doc/
+RUN make build-gauche && make install

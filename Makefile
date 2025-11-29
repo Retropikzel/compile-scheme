@@ -1,8 +1,8 @@
 PREFIX=/usr/local
 SCHEME=chibi
 VERSION=1.0.0
-R6RSTMP=tmp/${SCHEME}-r6rs
-R7RSTMP=tmp/${SCHEME}-r7rs
+R6RSTMP=.tmp/${SCHEME}-r6rs
+R7RSTMP=.tmp/${SCHEME}-r7rs
 DOCKERTAG=compile-scheme-test-${SCHEME}
 DOCKERIMG=${SCHEME}:head
 ifeq "${SCHEME}" "chicken"
@@ -124,7 +124,7 @@ test-r7rs:
 	rm -rf ${R7RSTMP}
 	mkdir -p ${R7RSTMP}
 	cp -r r7rs-testfiles/* ${R7RSTMP}/
-	cd ${R7RSTMP} && COMPILE_R7RS=${SCHEME} compile-scheme -I --debug ./libs main.scm
+	cd ${R7RSTMP} && COMPILE_R7RS=${SCHEME} compile-scheme -I libs --debug main.scm
 	-cd ${R7RSTMP} && ./main 1 2 3 > test-result.txt 2>&1
 	@grep "Test successfull (\"1\" \"2\" \"3\")" ${R7RSTMP}/test-result.txt || (echo "Test failed, output: " && cat ${R7RSTMP}/test-result.txt && exit 1)
 

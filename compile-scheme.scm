@@ -26,9 +26,31 @@
   (newline)
   (exit 0))
 
+(when (member "--list-r6rs-except" (command-line))
+  (for-each
+    (lambda (scheme)
+      (when (not (member (symbol->string scheme)
+                         (cdr (member "--list-r6rs-except" (command-line)))))
+        (display scheme)
+        (display " ")))
+    r6rs-schemes)
+  (newline)
+  (exit 0))
+
 (when (or (member "--list-r7rs" (command-line))
           (member "--list-r7rs-schemes" (command-line)))
   (for-each (lambda (scheme) (display scheme) (display " ")) r7rs-schemes)
+  (newline)
+  (exit 0))
+
+(when (member "--list-r7rs-except" (command-line))
+  (for-each
+    (lambda (scheme)
+      (when (not (member (symbol->string scheme)
+                         (cdr (member "--list-r7rs-except" (command-line)))))
+        (display scheme)
+        (display " ")))
+    r7rs-schemes)
   (newline)
   (exit 0))
 

@@ -13,6 +13,11 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
     }
 
+    parameters {
+        string(name: 'R6RS_SCHEMES', defaultValue: 'capyscheme chezscheme guile ikarus ironscheme larceny loko mosh racket sagittarius ypsilon', description: '')
+        string(name: 'R7RS_SCHEMES', defaultValue: 'capyscheme chibi chicken cyclone gambit foment gauche guile kawa larceny loko meevax mit-scheme mosh racket sagittarius skint stklos tr7 ypsilon', description: '')
+    }
+
     stages {
         stage('Build and install') {
             steps {
@@ -21,29 +26,31 @@ pipeline {
             }
         }
 
-        stage('Test R6RS') {
-            steps {
-                script {
-                    def SCHEMES = "chezscheme guile ikarus ironscheme larceny loko mosh racket sagittarius ypsilon"
-                    SCHEMES.split().each { SCHEME ->
-                        stage("${SCHEME} R6RS") {
-                            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                                sh "make SCHEME=${SCHEME} test-r6rs-docker"
+        stage('Test') {
+            parallel {
+                stage('R6RS') {
+                    steps {
+                        script {
+                            R7RS_SCHEMES.split().each { SCHEME ->
+                                stage("${SCHEME} R6RS") {
+                                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                                        sh "make SCHEME=${SCHEME} test-r6rs-docker"
+                                    }
+                                }
                             }
                         }
                     }
                 }
-            }
-        }
 
-        stage('Test R7RS') {
-            steps {
-                script {
-                    def SCHEMES = "chibi chicken cyclone gambit foment gauche guile kawa larceny loko meevax mit-scheme mosh racket sagittarius skint stklos tr7 ypsilon"
-                    SCHEMES.split().each { SCHEME ->
-                        stage("${SCHEME} R7RS") {
-                            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                                sh "make SCHEME=${SCHEME} test-r7rs-docker"
+                stage('R7RS') {
+                    steps {
+                        script {
+                            R7RS_SCHEMES.split().each { SCHEME ->
+                                stage("${SCHEME} R7RS") {
+                                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                                        sh "make SCHEME=${SCHEME} test-r7rs-docker"
+                                    }
+                                }
                             }
                         }
                     }

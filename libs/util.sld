@@ -56,18 +56,20 @@
 
     (define (echo text) (display text) (newline))
     (define (cat path) (for-each (lambda (line) (echo line)) (file->list path)))
-    (define r6rs-schemes '(chezscheme
+    (define r6rs-schemes '(capyscheme
+                            chezscheme
                             guile
                             ikarus
                             ironscheme
-                            larceny
+                            ;larceny
                             loko
                             mosh
                             racket
                             sagittarius
                             ypsilon))
 
-    (define r7rs-schemes '(chibi
+    (define r7rs-schemes '(capyscheme
+                            chibi
                             chicken
                             cyclone
                             ;gambit
@@ -75,7 +77,7 @@
                             gauche
                             guile
                             kawa
-                            larceny
+                            ;larceny
                             loko
                             meevax
                             mit-scheme
@@ -86,7 +88,8 @@
                             stklos
                             tr7
                             ypsilon))
-    (define all-schemes '(chezscheme
+    (define all-schemes '(capyscheme
+                           chezscheme
                            chibi
                            chicken
                            cyclone
@@ -97,7 +100,7 @@
                            ikarus
                            ironscheme
                            kawa
-                           larceny
+                           ;larceny
                            loko
                            meevax
                            mit-scheme

@@ -61,7 +61,7 @@
                             guile
                             ikarus
                             ironscheme
-                            ;larceny
+                            larceny
                             loko
                             mosh
                             racket
@@ -77,7 +77,7 @@
                             gauche
                             guile
                             kawa
-                            ;larceny
+                            larceny
                             loko
                             meevax
                             mit-scheme
@@ -100,7 +100,7 @@
                            ikarus
                            ironscheme
                            kawa
-                           ;larceny
+                           larceny
                            loko
                            meevax
                            mit-scheme

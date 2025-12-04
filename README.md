@@ -53,7 +53,11 @@ OPTIONS
 
        --list-r6rs List supported R6RS implementations.
 
+       --list-r6rs-except List supported R6RS implementations, except ones given.
+
        --list-r7rs List supported R7RS implementations.
+
+       --list-r7rs-except List supported R7RS implementations, except ones given.
 
        --list-all List all supported implementations.
 

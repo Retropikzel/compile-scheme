@@ -438,7 +438,7 @@
                               ,script-file
                               " "
                               ,args)))))
-    #;(larceny
+    (larceny
     (type . interpreter)
     (command . ,(lambda (exec-cmd
                           script-file

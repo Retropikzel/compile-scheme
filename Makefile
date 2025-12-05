@@ -11,7 +11,7 @@ endif
 ifeq "${SCHEME}" "vicare"
 DOCKERIMG="vicare"
 endif
-STATIC_LIBS=libs.util.a libs.library-util.a libs.data.a libs.srfi-64-util.a
+STATIC_LIBS=libs.util.a libs.library-util.a libs.implementations.a libs.srfi-64-util.a
 
 all: build-chibi
 
@@ -28,13 +28,13 @@ build-chicken:
 	ar rcs libs.util.a libs.util.o
 	csc -R r7rs -X r7rs -static -c -J -unit libs.library-util -o libs.library-util.o libs/library-util.sld
 	ar rcs libs.library-util.a libs.library-util.o
-	csc -R r7rs -X r7rs -static -c -J -unit libs.data -o libs.data.o libs/data.sld
-	ar rcs libs.data.a libs.data.o
+	csc -R r7rs -X r7rs -static -c -J -unit libs.implementations -o libs.implementations.o libs/implementations.sld
+	ar rcs libs.implementation.a libs.implementations.o
 	csc -R r7rs -X r7rs -static \
 		-o compile-scheme \
 		-uses libs.util \
 		-uses libs.library-util \
-		-uses libs.data \
+		-uses libs.implementations \
 		-uses foreign.c \
 		-uses srfi-170 \
 		compile-scheme.scm

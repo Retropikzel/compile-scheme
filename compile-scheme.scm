@@ -110,9 +110,7 @@
                    (if input-file
                      "a.out"
                      #f))))
-    (if (and (symbol=? scheme-type 'compiler)
-             ;(symbol=? compilation-target 'php)
-             )
+    (if (and (symbol=? scheme-type 'compiler))
       (string-append outfile ".bin")
       outfile)))
 
@@ -130,10 +128,7 @@
             ((member "-o" (command-line))
              (cadr (member "-o" (command-line))))
             (input-file (string-cut-from-end input-file 4)))))
-    (if (and (symbol=? scheme-type 'compiler)
-             (symbol=? compilation-target 'php))
-      (string-append outfile ".bin")
-      outfile)))
+    outfile))
 
 (define prepend-directories
   (letrec ((looper (lambda (rest result)
@@ -210,15 +205,12 @@
          (list
            (cond
              ((symbol=? compilation-target 'windows) "")
-             ((symbol=? compilation-target 'php) "")
              (else "exec"))
            (cond
              ((symbol=? compilation-target 'windows) "%0%")
-             ((symbol=? compilation-target 'php) "$binname")
              (else "\"$0\""))
            (cond
              ((symbol=? compilation-target 'windows) "")
-             ((symbol=? compilation-target 'php) "")
              (else "\"$@\""))
            (if input-file input-file "")
            (if output-file output-file "")
@@ -283,24 +275,6 @@
                #\newline
                ,scheme-program
                )))
-          ((symbol=? compilation-target 'php)
-           (for-each
-             display
-             `("<?php"
-               " $descriptorspec = array(0 => fopen('php://stdin', 'r'), 1 => array('pipe', 'w'), 2 => fopen('php://stderr', 'w'));"
-               " $cwd = '.';"
-               " $filepath = $_SERVER['SCRIPT_FILENAME'];"
-               " $filename = $_SERVER['SCRIPT_NAME'];"
-               " $binname = '/tmp/test.bin';"
-               " system(\"tail -n+3 $filepath > $binname\");"
-               " $scheme_command = \"" ,scheme-command "\";"
-               " $process = proc_open($scheme_command, $descriptorspec, $pipes, $cwd, $_ENV);"
-               " echo stream_get_contents($pipes[1]);"
-               " die();"
-               " ?>"
-               #\newline
-               #\newline
-               ,scheme-program)))
           (else
             (for-each
               display
@@ -323,27 +297,5 @@
       (let ((exit-code (system command)))
         (when (not (= exit-code 0))
           (exit exit-code))))
-    scheme-command)
-  (cond
-    ((symbol=? compilation-target 'php)
-     (let* ((php-file (string-cut-from-end output-file 4))
-            (port (open-binary-output-file php-file))
-            (bin (slurp-bytes output-file)))
-       (for-each
-         (lambda (item) (write-bytevector (string->utf8 item) port))
-         `("<?php"
-           " $descriptorspec = array(0 => fopen('php://stdin', 'r'), 1 => array('pipe', 'w'), 2 => fopen('php://stderr', 'w'));"
-           " $cwd = '.';"
-           " $filepath = $_SERVER['SCRIPT_FILENAME'];"
-           " $binname = '/tmp/test.bin';"
-           " system(\"tail -n+3 $filepath > $binname\");"
-           " $process = proc_open($binname, $descriptorspec, $pipes, $cwd, $_ENV);"
-           " echo stream_get_contents($pipes[1]);"
-           " die();"
-           " ?>"
-           ,(string #\newline)
-           ,(string #\newline)))
-       (write-bytevector bin port)
-       (close-output-port port)))
-    (else #t)))
+    scheme-command))
 

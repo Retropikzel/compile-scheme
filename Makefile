@@ -1,3 +1,4 @@
+.SILENT: test-r6rs test-r6rs-docker test-r7rs test-r7rs-docker
 PREFIX=/usr/local
 SCHEME=chibi
 VERSION=1.0.0
@@ -100,25 +101,13 @@ test-r6rs:
 	rm -rf ${R6RSTMP}
 	mkdir -p ${R6RSTMP}
 	cp -r r6rs-testfiles/* ${R6RSTMP}/
-	cd ${R6RSTMP} && COMPILE_R7RS=${SCHEME} compile-scheme -I ./libs -o main main.sps
+	cd ${R6RSTMP} && COMPILE_R7RS=${SCHEME} compile-scheme -I ./libs -o main --debug main.sps
 	cd ${R6RSTMP} && ./main 1 2 3 > test-result.txt
 	@grep "Test successfull (\"1\" \"2\" \"3\")" ${R6RSTMP}/test-result.txt || (echo "Test failed, output: " && cat ${R6RSTMP}/test-result.txt && exit 1)
 
 test-r6rs-docker:
-	docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=${DOCKERTAG} .
+	docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=${DOCKERTAG} --quiet . > /dev/null
 	docker run -v "${PWD}":/workdir -w /workdir -t ${DOCKERTAG} sh -c "make SCHEME=${SCHEME} test-r6rs"
-
-test-r6rs-php:
-	rm -rf ${R6RSTMP}
-	mkdir -p ${R6RSTMP}
-	cp -r r6rs-php-testfiles/* ${R6RSTMP}/
-	cd ${R6RSTMP} && COMPILE_R7RS=${SCHEME} compile-scheme -t php -o main.php main.sps
-	-cd ${R6RSTMP} && php main.php > test-result.txt 2>&1
-	@grep "Test successfull" ${R6RSTMP}/test-result.txt || (echo "Test failed, output: " && cat ${R6RSTMP}/test-result.txt && exit 1)
-
-test-r6rs-php-docker:
-	docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=${DOCKERTAG} .
-	docker run -v "${PWD}":/workdir -w /workdir -t ${DOCKERTAG} sh -c "make SCHEME=${SCHEME} test-r6rs-php"
 
 test-r7rs:
 	rm -rf ${R7RSTMP}
@@ -129,7 +118,7 @@ test-r7rs:
 	@grep "Test successfull (\"1\" \"2\" \"3\")" ${R7RSTMP}/test-result.txt || (echo "Test failed, output: " && cat ${R7RSTMP}/test-result.txt && exit 1)
 
 test-r7rs-docker:
-	docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=${DOCKERTAG} .
+	docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=${DOCKERTAG} --quiet . > /dev/null
 	docker run -v "${PWD}":/workdir -w /workdir -t ${DOCKERTAG} sh -c "make SCHEME=${SCHEME} test-r7rs"
 
 test-r7rs-wine:
@@ -141,20 +130,8 @@ test-r7rs-wine:
 	@grep "Test successfull (\"1\" \"2\" \"3\")" ${R7RSTMP}/test-result.txt || (echo "Test failed, output: " && cat ${R7RSTMP}/test-result.txt && exit 1)
 
 test-r7rs-wine-docker:
-	docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=${DOCKERTAG} .
+	docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=${DOCKERTAG} --quiet . > /dev/null
 	docker run -v "${PWD}":/workdir -w /workdir -t ${DOCKERTAG} sh -c "make SCHEME=${SCHEME} test-r7rs-wine"
-
-test-r7rs-php:
-	rm -rf ${R7RSTMP}
-	mkdir -p ${R7RSTMP}
-	cp -r r7rs-php-testfiles/* ${R7RSTMP}/
-	cd ${R7RSTMP} && COMPILE_R7RS=${SCHEME} COMPILE_R7RS_TARGET=php compile-scheme -o main.php main.scm
-	-cd ${R7RSTMP} && php main.php > test-result.txt 2>&1
-	@grep "Test successfull" ${R7RSTMP}/test-result.txt || (echo "Test failed, output: " && cat ${R7RSTMP}/test-result.txt && exit 1)
-
-test-r7rs-php-docker:
-	docker build -f Dockerfile.test --build-arg IMAGE=${DOCKERIMG} --build-arg SCHEME=${SCHEME} --tag=${DOCKERTAG} .
-	docker run -v "${PWD}":/workdir -w /workdir -t ${DOCKERTAG} sh -c "make SCHEME=${SCHEME} test-r7rs-php"
 
 clean:
 	git clean -X -f

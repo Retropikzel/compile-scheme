@@ -8,7 +8,11 @@
         (libs library-util)
         (srfi 170))
 
-(define debug? (if (member "--debug" (command-line)) #t #f))
+(define debug?
+  (if (or (member "--debug" (command-line))
+          (get-environment-variable "SCHEME_COMPILE_DEBUG"))
+    #t
+    #f))
 
 (when (member "--help" (command-line))
   (display "For help see: man compile-scheme")
@@ -67,10 +71,12 @@
     ((get-environment-variable "COMPILE_SCHEME")
      (string->symbol (get-environment-variable "COMPILE_SCHEME")))
     (else #f)))
+
 (when (not scheme)
   (display "Either environment variable COMPILE_R7RS or COMPILE_SCHEME is not set." (current-error-port))
   (newline (current-error-port))
   (exit 1))
+
 (when (not (assoc scheme data)) (error "Unsupported implementation" scheme))
 
 (define input-file
@@ -163,42 +169,14 @@
   (newline)
   (exit 0))
 
-#;(define search-library-files
-  (lambda (directory)
-    (let ((result (list)))
-      (for-each
-        (lambda (file)
-          (let* ((path (string-append directory "/" file))
-                 (info (file-info path #f)))
-            (when (and (not r6rs?)
-                       (string-ends-with? path ".sld"))
-              (set! result (append result (list path))))
-            (when (and r6rs?
-                       (string-ends-with? path ".sls"))
-              (set! result (append result (list path))))
-            (if (file-info-directory? info)
-              (set! result (append result (search-library-files path))))))
-        (directory-files directory))
-      result)))
-
-#;(define library-files
-  (cond (single-library-input-file (list single-library-input-file))
-        (else
-          (apply append
-                 (map
-                   (lambda (directory)
-                     (if (file-exists? directory)
-                       (search-library-files directory)
-                       (list)))
-                   (append prepend-directories append-directories))))))
-
-(define library-files (library-dependencies scheme
-                               (append prepend-directories append-directories)
-                               (if input-file
-                                 input-file
-                                 single-library-input-file)
-                               (list)
-                               (list)))
+(define library-files
+  (library-dependencies scheme
+                        (append prepend-directories append-directories)
+                        (if input-file
+                          input-file
+                          single-library-input-file)
+                        (list)
+                        (list)))
 
 (define scheme-command
   (apply (cdr (assoc 'command (cdr (assoc scheme data))))
@@ -220,21 +198,10 @@
            r6rs?
            compilation-target)))
 
-(when debug?
-  (display "[debug] scheme-command: ")
-  (write scheme-command)
-  (newline))
-
 (define scheme-library-command
   (lambda (library-file)
     (apply (cdr (assoc 'library-command (cdr (assoc scheme data))))
       (list library-file prepend-directories append-directories r6rs?))))
-
-(when debug?
-  (display "[debug] scheme-library-command: ")
-  (write scheme-library-command)
-  (newline))
-
 
 (define list-of-features
   (letrec ((looper (lambda (rest result)
@@ -249,16 +216,25 @@
 
 (when (not (null? library-files))
   (when (assoc 'library-command (cdr (assoc scheme data)))
-         (for-each
-           (lambda (file)
-             (let* ((library-command (scheme-library-command file)))
-               (for-each
-                 (lambda (command)
-                   (let ((exit-code (system command)))
-                     (when (not (= exit-code 0))
-                       (exit exit-code))))
-                 library-command)))
-           library-files)))
+    (for-each
+      (lambda (file)
+        (let* ((library-command (scheme-library-command file)))
+          (when debug?
+            (display "[DEBUG] library-command: ")
+            (write library-command)
+            (newline))
+          (for-each
+            (lambda (command)
+              (let ((exit-code (system command)))
+                (when (not (= exit-code 0))
+                  (exit exit-code))))
+            library-command)))
+      library-files)))
+
+(when debug?
+  (display "[DEBUG] scheme-command: ")
+  (write scheme-command)
+  (newline))
 
 (when (and (equal? scheme-type 'interpreter) input-file)
   (when (and output-file (file-exists? output-file))
@@ -298,4 +274,3 @@
         (when (not (= exit-code 0))
           (exit exit-code))))
     scheme-command))
-

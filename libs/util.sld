@@ -16,8 +16,6 @@
               (scheme process-context)
               (foreign c))))
   (export system
-          echo
-          cat
           r6rs-schemes
           r7rs-schemes
           all-schemes
@@ -53,9 +51,6 @@
         (define-c-procedure c-system c-stdlib 'system 'int '(pointer))
         (define (system cmd)
           (c-system (string->c-utf8 cmd)))))
-
-    (define (echo text) (display text) (newline))
-    (define (cat path) (for-each (lambda (line) (echo line)) (file->list path)))
     (define r6rs-schemes '(capyscheme
                             chezscheme
                             guile

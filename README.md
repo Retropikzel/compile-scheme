@@ -53,11 +53,7 @@ OPTIONS
 
        --list-r6rs List supported R6RS implementations.
 
-       --list-r6rs-except List supported R6RS implementations, except ones given.
-
        --list-r7rs List supported R7RS implementations.
-
-       --list-r7rs-except List supported R7RS implementations, except ones given.
 
        --list-all List all supported implementations.
 
@@ -91,29 +87,29 @@ CAVEATS
 EXAMPLES
        Compile R6RS file with all dependencies in the same directory.
 
-              COMPILE_SCHEME=<SCHEME> compile-scheme main.sps
+              COMPILE_SCHEME=SCHEME compile-scheme main.sps
 
        Compile R7RS file with all dependencies in the same directory.
 
-              COMPILE_SCHEME=<SCHEME> compile-scheme main.scm
+              COMPILE_SCHEME=SCHEME compile-scheme main.scm
 
        Compile R6RS file with dependencies in libs directory.
 
-              COMPILE_SCHEME=<SCHEME> compile-scheme -I ./libs main.sps
+              COMPILE_SCHEME=SCHEME compile-scheme -I ./libs main.sps
 
        Compile R7RS file with dependencies in libs directory.
 
-              COMPILE_SCHEME=<SCHEME> compile-scheme -I ./libs main.scm
+              COMPILE_SCHEME=SCHEME compile-scheme -I ./libs main.scm
 
        Compile R6RS file with dependencies in libs directory, to  output  named
        foo.
 
-              COMPILE_SCHEME=<SCHEME> compile-scheme -I ./libs -o foo main.sps
+              COMPILE_SCHEME=SCHEME compile-scheme -I ./libs -o foo main.sps
 
        Compile  R7RS  file with dependencies in libs directory, to output named
        foo.
 
-              COMPILE_SCHEME=<SCHEME> compile-scheme -I ./libs -o foo main.scm
+              COMPILE_SCHEME=SCHEME compile-scheme -I ./libs -o foo main.scm
 
                                                               compile-scheme(1)
 </pre>

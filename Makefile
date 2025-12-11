@@ -102,7 +102,6 @@ test-r6rs:
 	mkdir -p ${R6RSTMP}
 	cp -r r6rs-testfiles/* ${R6RSTMP}/
 	cd ${R6RSTMP} && COMPILE_R7RS=${SCHEME} compile-scheme -I ./libs -o main --debug main.sps
-	cd ${R6RSTMP} && file main
 	cd ${R6RSTMP} && ./main 1 2 3 > test-result.txt
 	@grep "Test successfull (\"1\" \"2\" \"3\")" ${R6RSTMP}/test-result.txt || (echo "Test failed, output: " && cat ${R6RSTMP}/test-result.txt && exit 1)
 
@@ -115,7 +114,6 @@ test-r7rs:
 	mkdir -p ${R7RSTMP}
 	cp -r r7rs-testfiles/* ${R7RSTMP}/
 	cd ${R7RSTMP} && COMPILE_R7RS=${SCHEME} compile-scheme -I ./libs -o main --debug main.scm
-	cd ${R7RSTMP} && file main
 	-cd ${R7RSTMP} && ./main 1 2 3 > test-result.txt 2>&1
 	@grep "Test successfull (\"1\" \"2\" \"3\")" ${R7RSTMP}/test-result.txt || (echo "Test failed, output: " && cat ${R7RSTMP}/test-result.txt && exit 1)
 

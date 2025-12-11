@@ -1,5 +1,6 @@
-FROM debian:trixie-slim
-RUN apt-get update && apt-get install -y gcc make git libffi-dev docker.io
+FROM debian:trixie
+RUN apt-get update && apt-get install -y \
+    gcc make git libffi-dev docker.io
 WORKDIR /cache
 RUN git clone https://github.com/ashinn/chibi-scheme.git --depth=1
 WORKDIR /cache/chibi-scheme

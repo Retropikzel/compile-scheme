@@ -15,7 +15,7 @@ pipeline {
 
     parameters {
         string(name: 'R6RS_SCHEMES', defaultValue: 'capyscheme chezscheme guile ikarus ironscheme larceny loko mosh racket sagittarius ypsilon', description: '')
-            string(name: 'R7RS_SCHEMES', defaultValue: 'capyscheme chibi chicken cyclone gambit foment gauche guile kawa larceny loko meevax mit-scheme mosh racket sagittarius skint stklos tr7 ypsilon', description: '')
+        string(name: 'R7RS_SCHEMES', defaultValue: 'capyscheme chibi chicken cyclone gambit foment gauche guile kawa larceny loko meevax mit-scheme mosh racket sagittarius skint stklos tr7 ypsilon', description: '')
     }
 
     stages {
@@ -31,7 +31,7 @@ pipeline {
             when { not { branch 'release' } }
             steps {
                 script {
-                    R7RS_SCHEMES.split().each { SCHEME ->
+                    R6RS_SCHEMES.split().each { SCHEME ->
                         stage("${SCHEME} R6RS") {
                             catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                                 sh "make SCHEME=${SCHEME} test-r6rs-docker"

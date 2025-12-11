@@ -67,9 +67,9 @@
                             chibi
                             chicken
                             cyclone
-                            ;gambit
                             foment
                             gauche
+                            gambit
                             guile
                             kawa
                             larceny
@@ -88,8 +88,8 @@
                            chibi
                            chicken
                            cyclone
-                           ;gambit
                            foment
+                           gambit
                            gauche
                            guile
                            ikarus

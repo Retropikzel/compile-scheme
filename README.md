@@ -24,7 +24,7 @@ DESCRIPTION
 SUPPORTED IMPLEMENTATIONS
        Some implementations support both compiling and  interpreting,  in  that
        case  only  the compiler functionality is used and the implementation is
-       marked as compiler.
+       marked as compiler. Except currently with Gambit.
 
    R6RS Compilers
        loko

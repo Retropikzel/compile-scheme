@@ -57,5 +57,12 @@ pipeline {
                 }
             }
         }
+
+        stage('.deb package') {
+            steps {
+                sh "make deb"
+                archiveArtifacts artifacts: '*.deb', allowEmptyArchive: true, fingerprint: true, onlyIfSuccessful: true
+            }
+        }
     }
 }

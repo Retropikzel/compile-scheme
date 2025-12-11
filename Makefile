@@ -1,7 +1,7 @@
 .SILENT: test-r6rs test-r6rs-docker test-r7rs test-r7rs-docker
 PREFIX=/usr/local
 SCHEME=chibi
-VERSION=1.0.0
+VERSION=1.1.0
 R6RSTMP=.tmp/${SCHEME}-r6rs
 R7RSTMP=.tmp/${SCHEME}-r7rs
 DOCKERTAG=compile-scheme-test-${SCHEME}

@@ -29,29 +29,27 @@ pipeline {
 
         stage('Test') {
             when { not { branch 'release' } }
-            parallel {
-                stage('R6RS') {
-                    steps {
-                        script {
-                            R7RS_SCHEMES.split().each { SCHEME ->
-                                stage("${SCHEME} R6RS") {
-                                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                                        sh "make SCHEME=${SCHEME} test-r6rs-docker"
-                                    }
+            stage('R6RS') {
+                steps {
+                    script {
+                        R7RS_SCHEMES.split().each { SCHEME ->
+                            stage("${SCHEME} R6RS") {
+                                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                                    sh "make SCHEME=${SCHEME} test-r6rs-docker"
                                 }
                             }
                         }
                     }
                 }
+            }
 
-                stage('R7RS') {
-                    steps {
-                        script {
-                            R7RS_SCHEMES.split().each { SCHEME ->
-                                stage("${SCHEME} R7RS") {
-                                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                                        sh "make SCHEME=${SCHEME} test-r7rs-docker"
-                                    }
+            stage('R7RS') {
+                steps {
+                    script {
+                        R7RS_SCHEMES.split().each { SCHEME ->
+                            stage("${SCHEME} R7RS") {
+                                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                                    sh "make SCHEME=${SCHEME} test-r7rs-docker"
                                 }
                             }
                         }

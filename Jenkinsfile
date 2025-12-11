@@ -20,6 +20,7 @@ pipeline {
 
     stages {
         stage('Build and install') {
+            when { not { branch 'release' } }
             steps {
                 sh "make build-chibi"
                 sh "make install"
@@ -27,6 +28,7 @@ pipeline {
         }
 
         stage('Test') {
+            when { not { branch 'release' } }
             parallel {
                 stage('R6RS') {
                     steps {

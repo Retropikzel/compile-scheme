@@ -696,8 +696,9 @@
                                   append-directories)
                            " "
                            ,exec-cmd
-                           " tr7i -1 "
+                           " tr7i "
                            ,(util-getenv "COMPILE_R7RS_TR7")
+                           " -1 "
                            ,script-file
                            " "
                            ,args)))))

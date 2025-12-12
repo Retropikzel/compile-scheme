@@ -29,8 +29,10 @@
                                   " "
                                   ,@(map (lambda (item)
                                            (string-append "-L" " " item " "))
-                                         (append prepend-directories
-                                                 append-directories))
+                                         prepend-directories)
+                                  ,@(map (lambda (item)
+                                           (string-append "-A" " " item " "))
+                                                 append-directories)
                                   " --script "
                                   ,script-file
                                   " "

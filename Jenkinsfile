@@ -59,8 +59,9 @@ pipeline {
 
         stage('.deb package') {
             steps {
+                sh "make clean"
                 sh "make deb"
-                    archiveArtifacts artifacts: '*.deb', allowEmptyArchive: true, fingerprint: true, onlyIfSuccessful: true
+                archiveArtifacts artifacts: '*.deb', allowEmptyArchive: true, fingerprint: true, onlyIfSuccessful: true
             }
         }
     }

@@ -50,6 +50,7 @@ deb: build-gauche
 	printf "Package: compile-scheme\nArchitecture: amd64\nDepends: gauche\nVersion: ${VERSION}\nSection: misc\nMaintainer: Retropikzel <retropikzel@iki.fi>\nDescription: SRFI 138: Compiling Scheme programs to executables - Implementation\n" \
 		> deb/DEBIAN/control
 	dpkg-deb -b deb
+	cp deb.deb compile-scheme-latest.deb
 	mv deb.deb compile-scheme-${VERSION}.deb
 
 build-gauche:

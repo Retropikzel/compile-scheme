@@ -20,7 +20,7 @@
   (exit 0))
 
 (when (member "--version" (command-line))
-  (display "1.0.0")
+  (display "1.1.1")
   (newline)
   (exit 0))
 

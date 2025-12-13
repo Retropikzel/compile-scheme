@@ -14,7 +14,9 @@ DOCKERIMG="vicare"
 endif
 STATIC_LIBS=libs.util.a libs.library-util.a libs.implementations.a libs.srfi-64-util.a
 
-all: build-chibi
+all: build
+
+build: build-gauche
 
 README.md: doc/compile-scheme.1
 	printf "<pre>\n$$(MANWIDTH=80 man -l doc/compile-scheme.1)\n</pre>" > README.md

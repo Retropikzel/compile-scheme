@@ -24,7 +24,7 @@ DESCRIPTION
 SUPPORTED IMPLEMENTATIONS
        Some implementations support both compiling and  interpreting,  in  that
        case  only  the compiler functionality is used and the implementation is
-       marked as compiler. Except currently with Gambit.
+       marked as compiler.
 
    R6RS Compilers
        loko
@@ -110,6 +110,20 @@ EXAMPLES
        foo.
 
               COMPILE_SCHEME=SCHEME compile-scheme -I ./libs -o foo main.scm
+
+       Makefile for interpreter
+
+              PREFIX=/usr/local
+              SCHEME=chibi
+
+              build:
+                   COMPILE_SCHEME=${SCHEME} compile-scheme -I ${PREFIX}/lib/myapp/librarydirectory -o myapp myapp.scm
+
+              install:
+                   mkdir -p ${PREFIX}/lib/myapp
+                   cp -r librarydirectory ${PREFIX}/lib/myapp/
+                   cp  myapp.scm ${PREFIX}/lib/myapp/myapp.scm
+                   install myapp ${PREFIX}/bin/myapp
 
                                                               compile-scheme(1)
 </pre>

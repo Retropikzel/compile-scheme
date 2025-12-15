@@ -123,3 +123,22 @@ COMPILE_SCHEME=SCHEME compile-scheme -I ./libs -o foo main.sps
 Compile R7RS file with dependencies in libs directory, to output named foo.
 .IP
 COMPILE_SCHEME=SCHEME compile-scheme -I ./libs -o foo main.scm
+.P
+Makefile for interpreter
+.IP
+.nf
+.eo
+PREFIX=/usr/local
+SCHEME=chibi
+
+build:
+	COMPILE_SCHEME=${SCHEME} compile-scheme -I ${PREFIX}/lib/myapp/librarydirectory -o myapp myapp.scm
+
+install:
+	mkdir -p ${PREFIX}/lib/myapp
+	cp -r librarydirectory ${PREFIX}/lib/myapp/
+	cp  myapp.scm ${PREFIX}/lib/myapp/myapp.scm
+	install myapp ${PREFIX}/bin/myapp
+.ec
+.fi
+

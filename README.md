@@ -57,7 +57,7 @@ OPTIONS
 
        --list-all List all supported implementations.
 
-       --version Show the software version.
+       --version Show the software version.  --debug Turn on debug output.
 
        --help Shows you command to read this manual page. :)
 
@@ -69,6 +69,10 @@ ENVIRONMENT
               Either of these environment variables must be set.  Set either to
               the  name of the implementation as specified in the support list.
               This differs from SRFI-138 as the SRFI excepts a path.
+
+       COMPILE_SCHEME_DEBUG
+
+              Another way in addition to --debug to turn on debug output.
 
 STANDARDS
        SRFI    138:    Compiling    Scheme     programs     to     executables.

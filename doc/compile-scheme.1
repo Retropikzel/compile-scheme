@@ -72,6 +72,8 @@ List all supported implementations.
 .P
 \fB\-\-version\fR
 Show the software version.
+\fB\-\-debug\fR
+Turn on debug output.
 .P
 \fB\-\-help\fR
 Shows you command to read this manual page. :)
@@ -85,6 +87,11 @@ Shows you command to read this manual page. :)
 Either of these environment variables \fBmust\fR be set.
 Set either to the \fBname\fR of the implementation as specified in the support list.
 \fBThis differs from SRFI-138\fR as the SRFI excepts a path.
+
+.P
+\fBCOMPILE_SCHEME_DEBUG\fR
+.IP
+Another way in addition to --debug to turn on debug output.
 .SH STANDARDS
 .P
 SRFI 138: Compiling Scheme programs to executables.

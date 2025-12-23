@@ -60,6 +60,12 @@ build-gauche:
 	echo "gosh -r7 -I ${PREFIX}/lib/compile-scheme -I ${PREFIX}/lib/compile-scheme/libs ${PREFIX}/lib/compile-scheme/compile-scheme.scm \"\$$@\"" >> compile-scheme
 	chmod +x compile-scheme
 
+build-gauche.bat:
+	echo "@echo off" > compile-scheme.bat
+	echo "; & @echo off & gosh.exe -r7 \"%~f0\" %* & exit /b" > compile-scheme.bat
+	echo "gosh -r7 -I ${PREFIX}/lib/compile-scheme -I ${PREFIX}/lib/compile-scheme/libs ${PREFIX}/lib/compile-scheme/compile-scheme.scm \"\$$@\"" >> compile-scheme
+	chmod +x compile-scheme
+
 build-guile:
 	echo "#!/bin/sh" > compile-scheme
 	echo "guile --r7rs --auto-compile -I -q -L ${PREFIX}/lib/compile-scheme ${PREFIX}/lib/compile-scheme/compile-scheme.scm \"\$$@\"" >> compile-scheme
@@ -94,7 +100,7 @@ install:
 	install compile-scheme ${PREFIX}/bin/compile-scheme
 	mkdir -p ${PREFIX}/share/man/man1
 	cp doc/compile-scheme.1 ${PREFIX}/share/man/man1/
-	if [ -d /etc/bash_completion.d ]; then cp bash_completion.sh /etc/bash_completion.d/compile-scheme; fi
+	-if [ -d /etc/bash_completion.d ]; then cp bash_completion.sh /etc/bash_completion.d/compile-scheme; fi
 
 uninstall:
 	rm -rf ${PREFIX}/lib/compile-scheme

@@ -122,11 +122,16 @@
 
 (define compilation-target
   (cond
-    ((member "-t" (command-line))
-     (cadr (member "-t" (command-line))))
+    ((member "--target" (command-line))
+     (string->symbol (cadr (member "--target" (command-line)))))
     (else
       (cond-expand (windows 'windows)
                    (else 'unix)))))
+
+(when debug?
+  (display "compilation-target: ")
+  (write compilation-target)
+  (newline))
 
 (define output-file
   (let ((outfile
@@ -134,7 +139,14 @@
             ((member "-o" (command-line))
              (cadr (member "-o" (command-line))))
             (input-file (string-cut-from-end input-file 4)))))
-    outfile))
+    (if (symbol=? compilation-target 'windows)
+      (string-append outfile ".bat")
+      outfile)))
+
+(when debug?
+  (display "output-file: ")
+  (write output-file)
+  (newline))
 
 (define prepend-directories
   (letrec ((looper (lambda (rest result)
@@ -182,13 +194,13 @@
   (apply (cdr (assoc 'command (cdr (assoc scheme data))))
          (list
            (cond
-             ((symbol=? compilation-target 'windows) "")
+             ((symbol=? compilation-target 'windows) "; & @echo off &")
              (else "exec"))
            (cond
-             ((symbol=? compilation-target 'windows) "%0%")
+             ((symbol=? compilation-target 'windows) "\"%~f0\"")
              (else "\"$0\""))
            (cond
-             ((symbol=? compilation-target 'windows) "")
+             ((symbol=? compilation-target 'windows) "%* & exit /b")
              (else "\"$@\""))
            (if input-file input-file "")
            (if output-file output-file "")
@@ -246,11 +258,15 @@
         (cond
           ((symbol=? compilation-target 'windows)
            (for-each
+              display
+              `(,scheme-command ,scheme-program))
+           #;(for-each
              display
              `(";dir; start /WAIT " ,scheme-command " && exit"
                #\newline
                ,scheme-program
-               )))
+               ))
+           )
           (else
             (for-each
               display

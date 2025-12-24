@@ -10,6 +10,9 @@ copy libs\implementations.sld "%ProgramFiles%\compile-scheme\libs\" > nul
 copy libs\library-util.sld "%ProgramFiles%\compile-scheme\libs\" > nul
 copy libs\util.sld "%ProgramFiles%\compile-scheme\libs\" > nul
 
-where /q compile-scheme || setx PATH "%PATH%;%ProgramFiles%\compile-scheme"
+where \q compile-scheme
+IF ERRORLEVEL 1 (
+    setx PATH "%PATH%;%ProgramFiles%\compile-scheme"
+)
 
 echo Install complete

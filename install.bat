@@ -10,9 +10,9 @@ copy libs\implementations.sld "%ProgramFiles%\compile-scheme\libs\" > nul
 copy libs\library-util.sld "%ProgramFiles%\compile-scheme\libs\" > nul
 copy libs\util.sld "%ProgramFiles%\compile-scheme\libs\" > nul
 
-set pathone='%PATH: =_%'
-set pathtwo='%pathone:compile-scheme=%'
+set pathone="%PATH: =_%"
+set pathtwo="%PATH: =_%"
 
-if not "%pathone%"=="%pathtwo%" setx PATH "%PATH%;%ProgramFiles%\compile-scheme"
+if not x%pathone:compile-scheme=_%==x%pathtwo% setx PATH "%PATH%;%ProgramFiles%\compile-scheme"
 
 echo Install complete

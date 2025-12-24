@@ -194,7 +194,7 @@
   (apply (cdr (assoc 'command (cdr (assoc scheme data))))
          (list
            (cond
-             ((symbol=? compilation-target 'windows) "@echo off &")
+             ((symbol=? compilation-target 'windows) "; @echo off &")
              (else "exec"))
            (cond
              ((symbol=? compilation-target 'windows) "\"%~f0\"")
@@ -261,14 +261,7 @@
               display
               `(,scheme-command
                  #\newline
-                 ,scheme-program))
-           #;(for-each
-             display
-             `(";dir; start /WAIT " ,scheme-command " && exit"
-               #\newline
-               ,scheme-program
-               ))
-           )
+                 ,scheme-program)))
           (else
             (for-each
               display

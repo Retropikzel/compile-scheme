@@ -1,10 +1,9 @@
-@echo off
 
 if not exist "%ProgramFiles%\compile-scheme" mkdir "%ProgramFiles%\compile-scheme"
-if not exist "%ProgramFiles%\compile-scheme" mkdir "%ProgramFiles%\compile-scheme\libs"
-xcopy compile-scheme.bat "%ProgramFiles%\compile-scheme\" /y
-xcopy compile-scheme.scm "%ProgramFiles%\compile-scheme\" /y
-xcopy libs\implementations.sld "%ProgramFiles%\compile-scheme\libs\" /y
-xcopy libs\library-util.sld "%ProgramFiles%\compile-scheme\libs\" /y
-xcopy libs\util.sld "%ProgramFiles%\compile-scheme\libs\" /y
+if not exist "%ProgramFiles%\compile-scheme\libs" mkdir "%ProgramFiles%\compile-scheme\libs"
+copy compile-scheme.bat "%ProgramFiles%\compile-scheme\"
+copy compile-scheme.scm "%ProgramFiles%\compile-scheme\"
+copy libs\implementations.sld "%ProgramFiles%\compile-scheme\libs\"
+copy libs\library-util.sld "%ProgramFiles%\compile-scheme\libs\"
+copy libs\util.sld "%ProgramFiles%\compile-scheme\libs\"
 setx path "%PATH%;%ProgramFiles%\compile-scheme"

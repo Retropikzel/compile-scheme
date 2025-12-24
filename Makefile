@@ -19,7 +19,12 @@ all: build
 build: build-gauche
 
 README.md: doc/compile-scheme.1
-	printf "<pre>\n$$(MANWIDTH=80 man -l doc/compile-scheme.1)\n</pre>" > README.md
+	echo "<pre>" > README.md
+	echo "$$(MANWIDTH=80 man -l doc/compile-scheme.1)" >> README.md
+	echo "" > README.md
+	cat README_ADDITIONAL.md >> README.md
+	echo "" > README.md
+	echo "<pre>" >> README.md
 
 build-chibi:
 	echo "#!/bin/sh" > compile-scheme

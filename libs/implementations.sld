@@ -52,7 +52,7 @@
                         (let ((separator (cond-expand (windows ";") (else ":"))))
                           (apply string-append
                                  `(,exec-cmd
-                                    " chezscheme "
+                                    " scheme "
                                     ,(util-getenv "COMPILE_R7RS_CHEZSCHEME")
                                     " "
                                     ,(if (and (null? prepend-directories)

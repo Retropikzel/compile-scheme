@@ -10,6 +10,6 @@ copy libs\implementations.sld "%ProgramFiles%\compile-scheme\libs\" > nul
 copy libs\library-util.sld "%ProgramFiles%\compile-scheme\libs\" > nul
 copy libs\util.sld "%ProgramFiles%\compile-scheme\libs\" > nul
 
-setx PATH "%PATH%;%ProgramFiles%\compile-scheme"
+setx PATH "%ProgramFiles%\compile-scheme" 2>nul
 
 echo Install complete

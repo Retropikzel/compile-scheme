@@ -273,9 +273,7 @@
                             compilation-target)
                     (apply string-append
                            `(,exec-cmd
-                              ,(if (symbol=? compilation-target 'windows)
-                                 " gosh.exe "
-                                 " gosh ")
+                              " gosh "
                               ,(util-getenv "COMPILE_R7RS_GAUCHE")
                               " -r7 "
                               ,@(map (lambda (item)

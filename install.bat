@@ -10,7 +10,7 @@ copy libs\implementations.sld "%ProgramFiles%\compile-scheme\libs\" > nul
 copy libs\library-util.sld "%ProgramFiles%\compile-scheme\libs\" > nul
 copy libs\util.sld "%ProgramFiles%\compile-scheme\libs\" > nul
 
-where \q compile-scheme
+where compile-scheme 2>nul 1>nul
 IF ERRORLEVEL 1 (
     setx PATH "%PATH%;%ProgramFiles%\compile-scheme"
 )

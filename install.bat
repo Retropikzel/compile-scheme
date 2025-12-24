@@ -9,6 +9,6 @@ copy compile-scheme.scm "%ProgramFiles%\compile-scheme\"
 copy libs\implementations.sld "%ProgramFiles%\compile-scheme\libs\"
 copy libs\library-util.sld "%ProgramFiles%\compile-scheme\libs\"
 copy libs\util.sld "%ProgramFiles%\compile-scheme\libs\"
-if x"%PATH:compile-scheme=%"==x"%PATH%" setx PATH "%PATH%;%ProgramFiles%\compile-scheme"
+ECHO.%PATH% | FIND /I "compile-scheme" > nul || setx PATH "%PATH%;%ProgramFiles%\compile-scheme"
 
 echo Install complete

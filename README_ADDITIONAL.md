@@ -32,8 +32,3 @@ administrator.
 
     $env:COMPILE_SCHEME="gauche" ; compile-scheme -o main main.scm
     .\main.bat
-
-## Wine cmd
-
-    set COMPILE_SCHEME=gauche
-

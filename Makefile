@@ -24,7 +24,7 @@ README.md: doc/compile-scheme.1
 	echo "$$(MANWIDTH=80 man -l doc/compile-scheme.1)" >> README.md
 	echo "" >> README.md
 	cat README_ADDITIONAL.md >> README.md
-	echo "" >> README.md
+	echo "# Manual" >> README.md
 	echo "<pre>" >> README.md
 
 build-chibi:

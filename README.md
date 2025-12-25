@@ -171,4 +171,4 @@ EXAMPLES
                    install myapp ${PREFIX}/bin/myapp
 
                                                              compile-scheme(1)
-<pre>
+</pre>

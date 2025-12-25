@@ -1,4 +1,5 @@
 .SILENT: test-r6rs test-r6rs-docker test-r7rs test-r7rs-docker
+.PHONY: README.md
 PREFIX=/usr/local
 SCHEME=chibi
 VERSION=1.1.1

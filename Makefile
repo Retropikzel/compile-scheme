@@ -22,7 +22,7 @@ build: build-gauche
 README.md: doc/compile-scheme.1
 	echo "<pre>" > README.md
 	echo "$$(MANWIDTH=80 man -l doc/compile-scheme.1)" >> README.md
-	echo "" > README.md
+	echo "" >> README.md
 	cat README_ADDITIONAL.md >> README.md
 	echo "" >> README.md
 	echo "<pre>" >> README.md

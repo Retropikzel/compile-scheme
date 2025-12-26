@@ -555,7 +555,7 @@
                                                                  library-file))
                                  (library-rkt-file (change-file-suffix full-path ".rkt")))
                             (if r6rs?
-                              `("sleep 0") ;`(,(string-append "plt-r6rs --compile " library-file))
+                              `("sleep 0")
                               `(,(string-append "printf "
                                                 "'#lang r7rs\\n"
                                                 "(import (except (scheme base) let let-values let*-values string-copy string-copy! string-for-each string-map string-fill! string->list))\\n"

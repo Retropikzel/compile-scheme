@@ -560,7 +560,8 @@
                                                 "'#lang r7rs\\n"
                                                 "(import (except (scheme base) let let-values let*-values string-copy string-copy! string-for-each string-map string-fill! string->list))\\n"
                                                 "(include \"" (path->filename library-file) "\")\\n' > "
-                                                library-rkt-file))))))
+                                                library-rkt-file))
+                              ))))
     (command . ,(lambda (exec-cmd
                           script-file
                           args
@@ -576,18 +577,14 @@
                                           (change-file-suffix input-file ".rkt"))))
                     (apply string-append
                            `(,exec-cmd
-                              ,(if r6rs?
-                                 " plt-r6rs "
-                                 " racket ")
+                              " racket "
                               ,(util-getenv "COMPILE_R7RS_RACKET")
-                              ,(if r6rs?  "" " -I r7rs ")
+                              ,(if r6rs?  " -I scheme/init -l r6rs/run.rkt" " -I r7rs ")
                               ,@(map (lambda (item)
-                                       (string-append
-                                         (if r6rs?  " ++path " " -S ")
-                                         item " "))
+                                       (string-append " -S " item " "))
                                      (append prepend-directories
                                              append-directories))
-                              ,(if r6rs?  "" " --script ")
+                              ,(if r6rs? " " " --script ")
                               ,script-file
                               " "
                               ,args))))))

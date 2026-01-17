@@ -2,7 +2,7 @@
 .PHONY: README.md
 PREFIX=/usr/local
 SCHEME=chibi
-VERSION=1.2.0
+VERSION=1.3.0
 R6RSTMP=.tmp/${SCHEME}-r6rs
 R7RSTMP=.tmp/${SCHEME}-r7rs
 DOCKERTAG=compile-scheme-test-${SCHEME}

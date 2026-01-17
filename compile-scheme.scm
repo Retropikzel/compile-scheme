@@ -8,6 +8,8 @@
         (libs library-util)
         (srfi 170))
 
+(define compilation-targets '(unix cgi windows))
+
 (define debug?
   (if (or (member "--debug" (command-line))
           (get-environment-variable "SCHEME_COMPILE_DEBUG"))
@@ -20,7 +22,7 @@
   (exit 0))
 
 (when (member "--version" (command-line))
-  (display "1.1.1")
+  (display "1.3.0")
   (newline)
   (exit 0))
 
@@ -62,6 +64,25 @@
           (member "--list-schemes" (command-line)))
   (for-each (lambda (scheme) (display scheme) (display " ")) all-schemes)
   (newline)
+  (exit 0))
+
+(when (member "--list-targets" (command-line))
+  (for-each
+    (lambda (target)
+      (display target)
+      (display ": ")
+      (cond
+        ((symbol=? target 'unix)
+         (display "   ")
+         (display "Creates either unix executable or executable script"))
+        ((symbol=? target 'cgi)
+         (display "    ")
+         (display "Creates either unix executable or executable script that")
+         (display "works with CGI, not all implementations work with this"))
+        ((symbol=? target 'windows)
+         (display "Creates either windows executable or executable batch script")))
+      (newline))
+    compilation-targets)
   (exit 0))
 
 (define scheme
@@ -109,16 +130,6 @@
     #f))
 
 (define scheme-type (cdr (assoc 'type (cdr (assoc scheme data)))))
-
-(define compilation-target
-  (let ((outfile (if (member "-o" (command-line))
-                   (cadr (member "-o" (command-line)))
-                   (if input-file
-                     "a.out"
-                     #f))))
-    (if (and (symbol=? scheme-type 'compiler))
-      (string-append outfile ".bin")
-      outfile)))
 
 (define compilation-target
   (cond
@@ -190,18 +201,30 @@
                         (list)
                         (list)))
 
+(define scheme-command-exec-command
+  (cond
+    ((symbol=? compilation-target 'windows) "; @echo off &")
+    ((symbol=? compilation-target 'cgi) "#!/usr/bin/env -S")
+    (else "exec")))
+
+(define scheme-command-script-file
+  (cond
+    ((symbol=? compilation-target 'windows) "\"%~f0\"")
+    ((symbol=? compilation-target 'cgi) "")
+    ((symbol=? compilation-target 'cgi) "")
+    (else "\"$0\"")))
+
+(define scheme-command-args
+  (cond
+    ((symbol=? compilation-target 'windows) "%* & exit /b")
+    ((symbol=? compilation-target 'cgi) "")
+    (else "\"$@\"")))
+
 (define scheme-command
   (apply (cdr (assoc 'command (cdr (assoc scheme data))))
-         (list
-           (cond
-             ((symbol=? compilation-target 'windows) "; @echo off &")
-             (else "exec"))
-           (cond
-             ((symbol=? compilation-target 'windows) "\"%~f0\"")
-             (else "\"$0\""))
-           (cond
-             ((symbol=? compilation-target 'windows) "%* & exit /b")
-             (else "\"$@\""))
+         (list scheme-command-exec-command
+               scheme-command-script-file
+               scheme-command-args
            (if input-file input-file "")
            (if output-file output-file "")
            prepend-directories
@@ -258,10 +281,16 @@
         (cond
           ((symbol=? compilation-target 'windows)
            (for-each
-              display
-              `(,scheme-command
-                 #\newline
-                 ,scheme-program)))
+             display
+             `(,scheme-command
+                #\newline
+                ,scheme-program)))
+          ((symbol=? compilation-target 'cgi)
+           (for-each
+             display
+             `(,scheme-command
+                #\newline
+                ,scheme-program)))
           (else
             (for-each
               display
@@ -273,8 +302,10 @@
                 "|#"
                 #\newline
                 ,scheme-program))))))
-    (cond ((symbol=? compilation-target 'unix)
-           (system (string-append "chmod +x " output-file))))))
+    (cond
+      ((or (symbol=? compilation-target 'unix)
+           (symbol=? compilation-target 'cgi))
+       (system (string-append "chmod +x " output-file))))))
 
 (when (and (symbol=? scheme-type 'compiler) input-file)
   (when (and output-file (file-exists? output-file))

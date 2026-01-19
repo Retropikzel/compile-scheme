@@ -395,7 +395,9 @@
                             compilation-target)
                     (apply string-append
                            `(,exec-cmd
-                              " kawa -J--add-exports=java.base/jdk.internal.foreign=ALL-UNNAMED -J--enable-native-access=ALL-UNNAMED --r7rs --full-tailcalls"
+                              ,(if (symbol=? compilation-target 'cgi)
+                                 "kawa --r7rs --full-tailcalls"
+                                 " kawa -J--add-exports=java.base/jdk.internal.foreign.abi=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign.layout=ALL-UNNAMED -J--add-exports=java.base/jdk.internal.foreign=ALL-UNNAMED -J--enable-native-access=ALL-UNNAMED -J--enable-preview --r7rs --full-tailcalls")
                               ,(util-getenv "COMPILE_R7RS_KAWA")
                               " -Dkawa.import.path="
                               ,@(map (lambda (item)

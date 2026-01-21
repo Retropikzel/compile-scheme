@@ -553,7 +553,7 @@
                              `(,(if (symbol=? compilation-target 'cgi)
                                   exec-cmd
                                   "")
-                                " IKARUS_LIBRARY_PATH="
+                                " "
                                 ,(if (> (length dirs) 0)
                                    (string-append
                                      " MOSH_LOADPATH="

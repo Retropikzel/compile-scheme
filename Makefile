@@ -17,7 +17,7 @@ STATIC_LIBS=libs.util.a libs.library-util.a libs.implementations.a libs.srfi-64-
 
 all: build
 
-build: build-gauche
+build: build-chicken
 
 README.md: doc/compile-scheme.1
 	echo "" > README.md
@@ -48,14 +48,11 @@ build-chicken:
 		-uses srfi-170 \
 		compile-scheme.scm
 
-deb: build-gauche
+deb: build-chicken
 	mkdir -p deb/usr/local/bin
 	cp compile-scheme deb/usr/local/bin/
-	mkdir -p deb/usr/local/lib/compile-scheme
-	cp compile-scheme.scm deb/usr/local/lib/compile-scheme/
-	cp -r libs/ deb/usr/local/lib/compile-scheme/
 	mkdir -p deb/DEBIAN
-	printf "Package: compile-scheme\nArchitecture: amd64\nDepends: gauche\nVersion: ${VERSION}\nSection: misc\nMaintainer: Retropikzel <retropikzel@iki.fi>\nDescription: SRFI 138: Compiling Scheme programs to executables - Implementation\n" \
+	printf "Package: compile-scheme\nArchitecture: amd64\nVersion: ${VERSION}\nSection: misc\nMaintainer: Retropikzel <retropikzel@iki.fi>\nDescription: SRFI 138: Compiling Scheme programs to executables - Implementation\n" \
 		> deb/DEBIAN/control
 	dpkg-deb -b deb
 	cp deb.deb compile-scheme-latest.deb

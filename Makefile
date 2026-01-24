@@ -17,7 +17,7 @@ STATIC_LIBS=libs.util.a libs.library-util.a libs.implementations.a libs.srfi-64-
 
 all: build
 
-build: build-chicken
+build: build-gauche
 
 README.md: doc/compile-scheme.1
 	echo "" > README.md
